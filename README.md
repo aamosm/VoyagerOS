@@ -4,7 +4,8 @@
 
 A browser-based operating system for the fictional Voyager-9 deep-space probe.
 
-**Devlog:** https://stardance.hackclub.com/projects/29189
+**Live:** https://aamosm.github.io/VoyagerOS <br>
+**Devlog:** https://stardance.hackclub.com/projects/31884
 
 </div>
 

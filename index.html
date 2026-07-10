@@ -1,0 +1,122 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vgr-9 environment</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css');
+
+        :root {
+            --bg: #000;
+            --desk: #050505;
+            --fg: #e0e0e0;
+            --acc: #d4a373;
+        }
+
+        body {
+            font-family: 'Hack', ui-monospace, monospace;
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.90)), url('Images/deepspace.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--fg);
+            overflow: hidden;
+            margin: 0;
+            user-select: none;
+            height: 100vh;
+            display: flex;
+        }
+
+        .cursor::after {
+            content: '█';
+            animation: blink 1s step-start infinite;
+            margin-left: 4px;
+            color: var(--acc);
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #boot {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            transition: opacity 0.8s;
+        }
+        .wrap { width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div id="boot">
+        <div class="wrap">
+            <div id="out"></div>
+            <div id="prompt" style="display:none; margin-top: 2rem;">
+                <span style="color:var(--acc)">> press [enter] to wake.</span><span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const seq = [
+            "> connection established.",
+            "> probe: voyager-9",
+            "> distance: 13.5 billion light years",
+            "> systems online."
+        ];
+        
+        const out = document.getElementById('out');
+        const prompt = document.getElementById('prompt');
+        const boot = document.getElementById('boot');
+        
+        let ready = false;
+        let skipped = false;
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function type(str, el) {
+            el.classList.add('cursor');
+            for (let i = 0; i < str.length; i++) {
+                if (skipped) {
+                    el.textContent = str;
+                    break;
+                }
+                el.textContent += str[i];
+                await sleep(30);
+            }
+            el.classList.remove('cursor');
+        }
+
+        async function init() {
+            await sleep(500);
+            for (let msg of seq) {
+                let d = document.createElement('div');
+                out.appendChild(d);
+                await type(msg, d);
+                if (!skipped) await sleep(200);
+            }
+            prompt.style.display = 'block';
+            ready = true;
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                if (!ready) {
+                    skipped = true;
+                    return;
+                }
+                
+                ready = false;
+                boot.style.opacity = 0;
+                
+                setTimeout(() => {
+                    window.location.href = 'os.html';
+                }, 800);
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

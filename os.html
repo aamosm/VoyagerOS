@@ -1,0 +1,567 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vgr-9 environment</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css');
+
+        :root {
+            --fg: #d0d0d0;
+            --bg: #050505;
+            --border: #333;
+            --hlt: #6a8a84;
+            --err: #b35b5b;
+        }
+
+        body {
+            font-family: 'Hack', monospace;
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('Images/deepspace.jpg') center/cover fixed;
+            color: var(--fg);
+            overflow: hidden;
+            margin: 0;
+            height: 100vh;
+        }
+
+        .hud {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            text-align: right;
+            color: #666;
+            font-size: 0.8rem;
+            pointer-events: none;
+            line-height: 1.4;
+        }
+
+        .hud span { color: var(--hlt); }
+
+        .win {
+            position: absolute;
+            border: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.95);
+            display: none;
+            flex-direction: column;
+            min-width: 350px;
+            resize: both;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+        }
+
+        .win.active { display: flex; }
+        
+        .win.max {
+            top: 0 !important; left: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            resize: none;
+        }
+
+        .win.min {
+            height: 24px !important;
+            min-height: 0 !important;
+            resize: none;
+        }
+
+        .win.min .body { display: none; }
+
+        .hdr {
+            background: var(--border);
+            color: #aaa;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ctrls { display: flex; gap: 8px; }
+        .ctrl { cursor: pointer; }
+        .ctrl:hover { color: #fff; }
+
+        .body {
+            padding: 10px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #tty1 { width: 600px; height: 400px; left: 40px; top: 40px; }
+        #viewer { width: 400px; left: 660px; top: 80px; }
+
+        #out {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            min-height: 0;
+        }
+
+        .in-line { display: flex; gap: 8px; align-items: center; }
+        .prompt { color: var(--hlt); white-space: nowrap; }
+
+        input {
+            background: transparent;
+            border: none;
+            color: var(--fg);
+            font-family: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            outline: none;
+        }
+
+        .remote-link:hover {
+            text-decoration: underline !important;
+            color: #fff !important;
+        }
+
+        .btn-close:hover {
+            background: var(--err);
+            color: #fff !important;
+        }
+        
+        .btn-next:hover {
+            background: #fff;
+            color: #000 !important;
+        }
+
+        .highlight {
+            color: #000;
+            background: var(--hlt);
+            padding: 0 2px;
+        }
+
+        .archive-wrapper {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            height: calc(100% - 50px);
+            overflow: hidden; 
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+
+        .archive-iframe {
+            width: 100%;
+            height: calc(100% + 55px);
+            margin-top: -55px; 
+            border: none;
+            filter: invert(1) grayscale(1) contrast(1.2) brightness(0.9);
+            background: #fff; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div>v9-sysd // core</div>
+        <div>up: <span id="uptime">00:00:00</span></div>
+        <div>v: <span id="vel">28500.0 km/s</span></div>
+        <div>t: <span id="temp">2.7 k</span></div>
+        <div style="color:var(--err)">link: -84 dbm</div>
+    </div>
+
+    <div id="viewer" class="win" data-pid="18" data-cmd="doc_viewer">
+        <div class="hdr">
+            <span>[18] doc_viewer</span>
+            <div class="ctrls">
+                <span class="ctrl min">_</span>
+                <span class="ctrl max">□</span>
+                <span class="ctrl close">x</span>
+            </div>
+        </div>
+        <div class="body" style="color: #999;">
+            README.txt<br><br>
+            vgr-9 remote diagnostic interface.<br>
+            use the terminal (tty1) to explore ship logs.<br>
+            <br>
+            hint: try typing 'read manual.txt' to view system documentation.
+        </div>
+    </div>
+
+    <div id="tty1" class="win active" data-pid="14" data-cmd="bash">
+        <div class="hdr">
+            <span>[14] tty1</span>
+            <div class="ctrls">
+                <span class="ctrl min">_</span>
+                <span class="ctrl max">□</span>
+            </div>
+        </div>
+        <div class="body">
+            <div id="out"></div>
+            <div class="in-line">
+                <span class="prompt">operator@vgr9:~$</span>
+                <input type="text" id="cmd" autocomplete="off" spellcheck="false" autofocus>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sys_t = 0;
+        let v0 = 28500.0;
+        
+        setInterval(() => {
+            sys_t++;
+            let h = String(Math.floor(sys_t / 3600)).padStart(2, '0');
+            let m = String(Math.floor((sys_t % 3600) / 60)).padStart(2, '0');
+            let s = String(sys_t % 60).padStart(2, '0');
+            document.getElementById('uptime').textContent = `${h}:${m}:${s}`;
+
+            if (sys_t % 3 === 0) {
+                let diff = (Math.random() * 4 - 2).toFixed(1);
+                document.getElementById('vel').textContent = `${(v0 + parseFloat(diff)).toLocaleString()} km/s`;
+            }
+            if (sys_t % 5 === 0) {
+                let diff = (Math.random() * 0.4 - 0.2).toFixed(2);
+                document.getElementById('temp').textContent = `${(2.7 + parseFloat(diff)).toFixed(2)} k`;
+            }
+        }, 1000);
+
+        // Window Manager
+        const wm = {
+            z: 10,
+            pids: Array.from(document.querySelectorAll('.win')),
+            
+            init() {
+                this.pids.forEach(w => this.bind(w));
+            },
+
+            bind(w) {
+                let hdr = w.querySelector('.hdr');
+                let d = false, sx, sy, wx, wy;
+
+                w.addEventListener('mousedown', () => w.style.zIndex = ++this.z);
+
+                hdr.addEventListener('mousedown', e => {
+                    if (e.target.classList.contains('ctrl')) return;
+                    d = true;
+                    sx = e.clientX; sy = e.clientY;
+                    wx = w.offsetLeft; wy = w.offsetTop;
+                });
+
+                window.addEventListener('mousemove', e => {
+                    if (!d || w.classList.contains('max')) return;
+                    let nx = Math.max(-w.offsetWidth + 40, Math.min(window.innerWidth - 40, wx + (e.clientX - sx)));
+                    let ny = Math.max(0, Math.min(window.innerHeight - 30, wy + (e.clientY - sy)));
+                    w.style.left = nx + 'px';
+                    w.style.top = ny + 'px';
+                });
+
+                window.addEventListener('mouseup', () => d = false);
+
+                let xBtn = w.querySelector('.close');
+                if (xBtn) xBtn.addEventListener('click', () => this.kill(w.dataset.pid));
+                
+                let minBtn = w.querySelector('.min');
+                if (minBtn) minBtn.addEventListener('click', () => {
+                    w.classList.toggle('min'); w.classList.remove('max');
+                });
+                
+                let maxBtn = w.querySelector('.max');
+                if (maxBtn) maxBtn.addEventListener('click', () => {
+                    w.classList.toggle('max'); w.classList.remove('min');
+                });
+            },
+
+            spawn(cmd) {
+                let target = this.pids.find(w => w.dataset.cmd === cmd);
+                if (target) {
+                    target.classList.add('active');
+                    target.style.zIndex = ++this.z;
+                    return target.dataset.pid;
+                }
+                return null;
+            },
+
+            build(title, html, wide = false) {
+                let id = Math.floor(Math.random() * 900) + 100;
+                let win = document.createElement('div');
+                win.className = 'win active';
+                win.dataset.pid = String(id);
+                win.dataset.cmd = `viewer_${id}`;
+                win.dataset.dyn = "1";
+                
+                let offset = (this.pids.length * 30) % 300;
+                win.style.left = (150 + offset) + 'px';
+                win.style.top = (100 + offset) + 'px';
+                
+                win.style.width = wide ? '750px' : '600px';
+                win.style.height = wide ? '550px' : '450px';
+                
+                html = html.replace(/{{PID}}/g, id);
+                
+                win.innerHTML = `
+                    <div class="hdr">
+                        <span>[${id}] ${title}</span>
+                        <div class="ctrls">
+                            <span class="ctrl min">_</span>
+                            <span class="ctrl max">□</span>
+                            <span class="ctrl close">x</span>
+                        </div>
+                    </div>
+                    <div class="body" style="color: #bbb; overflow-y: auto;">
+                        ${html}
+                    </div>
+                `;
+                
+                document.body.appendChild(win);
+                this.pids.push(win);
+                this.bind(win);
+                win.style.zIndex = ++this.z;
+                return id;
+            },
+
+            kill(id) {
+                let idx = this.pids.findIndex(w => w.dataset.pid === String(id));
+                if (idx !== -1) {
+                    let p = this.pids[idx];
+                    if (p.dataset.dyn === "1") {
+                        p.remove();
+                        this.pids.splice(idx, 1);
+                    } else {
+                        p.classList.remove('active');
+                    }
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        wm.init();
+
+        window.openArchiveViewer = function(id, title, query) {
+            let safeTitle = title.replace(/"/g, '&quot;');
+            let qParam = query ? `?query=${encodeURIComponent(query)}` : '';
+            
+            let html = `
+                <div style="color:var(--hlt); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                    <span>ENTITY: ${safeTitle}<br>UID: ${id}</span>
+                    <span style="text-align: right; color: #666; font-size: 0.7rem;">SRC: SUBSPACE DATABANKS<br>UPLINK: SECURE</span>
+                </div>
+                <div class="archive-wrapper">
+                    <!-- The sandbox attribute securely prevents the embed from redirecting the page or opening popups -->
+                    <iframe src="https://archive.org/embed/${id}${qParam}" class="archive-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+            `;
+            let pid = wm.build(`visualizer`, html, true);
+            echo(`remote visualizer mounted at PID ${pid}.`);
+        };
+
+        window.fetchArchive = function(query, page, pid = null) {
+            let safeQ = encodeURIComponent(`title:("${query}") AND mediatype:texts`);
+            let pageParam = page > 1 ? `&page=${page}` : '';
+            
+            if (pid) {
+                let w = wm.pids.find(x => x.dataset.pid === String(pid));
+                if(w) w.querySelector('.body').innerHTML = '<div style="color:#aaa;">querying subspace archives...</div>';
+            }
+
+            fetch(`https://archive.org/advancedsearch.php?q=${safeQ}&fl[]=title,description,identifier&sort[]=downloads+desc&output=json&rows=1${pageParam}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.response.docs.length > 0) {
+                        let d = data.response.docs[0];
+                        let title = d.title || "UNKNOWN";
+                        let desc = d.description || "NO PREVIEW METADATA EXTRACTED.";
+                        if (Array.isArray(desc)) desc = desc[0];
+                        
+                        let rawText = new DOMParser().parseFromString(desc, 'text/html').body.textContent || "";
+                        let escapeQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                        let rx = new RegExp(`(${escapeQuery})`, 'gi');
+                        let fmt = rawText.replace(rx, '<span class="highlight">$1</span>').replace(/\n/g, '<br>');
+                        
+                        let safeQueryStr = query.replace(/'/g, "\\'");
+                        let safeTitleStr = title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                        
+                        let html = `
+                            <div style="color:var(--fg); margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px;">RECORD // ${title} (PAGE ${page})</div>
+                            <div style="margin-bottom: 20px; line-height: 1.6;">${fmt}</div>
+                            <div><span class="remote-link" onclick="window.openArchiveViewer('${d.identifier}', '${safeTitleStr}', '${safeQueryStr}')" style="color: var(--hlt); cursor: pointer;">[ MOUNT REMOTE VISUALIZER ]</span></div>
+                            <div style="margin-top: 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
+                                <span class="btn-close" onclick="wm.kill('{{PID}}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
+                                <span class="btn-next" onclick="window.fetchArchive('${safeQueryStr}', ${page + 1}, '{{PID}}')" style="cursor: pointer; color: var(--fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ next record &gt; ]</span>
+                            </div>
+                        `;
+
+                        if (pid) {
+                            let w = wm.pids.find(x => x.dataset.pid === String(pid));
+                            if (w) w.querySelector('.body').innerHTML = html.replace(/{{PID}}/g, pid);
+                        } else {
+                            let newPid = wm.build(`ext: ${query.substring(0, 10)}`, html);
+                            echo(`record retrieved. process mounted at PID ${newPid}.`);
+                        }
+                    } else {
+                        if (pid) {
+                            let w = wm.pids.find(x => x.dataset.pid === String(pid));
+                            if (w) w.querySelector('.body').innerHTML = `
+                                <div style="color:var(--err); margin-bottom: 20px;">end of archive results for '${query}'.</div>
+                                <div style="border-top: 1px solid var(--border); padding-top: 10px;">
+                                    <span class="btn-close" onclick="wm.kill('${pid}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
+                                </div>
+                            `;
+                        } else {
+                            echo(`scan: no external match for '${query}'.`);
+                        }
+                    }
+                })
+                .catch(err => {
+                    if(!pid) echo("scan: uplink failure.");
+                    else {
+                        let w = wm.pids.find(x => x.dataset.pid === String(pid));
+                        if (w) w.querySelector('.body').innerHTML = `<div style="color:var(--err)">uplink failure.</div>`;
+                    }
+                });
+        };
+
+        const input = document.getElementById('cmd');
+        const out = document.getElementById('out');
+        const hist = [];
+        let cur = 0;
+
+        const echo = t => {
+            let el = document.createElement('div');
+            el.innerHTML = t;
+            out.appendChild(el);
+            out.scrollTop = out.scrollHeight;
+        };
+
+        const fs = {
+            'readme.txt': 'vgr-9 remote diagnostic interface.\nuse tty1 to manage processes.',
+            'manual.txt': 'VGR-9 COMMAND MANUAL\n====================\n\nhelp [<command>]\n  Displays manual or specific command info.\n  Example: help scan\n\nscan [-r <query>]\n  Lists local files. The -r flag queries subspace archives.\n  Example: scan -r apollo 11\n\nread <file>\n  Outputs file contents to standard output.\n  Example: read anomaly.log\n\nopen <process>\n  Allocates and mounts a GUI window.\n  Example: open doc_viewer\n\nping <host>\n  Tests subspace connection latency to a target.\n  Example: ping earth\n\nclose <pid>\n  Terminates a process by its PID.\n  Example: close 104',
+            'portfolio.md': 'OPERATOR LOGS\n----------------\n> web dev protocols established.\n> architecture patterns stable.\n> github link pending.',
+            'mission_logs.txt': '[DAY 4021] systems nominal. autonomous drift continues.',
+            'anomaly.log': '[ERR] chronometer mismatch. local time drift detected.\n[WARN] spatial displacement > 13.5B ly.',
+            'nav_cache.bin': '0xDEADBEEF: checksum failed. star map unreadable.',
+            'telemetry.log': '[WARN] connection unstable. packet loss 12%.'
+        };
+
+        const docs = {
+            'help': 'help [<cmd>]         :: print manual or command info.',
+            'scan': 'scan                 :: list local directory contents.\nscan -r <query>      :: query external subspace archives.',
+            'read': 'read <file>          :: stream file to stdout.',
+            'open': 'open <target>        :: mount GUI window process.',
+            'close': 'close <pid>         :: send SIGKILL to window process.',
+            'ping': 'ping <host>          :: ICMP echo request.',
+            'nav': 'nav                  :: calculate stellar coordinates.',
+            'sensors': 'sensors              :: poll external hull telemetry.',
+            'ps': 'ps                   :: list active process IDs.',
+            'whoami': 'whoami               :: print effective operator entity.'
+        };
+
+        echo("vgr-9 bash - type 'help' for coreutils.\n");
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (cur > 0) input.value = hist[--cur];
+                return;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (cur < hist.length - 1) input.value = hist[++cur];
+                else { cur = hist.length; input.value = ''; }
+                return;
+            }
+
+            if (e.key !== 'Enter') return;
+            
+            let val = input.value.trim();
+            if (!val) return;
+            
+            echo(`<span style="color:var(--hlt)">operator@vgr9:~$</span> ${val}`);
+            hist.push(val);
+            cur = hist.length;
+            input.value = '';
+            
+            let args = val.split(' ').filter(Boolean);
+            let cmd = args[0].toLowerCase();
+
+            switch(cmd) {
+                case 'help':
+                    if (args[1]) {
+                        echo(docs[args[1]] || `no manual entry for '${args[1]}'`);
+                    } else {
+                        Object.keys(docs).forEach(k => echo(docs[k]));
+                        echo("\n[hint] type 'read manual.txt' for detailed examples.");
+                    }
+                    break;
+                case 'ls':
+                case 'scan':
+                    if (args[1] === '-r' || args[1] === '--remote') {
+                        let query = args.slice(2).join(' ');
+                        if (!query) {
+                            echo("usage: scan -r <query>");
+                            break;
+                        }
+                        echo(`querying external archives for: '${query}'...`);
+                        window.fetchArchive(query, 1);
+                    } else {
+                        echo(Object.keys(fs).join('  ') + '  bin/');
+                    }
+                    break;
+                case 'cat':
+                case 'read':
+                    if (!args[1]) echo("read: missing operand");
+                    else echo(fs[args[1]] || `read: ${args[1]}: no such file`);
+                    break;
+                case 'ps':
+                    echo("PID   CMD");
+                    wm.pids.forEach(p => {
+                        if (p.classList.contains('active')) echo(`${p.dataset.pid.padEnd(5)} ${p.dataset.cmd}`);
+                    });
+                    break;
+                case 'kill':
+                case 'close':
+                    if (!args[1]) echo("close: missing pid");
+                    else if (args[1] === "14") echo("close: permission denied");
+                    else if (wm.kill(args[1])) echo(`killed ${args[1]}`);
+                    else echo(`close: pid ${args[1]} not found`);
+                    break;
+                case 'spawn':
+                case 'open':
+                    let tgt = args[1] || 'doc_viewer';
+                    let p = wm.spawn(tgt);
+                    if (p) echo(`mounted ${tgt} [${p}]`);
+                    else echo(`open: ${tgt}: not found`);
+                    break;
+                case 'nav':
+                    echo("resolving coordinates...");
+                    setTimeout(() => {
+                        echo("RA: 12h 36m 49.4s | Dec: +62° 12′ 58″");
+                        echo("[WARN] parallax validation failed. est distance: 13.5B ly.");
+                    }, 500);
+                    break;
+                case 'sensors':
+                    echo("ext_radiation: 3.4 mSv/hr");
+                    echo("ext_cameras: OFFLINE");
+                    break;
+                case 'ping':
+                    let h = args[1] || '127.0.0.1';
+                    if (['localhost', '127.0.0.1', 'vgr9'].includes(h)) {
+                        echo(`PING ${h}: time<1ms ttl=64`);
+                    } else if (h === 'earth' || h === 'origin') {
+                        echo(`PING ${h} (origin): 56 data bytes`);
+                        setTimeout(() => echo(`Request timeout. Dist: 13.5B ly.`), 800);
+                    } else {
+                        echo(`PING ${h}: 56 data bytes`);
+                        setTimeout(() => echo(`Request timeout. Route unavailable.`), 800);
+                    }
+                    break;
+                case 'whoami':
+                    echo("uid=1000(operator) species=homo_sapiens classification=terran auth=level_9");
+                    break;
+                case 'clear':
+                    out.innerHTML = '';
+                    break;
+                default:
+                    echo(`bash: ${cmd}: command not found`);
+            }
+        });
+
+        document.addEventListener('click', () => input.focus());
+    </script>
+</body>
+</html>

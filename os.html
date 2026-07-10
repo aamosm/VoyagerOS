@@ -7,561 +7,1315 @@
         @import url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css');
 
         :root {
-            --fg: #d0d0d0;
-            --bg: #050505;
-            --border: #333;
-            --hlt: #6a8a84;
+            --bg: #000;
+            --desk: #050505;
+            --fg: #e0e0e0;
+            --acc: #6a8a84;
             --err: #b35b5b;
+            --term-fg: #d0d0d0;
+            --win-bg: rgba(10, 10, 10, 0.95);
+            --tb-h: 32px;
+            --border: #333;
+            --spacing-mod: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
-            font-family: 'Hack', monospace;
-            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('Images/deepspace.jpg') center/cover fixed;
+            font-family: 'Hack', ui-monospace, monospace;
+            background-color: var(--desk);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: multiply;
             color: var(--fg);
             overflow: hidden;
             margin: 0;
             height: 100vh;
+            display: flex;
+            transition: background 0.3s;
         }
 
-        .hud {
+        body.hide-hud .desktop-hud { display: none; }
+        body.dense-ui { --spacing-mod: 0.7; font-size: 0.85em; }
+
+        .desktop {
             position: absolute;
-            top: 1rem;
-            right: 1.5rem;
+            inset: 0;
+            bottom: var(--tb-h);
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            padding: calc(10px * var(--spacing-mod));
+            gap: calc(15px * var(--spacing-mod));
+            z-index: 1;
+        }
+
+        .desk-icon, .exp-item {
+            width: calc(75px * var(--spacing-mod));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: calc(8px * var(--spacing-mod)) calc(4px * var(--spacing-mod));
+            border: 1px solid transparent;
+            text-align: center;
+            transition: background 0.1s;
+        }
+        .desk-icon:hover, .desk-icon.sel, .exp-item:hover, .exp-item.sel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .desk-icon.drag-over, .exp-item.drag-over {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--acc);
+        }
+        .icon-svg {
+            width: calc(32px * var(--spacing-mod));
+            height: calc(32px * var(--spacing-mod));
+            margin-bottom: 5px;
+            color: var(--fg);
+        }
+        .icon-svg.acc-tint { color: var(--acc); }
+        
+        .desk-icon .label, .exp-item .label {
+            font-size: 0.75rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            word-break: break-all;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .desktop-hud {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             text-align: right;
             color: #666;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             pointer-events: none;
-            line-height: 1.4;
+            line-height: 1.5;
+            z-index: 5;
+            text-shadow: 1px 1px 2px #000;
         }
-
-        .hud span { color: var(--hlt); }
+        .desktop-hud span { color: var(--acc); }
 
         .win {
             position: absolute;
             border: 1px solid var(--border);
-            background: rgba(10, 10, 10, 0.95);
+            background: var(--win-bg);
             display: none;
             flex-direction: column;
             min-width: 350px;
+            min-height: 200px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
             resize: both;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
         }
-
         .win.active { display: flex; }
-        
-        .win.max {
+        .win.maximized {
             top: 0 !important; left: 0 !important;
-            width: 100vw !important; height: 100vh !important;
+            width: 100vw !important;
+            height: calc(100vh - var(--tb-h)) !important;
             resize: none;
         }
 
-        .win.min {
-            height: 24px !important;
-            min-height: 0 !important;
-            resize: none;
-        }
-
-        .win.min .body { display: none; }
-
-        .hdr {
+        .win-bar {
             background: var(--border);
-            color: #aaa;
-            padding: 2px 8px;
+            color: #bbb;
+            padding: calc(6px * var(--spacing-mod)) 12px;
             font-size: 0.8rem;
             cursor: move;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
+        .win-ctrls { display: flex; gap: 12px; }
+        .w-btn { cursor: pointer; transition: 0.1s; color: #888; }
+        .w-btn:hover { color: #fff; }
+        .w-btn.close:hover { color: var(--err); }
 
-        .ctrls { display: flex; gap: 8px; }
-        .ctrl { cursor: pointer; }
-        .ctrl:hover { color: #fff; }
-
-        .body {
-            padding: 10px;
+        .win-content {
+            padding: calc(12px * var(--spacing-mod));
             font-size: 0.85rem;
-            line-height: 1.4;
+            line-height: 1.5;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            user-select: text;
+            -webkit-user-select: text;
         }
 
-        #tty1 { width: 600px; height: 400px; left: 40px; top: 40px; }
-        #viewer { width: 400px; left: 660px; top: 80px; }
+        .win-bar, .win-bar *, .taskbar, .taskbar *, .w-btn {
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-        #out {
+        #term { width: 680px; height: 460px; left: 50px; top: 50px; }
+        #settings { width: 550px; height: 500px; left: 150px; top: 100px; }
+
+        .term-out {
             flex-grow: 1;
             overflow-y: auto;
             margin-bottom: 8px;
             white-space: pre-wrap;
             word-break: break-word;
-            min-height: 0;
+            color: var(--term-fg);
         }
+        .term-in { display: flex; gap: 8px; align-items: center; }
+        .term-prompt { color: var(--acc); white-space: nowrap; }
 
-        .in-line { display: flex; gap: 8px; align-items: center; }
-        .prompt { color: var(--hlt); white-space: nowrap; }
-
-        input {
+        input, textarea {
             background: transparent;
             border: none;
-            color: var(--fg);
+            color: inherit;
             font-family: inherit;
             font-size: inherit;
             flex-grow: 1;
             outline: none;
+            user-select: text;
+            -webkit-user-select: text;
+            resize: none;
         }
 
-        .remote-link:hover {
-            text-decoration: underline !important;
-            color: #fff !important;
+        .taskbar {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: var(--tb-h);
+            background: rgba(5,5,5,0.98);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            z-index: 10000;
+            font-size: 0.8rem;
         }
 
-        .btn-close:hover {
-            background: var(--err);
-            color: #fff !important;
+        .menu-trig {
+            height: 100%;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--acc);
+            border-right: 1px solid var(--border);
+            font-weight: bold;
         }
-        
-        .btn-next:hover {
-            background: #fff;
-            color: #000 !important;
-        }
+        .menu-trig:hover, .menu-trig.open { background: rgba(255,255,255,0.05); color: #fff; }
 
-        .highlight {
-            color: #000;
-            background: var(--hlt);
-            padding: 0 2px;
-        }
-
-        .archive-wrapper {
+        .tb-tasks {
             flex-grow: 1;
-            position: relative;
-            width: 100%;
-            height: calc(100% - 50px);
-            overflow: hidden; 
-            border: 1px solid var(--border);
-            background: #fff;
+            display: flex;
+            height: 100%;
+            overflow-x: auto;
         }
 
-        .archive-iframe {
-            width: 100%;
-            height: calc(100% + 55px);
-            margin-top: -55px; 
-            border: none;
-            filter: invert(1) grayscale(1) contrast(1.2) brightness(0.9);
-            background: #fff; 
+        .tb-item {
+            height: 100%;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-right: 1px solid var(--border);
+            cursor: pointer;
+            color: #888;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        .tb-item.foc { color: #fff; background: rgba(255,255,255,0.08); border-bottom: 2px solid var(--acc); }
+        .tb-item:hover { color: #ccc; }
+        .tb-pid { color: #555; font-size: 0.65rem; }
+
+        .tb-clock {
+            padding: 0 16px;
+            border-left: 1px solid var(--border);
+            color: #666;
+            font-size: 0.75rem;
+        }
+
+        .start-menu {
+            position: absolute;
+            bottom: var(--tb-h);
+            left: 0;
+            width: 260px;
+            background: rgba(12,12,12,0.98);
+            border: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            box-shadow: 2px -2px 15px rgba(0,0,0,0.8);
+        }
+        .start-menu.open { display: flex; }
+        .sm-item {
+            padding: calc(12px * var(--spacing-mod)) 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #1a1a1a;
+            color: #ddd;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .sm-item:hover { background: rgba(255,255,255,0.05); padding-left: 20px; transition: 0.2s ease padding; }
+        .sm-sub { color: #666; font-size: 0.7rem; }
+        .sm-hdr {
+            padding: 10px 16px;
+            color: #444;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            background: #080808;
+        }
+
+        .settings-sec { margin-bottom: 20px; }
+        .settings-sec h4 { margin: 0 0 10px 0; color: var(--acc); font-weight: normal; font-size: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        .grid-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .opt-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: #aaa;
+            padding: calc(10px * var(--spacing-mod));
+            cursor: pointer;
+            text-align: center;
+            font-family: inherit;
+            font-size: 0.75rem;
+            transition: 0.15s;
+        }
+        .opt-btn:hover { border-color: #666; color: #fff; }
+        .opt-btn.sel { border-color: var(--acc); background: rgba(255,255,255,0.05); color: #fff; }
+
+        .exp-bar { display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; align-items: center; }
+        .exp-path-disp { flex-basis: 100%; display: flex; align-items: center; gap: 4px; color: var(--term-fg); font-size: 0.8rem; border: 1px solid #222; padding: 6px 8px; background: #080808; overflow-x: auto; white-space: nowrap; }
+        .bc-link { cursor: pointer; padding: 2px 4px; transition: 0.1s; border-radius: 2px; }
+        .bc-link:hover { background: rgba(255,255,255,0.1); color: var(--acc); }
+        .bc-link.droppable { border: 1px dashed transparent; }
+        .bc-link.drag-over { border-color: var(--acc); background: rgba(106,138,132,0.2); }
+        
+        .exp-grid { display: flex; flex-wrap: wrap; gap: 10px; align-content: flex-start; overflow-y: auto; flex-grow: 1; position: relative; }
+        
+        .viewer-text { white-space: pre-wrap; overflow-y: auto; color: #ccc; font-family: inherit; font-size: 0.85rem; padding: 8px; border: 1px solid var(--border); flex-grow: 1; outline: none;}
+        .hl { color: var(--acc); }
+        .err { color: var(--err); }
+
+        .archive-wrapper { flex-grow: 1; position: relative; width: 100%; height: calc(100% - 50px); overflow: hidden; border: 1px solid var(--border); background: #fff; }
+        .archive-iframe { width: 100%; height: calc(100% + 55px); margin-top: -55px; border: none; filter: invert(1) grayscale(1) contrast(1.2) brightness(0.9); background: #fff; }
+        .remote-link:hover { text-decoration: underline !important; color: #fff !important; }
+
+        
+        .sys-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .sys-modal-box { background: var(--win-bg); border: 1px solid var(--acc); padding: 20px; min-width: 320px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .sys-modal-in { width: 100%; padding: 8px; margin: 15px 0; background: #050505; color: #fff; border: 1px solid var(--border); font-family: inherit; }
+        .sys-modal-in:focus { border-color: var(--acc); }
+        .sys-modal-btn { padding: 6px 16px; background: transparent; border: 1px solid var(--border); color: #fff; cursor: pointer; margin-left: 10px; transition: 0.1s; }
+        .sys-modal-btn:hover { border-color: var(--acc); color: var(--acc); }
     </style>
 </head>
 <body>
 
-    <div class="hud">
-        <div>v9-sysd // core</div>
-        <div>up: <span id="uptime">00:00:00</span></div>
-        <div>v: <span id="vel">28500.0 km/s</span></div>
-        <div>t: <span id="temp">2.7 k</span></div>
-        <div style="color:var(--err)">link: -84 dbm</div>
+    <div class="desktop" id="desktop"></div>
+
+    <div class="desktop-hud">
+        <div>vgr-9 os // deep survey</div>
+        <div>up: <span id="hud-up">00:00:00</span></div>
+        <div>v: <span id="hud-v">28500.0</span> km/s</div>
+        <div>t: <span id="hud-t">2.70</span> k</div>
     </div>
 
-    <div id="viewer" class="win" data-pid="18" data-cmd="doc_viewer">
-        <div class="hdr">
-            <span>[18] doc_viewer</span>
-            <div class="ctrls">
-                <span class="ctrl min">_</span>
-                <span class="ctrl max">□</span>
-                <span class="ctrl close">x</span>
+    <div id="term" class="win" data-pid="10" data-app="terminal">
+        <div class="win-bar">
+            <span>[10] tty1</span>
+            <div class="win-ctrls">
+                <span class="w-btn min">_</span>
+                <span class="w-btn max">□</span>
             </div>
         </div>
-        <div class="body" style="color: #999;">
-            README.txt<br><br>
-            vgr-9 remote diagnostic interface.<br>
-            use the terminal (tty1) to explore ship logs.<br>
-            <br>
-            hint: try typing 'read manual.txt' to view system documentation.
+        <div class="win-content" id="term-wrap" style="cursor: text;">
+            <div class="term-out" id="term-out"></div>
+            <div class="term-in">
+                <span class="term-prompt" id="prompt-txt">sys@vgr9:~$</span>
+                <input type="text" id="term-in" autocomplete="off" spellcheck="false" autofocus>
+            </div>
         </div>
     </div>
 
-    <div id="tty1" class="win active" data-pid="14" data-cmd="bash">
-        <div class="hdr">
-            <span>[14] tty1</span>
-            <div class="ctrls">
-                <span class="ctrl min">_</span>
-                <span class="ctrl max">□</span>
+    <div id="settings" class="win" data-pid="11" data-app="settings">
+        <div class="win-bar">
+            <span>[11] sys_settings</span>
+            <div class="win-ctrls">
+                <span class="w-btn min">_</span>
+                <span class="w-btn close">x</span>
             </div>
         </div>
-        <div class="body">
-            <div id="out"></div>
-            <div class="in-line">
-                <span class="prompt">operator@vgr9:~$</span>
-                <input type="text" id="cmd" autocomplete="off" spellcheck="false" autofocus>
+        <div class="win-content" style="overflow-y: auto;">
+            <div class="settings-sec">
+                <h4>System Wallpaper</h4>
+                <div class="grid-opts" id="bg-grid"></div>
+            </div>
+            <div class="settings-sec">
+                <h4>Accent Color</h4>
+                <div class="grid-opts" id="acc-grid">
+                    <button class="opt-btn" data-val="#6a8a84" style="color:#6a8a84">Muted Teal</button>
+                    <button class="opt-btn" data-val="#4af626" style="color:#4af626">Matrix Green</button>
+                    <button class="opt-btn" data-val="#ffb000" style="color:#ffb000">Amber</button>
+                    <button class="opt-btn" data-val="#00f0ff" style="color:#00f0ff">Cyan Grid</button>
+                    <button class="opt-btn" data-val="#b35b5b" style="color:#b35b5b">Alert Red</button>
+                    <button class="opt-btn" data-val="#d0d0d0" style="color:#d0d0d0">Monochrome</button>
+                </div>
+            </div>
+            <div class="settings-sec">
+                <h4>Terminal Foreground</h4>
+                <div class="grid-opts" id="fg-grid">
+                    <button class="opt-btn" data-val="#d0d0d0" style="color:#d0d0d0">Standard</button>
+                    <button class="opt-btn" data-val="#4af626" style="color:#4af626">Matrix</button>
+                    <button class="opt-btn" data-val="#ffb000" style="color:#ffb000">Amber</button>
+                    <button class="opt-btn" data-val="#00f0ff" style="color:#00f0ff">Cyan</button>
+                </div>
+            </div>
+            <div class="settings-sec">
+                <h4>Display Preferences</h4>
+                <div class="grid-opts" id="pref-grid">
+                    <button class="opt-btn" data-setting="density" data-val="normal">Normal Density</button>
+                    <button class="opt-btn" data-setting="density" data-val="compact">Compact Density</button>
+                    <button class="opt-btn" data-setting="hud" data-val="show">Show HUD</button>
+                    <button class="opt-btn" data-setting="hud" data-val="hide">Hide HUD</button>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="start-menu" id="start-menu">
+        <div class="sm-hdr">Installed Packages</div>
+        <div class="sm-item" data-run="terminal">
+            <span>Terminal</span>
+            <span class="sm-sub">Command interface</span>
+        </div>
+        <div class="sm-item" data-run="explorer">
+            <span>Explorer</span>
+            <span class="sm-sub">Filesystem visualizer</span>
+        </div>
+        <div class="sm-item" data-run="settings">
+            <span>Settings</span>
+            <span class="sm-sub">System configuration</span>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div class="menu-trig" id="menu-btn">◈ VGR-9</div>
+        <div class="tb-tasks" id="tb-tasks"></div>
+        <div class="tb-clock" id="tb-clock">00:00:00</div>
     </div>
 
     <script>
-        let sys_t = 0;
-        let v0 = 28500.0;
-        
-        setInterval(() => {
-            sys_t++;
-            let h = String(Math.floor(sys_t / 3600)).padStart(2, '0');
-            let m = String(Math.floor((sys_t % 3600) / 60)).padStart(2, '0');
-            let s = String(sys_t % 60).padStart(2, '0');
-            document.getElementById('uptime').textContent = `${h}:${m}:${s}`;
+        const qs = s => document.querySelector(s);
+        const ce = t => document.createElement(t);
 
-            if (sys_t % 3 === 0) {
-                let diff = (Math.random() * 4 - 2).toFixed(1);
-                document.getElementById('vel').textContent = `${(v0 + parseFloat(diff)).toLocaleString()} km/s`;
-            }
-            if (sys_t % 5 === 0) {
-                let diff = (Math.random() * 0.4 - 0.2).toFixed(2);
-                document.getElementById('temp').textContent = `${(2.7 + parseFloat(diff)).toFixed(2)} k`;
-            }
-        }, 1000);
+        // Icon Library SVG Paths
+        const ICONS = {
+            dir: `<svg class="icon-svg acc-tint" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
+            file: `<svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
+            trash: `<svg class="icon-svg" style="color:var(--err)" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`
+        };
 
-        // Window Manager
-        const wm = {
-            z: 10,
-            pids: Array.from(document.querySelectorAll('.win')),
-            
-            init() {
-                this.pids.forEach(w => this.bind(w));
-            },
+        const themes = [
+            { id: 'deepspace', name: 'Deep Space', bg: "linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://cdn.pixabay.com/photo/2016/09/08/20/52/starry-sky-1655503_1280.jpg')" },
+            { id: 'nebula', name: 'Nebula', bg: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')" },
+            { id: 'planet', name: 'Exoplanet', bg: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1920&q=80')" },
+            { id: 'cyber', name: 'Terminal Net', bg: "linear-gradient(rgba(0,26,10,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')" },
+            { id: 'neon', name: 'Neon Grid', bg: "linear-gradient(rgba(10,0,20,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80')" },
+            { id: 'void', name: 'Absolute Void', bg: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80')" }
+        ];
 
-            bind(w) {
-                let hdr = w.querySelector('.hdr');
-                let d = false, sx, sy, wx, wy;
-
-                w.addEventListener('mousedown', () => w.style.zIndex = ++this.z);
-
-                hdr.addEventListener('mousedown', e => {
-                    if (e.target.classList.contains('ctrl')) return;
-                    d = true;
-                    sx = e.clientX; sy = e.clientY;
-                    wx = w.offsetLeft; wy = w.offsetTop;
-                });
-
-                window.addEventListener('mousemove', e => {
-                    if (!d || w.classList.contains('max')) return;
-                    let nx = Math.max(-w.offsetWidth + 40, Math.min(window.innerWidth - 40, wx + (e.clientX - sx)));
-                    let ny = Math.max(0, Math.min(window.innerHeight - 30, wy + (e.clientY - sy)));
-                    w.style.left = nx + 'px';
-                    w.style.top = ny + 'px';
-                });
-
-                window.addEventListener('mouseup', () => d = false);
-
-                let xBtn = w.querySelector('.close');
-                if (xBtn) xBtn.addEventListener('click', () => this.kill(w.dataset.pid));
-                
-                let minBtn = w.querySelector('.min');
-                if (minBtn) minBtn.addEventListener('click', () => {
-                    w.classList.toggle('min'); w.classList.remove('max');
-                });
-                
-                let maxBtn = w.querySelector('.max');
-                if (maxBtn) maxBtn.addEventListener('click', () => {
-                    w.classList.toggle('max'); w.classList.remove('min');
-                });
-            },
-
-            spawn(cmd) {
-                let target = this.pids.find(w => w.dataset.cmd === cmd);
-                if (target) {
-                    target.classList.add('active');
-                    target.style.zIndex = ++this.z;
-                    return target.dataset.pid;
+        const defaultFs = {
+            'Desktop': {
+                type: 'dir',
+                content: {
+                    'readme.txt': { type: 'file', body: 'vgr-9 environment.\nTerminal provides core access.\nUse `read manual.txt` or explore via the Explorer to get started.' },
+                    'System': { type: 'dir', content: { 'config.ini': { type: 'file', body: '[deep_survey]\nboot_mode=fast\ndiag_level=verbose' } } },
+                    'Logs': { type: 'dir', content: { 'sys.log': { type: 'file', body: '[SYS] Boot sequence initiated.\n[SYS] Storage mounted.' } } },
+                    'Media': { type: 'dir', content: {} }
                 }
-                return null;
             },
+            'manual.txt': { type: 'file', body: `VGR-9 COMMAND REFERENCE\n\nhelp [cmd]           :: Shows manual.\nls                   :: Lists contents.\nls -r [query]        :: Searches Archive.\ncd [dir]             :: Changes directory.\npwd                  :: Prints directory.\nread [file]          :: Prints file.\nmkdir [dir]          :: Creates folder.\ntouch [file]         :: Creates file.\nrm [target]          :: Moves to Trash.\nopen [target]        :: Opens app/file.\nclose [pid]          :: Closes window.\nps                   :: Lists processes.\nwhoami               :: Displays user.\nclear                :: Clears terminal.` },
+            'Trash': { type: 'dir', content: {} }
+        };
 
-            build(title, html, wide = false) {
-                let id = Math.floor(Math.random() * 900) + 100;
-                let win = document.createElement('div');
-                win.className = 'win active';
-                win.dataset.pid = String(id);
-                win.dataset.cmd = `viewer_${id}`;
-                win.dataset.dyn = "1";
-                
-                let offset = (this.pids.length * 30) % 300;
-                win.style.left = (150 + offset) + 'px';
-                win.style.top = (100 + offset) + 'px';
-                
-                win.style.width = wide ? '750px' : '600px';
-                win.style.height = wide ? '550px' : '450px';
-                
-                html = html.replace(/{{PID}}/g, id);
-                
-                win.innerHTML = `
-                    <div class="hdr">
-                        <span>[${id}] ${title}</span>
-                        <div class="ctrls">
-                            <span class="ctrl min">_</span>
-                            <span class="ctrl max">□</span>
-                            <span class="ctrl close">x</span>
-                        </div>
-                    </div>
-                    <div class="body" style="color: #bbb; overflow-y: auto;">
-                        ${html}
-                    </div>
-                `;
-                
-                document.body.appendChild(win);
-                this.pids.push(win);
-                this.bind(win);
-                win.style.zIndex = ++this.z;
-                return id;
-            },
+        const sysState = {
+            t: 0, v: 28500.0, tmp: 2.7,
+            conf: { bg: 'deepspace', fg: '#d0d0d0', acc: '#6a8a84', dense: 'normal', hud: 'show' },
+            fs: null,
+            clipboard: null
+        };
 
-            kill(id) {
-                let idx = this.pids.findIndex(w => w.dataset.pid === String(id));
-                if (idx !== -1) {
-                    let p = this.pids[idx];
-                    if (p.dataset.dyn === "1") {
-                        p.remove();
-                        this.pids.splice(idx, 1);
-                    } else {
-                        p.classList.remove('active');
-                    }
-                    return true;
-                }
-                return false;
+        const sysModal = (title, content, callback, showInput = false) => {
+            let m = ce('div');
+            m.className = 'sys-modal';
+            m.innerHTML = `
+                <div class="sys-modal-box">
+                    <div style="color:var(--acc); margin-bottom: 10px; font-weight: bold;">${title}</div>
+                    <div style="font-size: 0.85rem; margin-bottom: 10px; color: #ccc;">${content}</div>
+                    ${showInput ? `<input type="text" class="sys-modal-in" spellcheck="false" autocomplete="off">` : ''}
+                    <div style="text-align: right; margin-top: 15px;">
+                        <button class="sys-modal-btn sys-cancel" style="color:#aaa; border-color:#555;">Cancel</button>
+                        <button class="sys-modal-btn sys-ok">Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(m);
+            let inp = m.querySelector('.sys-modal-in');
+            if(inp) inp.focus();
+
+            const close = () => m.remove();
+            m.querySelector('.sys-cancel').onclick = close;
+            m.querySelector('.sys-ok').onclick = () => {
+                if(callback) callback(showInput ? (inp ? inp.value.trim() : true) : true);
+                close();
+            };
+            if(inp) {
+                inp.onkeydown = e => { if(e.key === 'Enter') m.querySelector('.sys-ok').click(); }
             }
         };
 
-        wm.init();
+        const saveSys = () => {
+            localStorage.setItem('vgr9_conf', JSON.stringify(sysState.conf));
+            localStorage.setItem('vgr9_fs', JSON.stringify(sysState.fs));
+        };
+
+        const loadSys = () => {
+            try { 
+                const c = localStorage.getItem('vgr9_conf');
+                if (c) Object.assign(sysState.conf, JSON.parse(c));
+                const f = localStorage.getItem('vgr9_fs');
+                if (f) sysState.fs = JSON.parse(f);
+                else sysState.fs = JSON.parse(JSON.stringify(defaultFs));
+            } catch(e) {
+                sysState.fs = JSON.parse(JSON.stringify(defaultFs));
+            }
+            if(!sysState.fs['Trash']) sysState.fs['Trash'] = {type:'dir', content:{}};
+            if(!sysState.fs['Desktop']) sysState.fs['Desktop'] = {type:'dir', content:{}};
+            applyConf();
+        };
+
+        const applyConf = () => {
+            const t = themes.find(x => x.id === sysState.conf.bg) || themes[0];
+            document.body.style.background = t.bg + ' center/cover fixed';
+            document.documentElement.style.setProperty('--term-fg', sysState.conf.fg);
+            document.documentElement.style.setProperty('--acc', sysState.conf.acc);
+            
+            document.body.classList.toggle('dense-ui', sysState.conf.dense === 'compact');
+            document.body.classList.toggle('hide-hud', sysState.conf.hud === 'hide');
+            
+            document.querySelectorAll('#bg-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.bg));
+            document.querySelectorAll('#fg-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.fg));
+            document.querySelectorAll('#acc-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.acc));
+            
+            document.querySelectorAll('#pref-grid .opt-btn[data-setting="density"]').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.dense));
+            document.querySelectorAll('#pref-grid .opt-btn[data-setting="hud"]').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.hud));
+        };
+
+        const buildSettings = () => {
+            const bgGrid = qs('#bg-grid');
+            bgGrid.innerHTML = '';
+            themes.forEach(t => {
+                let btn = ce('button');
+                btn.className = 'opt-btn';
+                btn.dataset.val = t.id;
+                btn.textContent = t.name;
+                bgGrid.appendChild(btn);
+            });
+            
+            qs('#bg-grid').onclick = e => {
+                if(!e.target.classList.contains('opt-btn')) return;
+                sysState.conf.bg = e.target.dataset.val;
+                saveSys(); applyConf();
+            };
+            qs('#fg-grid').onclick = e => {
+                if(!e.target.classList.contains('opt-btn')) return;
+                sysState.conf.fg = e.target.dataset.val;
+                saveSys(); applyConf();
+            };
+            qs('#acc-grid').onclick = e => {
+                if(!e.target.classList.contains('opt-btn')) return;
+                sysState.conf.acc = e.target.dataset.val;
+                saveSys(); applyConf();
+            };
+            qs('#pref-grid').onclick = e => {
+                if(!e.target.classList.contains('opt-btn')) return;
+                let s = e.target.dataset.setting;
+                let v = e.target.dataset.val;
+                if(s === 'density') sysState.conf.dense = v;
+                if(s === 'hud') sysState.conf.hud = v;
+                saveSys(); applyConf();
+            };
+        };
+
+        const resolvePath = (base, target) => {
+            if (!target) return base;
+            if (target === '/') return '/';
+            let p = target.startsWith('/') ? [] : (base === '/' ? [] : base.split('/'));
+            for (let part of target.split('/')) {
+                if (part === '.' || !part) continue;
+                if (part === '..') p.pop();
+                else p.push(part);
+            }
+            return '/' + p.join('/');
+        };
+
+        const getNode = path => {
+            if (path === '/') return { type: 'dir', content: sysState.fs };
+            let parts = path.split('/').filter(Boolean);
+            let curr = sysState.fs;
+            for (let i = 0; i < parts.length; i++) {
+                if (!curr[parts[i]]) return null;
+                if (i === parts.length - 1) return curr[parts[i]];
+                if (curr[parts[i]].type !== 'dir') return null;
+                curr = curr[parts[i]].content;
+            }
+            return null;
+        };
+
+        const getParentNode = path => {
+            if (path === '/') return null;
+            let parts = path.split('/').filter(Boolean);
+            parts.pop();
+            return getNode('/' + parts.join('/'));
+        };
+
+        const fsUpdated = () => {
+            saveSys();
+            renderDesktop();
+            document.querySelectorAll('.win[data-app^="explorer_"]').forEach(w => {
+                if(w.expRender) w.expRender();
+            });
+        };
+
+        const makeNode = (path, name, isDir, body = '') => {
+            let p = getNode(path);
+            if (!p || p.type !== 'dir') return false;
+            if (p.content[name]) return false;
+            p.content[name] = isDir ? { type: 'dir', content: {} } : { type: 'file', body: body };
+            fsUpdated();
+            return true;
+        };
+
+        const renameNode = (path, newName) => {
+            if (!newName || newName.includes('/')) return false;
+            let pNode = getParentNode(path);
+            let oldName = path.split('/').pop();
+            if (!pNode || !pNode.content[oldName] || pNode.content[newName]) return false;
+            pNode.content[newName] = pNode.content[oldName];
+            delete pNode.content[oldName];
+            fsUpdated();
+            return true;
+        };
+
+        const cloneNode = node => JSON.parse(JSON.stringify(node));
+
+        const moveNode = (src, destDir, isCopy = false) => {
+            if(src === destDir || destDir.startsWith(src + '/')) return false;
+            let sNode = getNode(src);
+            let dNode = getNode(destDir);
+            if(!sNode || !dNode || dNode.type !== 'dir') return false;
+
+            let name = src.split('/').pop();
+            let finalName = name;
+            let c = 1;
+            while(dNode.content[finalName]) finalName = `${name}_${c++}`;
+            
+            dNode.content[finalName] = isCopy ? cloneNode(sNode) : sNode;
+            
+            if(!isCopy) {
+                let pNode = getParentNode(src);
+                delete pNode.content[name];
+            }
+            fsUpdated();
+            return true;
+        };
+
+        const delNode = path => {
+            if (path === '/' || path === '/Desktop' || path === '/Trash') return false;
+            let p = getParentNode(path);
+            let name = path.split('/').pop();
+            if (!p || !p.content[name]) return false;
+            
+            if (!path.startsWith('/Trash/')) {
+                moveNode(path, '/Trash');
+                return true; 
+            }
+            
+            delete p.content[name];
+            fsUpdated();
+            return true;
+        };
+
+        const attachDragDrop = (el, path, isDir, onNavigate) => {
+            el.draggable = true;
+            el.ondragstart = e => {
+                e.dataTransfer.setData('text/plain', path);
+                e.dataTransfer.effectAllowed = 'move';
+            };
+            if(isDir) {
+                el.ondragover = e => {
+                    e.preventDefault();
+                    el.classList.add('drag-over');
+                };
+                el.ondragleave = e => el.classList.remove('drag-over');
+                el.ondrop = e => {
+                    e.preventDefault();
+                    el.classList.remove('drag-over');
+                    let src = e.dataTransfer.getData('text/plain');
+                    if(src && src !== path) {
+                        moveNode(src, path);
+                    }
+                };
+            }
+        };
+
+        const renderDesktop = () => {
+            const d = qs('#desktop');
+            d.innerHTML = '';
+            let deskNode = getNode('/Desktop');
+            if(!deskNode) return;
+            
+            let tIcon = ce('div');
+            tIcon.className = 'desk-icon';
+            tIcon.innerHTML = `${ICONS.trash}<div class="label">Trash</div>`;
+            tIcon.ondblclick = () => openExplorer('/Trash');
+            attachDragDrop(tIcon, '/Trash', true);
+            d.appendChild(tIcon);
+
+            Object.keys(deskNode.content).sort().forEach(k => {
+                let n = deskNode.content[k];
+                let full = `/Desktop/${k}`;
+                let el = ce('div');
+                el.className = 'desk-icon';
+                el.innerHTML = `${n.type === 'dir' ? ICONS.dir : ICONS.file}<div class="label">${k}</div>`;
+                el.ondblclick = () => {
+                    if (n.type === 'dir') openExplorer(full);
+                    else openViewer(k, n.body, full);
+                };
+                attachDragDrop(el, full, n.type === 'dir');
+                d.appendChild(el);
+            });
+            
+            d.ondragover = e => e.preventDefault();
+            d.ondrop = e => {
+                e.preventDefault();
+                let src = e.dataTransfer.getData('text/plain');
+                if(src && !src.startsWith('/Desktop/')) {
+                    moveNode(src, '/Desktop');
+                }
+            };
+        };
+
+        const wm = {
+            z: 10,
+            wins: [],
+            
+            init() {
+                document.querySelectorAll('.win').forEach(w => {
+                    this.wins.push(w);
+                    this.bind(w);
+                });
+                this.renderTb();
+            },
+            
+            bind(w) {
+                w.onmousedown = () => this.focus(w);
+                const bar = w.querySelector('.win-bar');
+                let d = false, sx, sy, wx, wy;
+
+                bar.onmousedown = e => {
+                    if (e.target.classList.contains('w-btn')) return;
+                    d = true; sx = e.clientX; sy = e.clientY;
+                    wx = w.offsetLeft; wy = w.offsetTop;
+                };
+                window.addEventListener('mousemove', e => {
+                    if (!d || w.classList.contains('maximized')) return;
+                    w.style.left = Math.max(-w.offsetWidth + 50, Math.min(window.innerWidth - 50, wx + (e.clientX - sx))) + 'px';
+                    w.style.top = Math.max(0, Math.min(window.innerHeight - 50, wy + (e.clientY - sy))) + 'px';
+                });
+                window.addEventListener('mouseup', () => d = false);
+
+                w.querySelector('.close')?.addEventListener('click', () => this.kill(w.dataset.pid));
+                w.querySelector('.min')?.addEventListener('click', e => {
+                    e.stopPropagation(); w.classList.add('min'); w.classList.remove('active'); this.renderTb();
+                });
+                w.querySelector('.max')?.addEventListener('click', e => {
+                    e.stopPropagation(); w.classList.toggle('maximized'); this.focus(w);
+                });
+            },
+
+            focus(w) {
+                if (!w) return;
+                w.classList.remove('min');
+                w.classList.add('active');
+                w.style.zIndex = ++this.z;
+                this.renderTb();
+                const inp = w.querySelector('input, textarea');
+                if (inp) inp.focus();
+            },
+
+            spawn(app) {
+                if (app === 'explorer') {
+                    return openExplorer('/');
+                }
+                let target = this.wins.find(w => w.dataset.app === app);
+                if (target) { this.focus(target); return target.dataset.pid; }
+                return null;
+            },
+
+            kill(pid) {
+                let idx = this.wins.findIndex(w => String(w.dataset.pid) === String(pid));
+                if (idx < 0) return false;
+                let w = this.wins[idx];
+                if (w.dataset.dyn === "1") { w.remove(); this.wins.splice(idx, 1); }
+                else { w.classList.remove('active'); w.classList.add('min'); }
+                this.renderTb();
+                return true;
+            },
+
+            renderTb() {
+                const tb = qs('#tb-tasks');
+                tb.innerHTML = '';
+                let topZ = -1, topW = null;
+                this.wins.forEach(w => {
+                    if (!w.classList.contains('active') || w.classList.contains('min')) return;
+                    let z = parseInt(w.style.zIndex || 0);
+                    if (z > topZ) { topZ = z; topW = w; }
+                });
+
+                this.wins.forEach(w => {
+                    if (!w.classList.contains('active') && !w.classList.contains('min') && w.dataset.dyn !== "1") return;
+                    if (!w.classList.contains('active') && !w.classList.contains('min')) return;
+
+                    let name = w.dataset.title || w.querySelector('.win-bar span')?.textContent.replace(/^\[\d+\]\s*/, '') || w.dataset.app;
+                    let isFoc = (w === topW && !w.classList.contains('min'));
+                    
+                    let el = ce('div');
+                    el.className = 'tb-item' + (isFoc ? ' foc' : '');
+                    el.innerHTML = `<span class="tb-pid">${w.dataset.pid}</span> <span>${name}</span>`;
+                    el.onclick = () => {
+                        if (w.classList.contains('min')) this.focus(w);
+                        else if (isFoc) { w.classList.add('min'); w.classList.remove('active'); this.renderTb(); }
+                        else this.focus(w);
+                    };
+                    tb.appendChild(el);
+                });
+            }
+        };
+
+        const openViewer = (title, content, path = null) => {
+            let id = Math.floor(Math.random() * 900) + 100;
+            let w = ce('div');
+            w.className = 'win active';
+            w.dataset.pid = id;
+            w.dataset.app = `file_${id}`;
+            w.dataset.dyn = "1";
+            w.dataset.title = title;
+            
+            let off = (wm.wins.length * 25) % 200;
+            w.style.left = (250 + off) + 'px';
+            w.style.top = (150 + off) + 'px';
+            w.style.width = '550px'; w.style.height = '400px';
+
+            w.innerHTML = `
+                <div class="win-bar"><span>[${id}] ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
+                <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
+                    <textarea class="viewer-text" spellcheck="false">${content}</textarea>
+                    <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
+                        <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">[Save]</span>
+                    </div>
+                </div>
+            `;
+            
+            w.querySelector('.save-btn').onclick = () => {
+                let v = w.querySelector('textarea').value;
+                if(path) {
+                    let n = getNode(path);
+                    if(n && n.type === 'file') { n.body = v; fsUpdated(); }
+                }
+                w.querySelector('.save-btn').textContent = '[Saved]';
+                setTimeout(()=>w.querySelector('.save-btn').textContent = '[Save]', 1000);
+            };
+
+            document.body.appendChild(w);
+            wm.wins.push(w);
+            wm.bind(w);
+            wm.focus(w);
+            return id;
+        };
+
+        const openExplorer = (initPath = '/') => {
+            let id = Math.floor(Math.random() * 900) + 100;
+            let w = ce('div');
+            w.className = 'win active';
+            w.dataset.pid = id;
+            w.dataset.app = `explorer_${id}`;
+            w.dataset.dyn = "1";
+            w.dataset.title = `Explorer`;
+            
+            let off = (wm.wins.length * 25) % 200;
+            w.style.left = (100 + off) + 'px';
+            w.style.top = (100 + off) + 'px';
+            w.style.width = '600px'; w.style.height = '450px';
+
+            let curPath = initPath;
+            let selItem = null;
+
+            w.innerHTML = `
+                <div class="win-bar"><span>[${id}] Explorer</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
+                <div class="win-content" style="display:flex; flex-direction:column; padding: 5px;">
+                    <div class="exp-bar">
+                        <span class="w-btn exp-up" title="Up Directory">[^]</span>
+                        <span class="w-btn exp-nd" title="New Folder">+[Dir]</span>
+                        <span class="w-btn exp-nf" title="New File">+[File]</span>
+                        <span class="w-btn exp-ren" title="Rename">[Ren]</span>
+                        <span class="w-btn exp-cp" title="Copy">[Copy]</span>
+                        <span class="w-btn exp-mv" title="Cut">[Cut]</span>
+                        <span class="w-btn exp-pt" title="Paste">[Paste]</span>
+                        <span class="w-btn exp-prop" title="Properties">[Props]</span>
+                        <span class="w-btn exp-del" title="Delete" style="color:var(--err)">[Del]</span>
+                        <div class="exp-path-disp"></div>
+                    </div>
+                    <div class="exp-grid"></div>
+                </div>
+            `;
+
+            const grid = w.querySelector('.exp-grid');
+            const pDisp = w.querySelector('.exp-path-disp');
+
+            w.expRender = () => {
+                grid.innerHTML = '';
+                
+                
+                let parts = curPath.split('/').filter(Boolean);
+                let bcHtml = `<span class="bc-link droppable" data-path="/">/</span>`;
+                let acc = "";
+                parts.forEach(p => {
+                    acc += "/" + p;
+                    bcHtml += `<span class="bc-link droppable" data-path="${acc}">${p}</span> / `;
+                });
+                pDisp.innerHTML = bcHtml;
+                
+                pDisp.querySelectorAll('.bc-link').forEach(bl => {
+                    bl.onclick = () => { curPath = bl.dataset.path; w.expRender(); };
+                    bl.ondragover = e => { e.preventDefault(); bl.classList.add('drag-over'); };
+                    bl.ondragleave = () => bl.classList.remove('drag-over');
+                    bl.ondrop = e => {
+                        e.preventDefault();
+                        bl.classList.remove('drag-over');
+                        let src = e.dataTransfer.getData('text/plain');
+                        if(src && src !== bl.dataset.path) moveNode(src, bl.dataset.path);
+                    }
+                });
+
+                let n = getNode(curPath);
+                if(!n || n.type !== 'dir') { curPath = '/'; n = getNode('/'); w.expRender(); return; }
+                selItem = null;
+
+                Object.keys(n.content).sort().forEach(k => {
+                    let item = n.content[k];
+                    let fPath = curPath === '/' ? `/${k}` : `${curPath}/${k}`;
+                    let el = ce('div');
+                    el.className = 'exp-item';
+                    el.innerHTML = `${item.type === 'dir' ? ICONS.dir : ICONS.file}<div class="label">${k}</div>`;
+                    
+                    el.onclick = e => {
+                        e.stopPropagation();
+                        grid.querySelectorAll('.exp-item').forEach(x=>x.classList.remove('sel'));
+                        el.classList.add('sel');
+                        selItem = k;
+                    };
+                    
+                    el.ondblclick = () => {
+                        if(item.type === 'dir') { curPath = fPath; w.expRender(); }
+                        else openViewer(k, item.body, fPath);
+                    };
+                    
+                    attachDragDrop(el, fPath, item.type === 'dir');
+                    grid.appendChild(el);
+                });
+            };
+
+            w.querySelector('.exp-up').onclick = () => {
+                if(curPath !== '/') {
+                    let parts = curPath.split('/').filter(Boolean);
+                    parts.pop();
+                    curPath = '/' + parts.join('/');
+                    w.expRender();
+                }
+            };
+            w.querySelector('.exp-nd').onclick = () => {
+                sysModal("Create Directory", "Enter new folder name:", val => {
+                    if(val && !val.includes('/')) makeNode(curPath, val, true);
+                }, true);
+            };
+            w.querySelector('.exp-nf').onclick = () => {
+                sysModal("Create File", "Enter new file name:", val => {
+                    if(val && !val.includes('/')) makeNode(curPath, val, false);
+                }, true);
+            };
+            w.querySelector('.exp-ren').onclick = () => {
+                if(!selItem) return;
+                sysModal("Rename Node", `Enter new name for '${selItem}':`, val => {
+                    if(val) renameNode(curPath === '/' ? `/${selItem}` : `${curPath}/${selItem}`, val);
+                }, true);
+            };
+            w.querySelector('.exp-cp').onclick = () => {
+                if(selItem) sysState.clipboard = { op: 'copy', path: curPath === '/' ? `/${selItem}` : `${curPath}/${selItem}` };
+            };
+            w.querySelector('.exp-mv').onclick = () => {
+                if(selItem) sysState.clipboard = { op: 'move', path: curPath === '/' ? `/${selItem}` : `${curPath}/${selItem}` };
+            };
+            w.querySelector('.exp-pt').onclick = () => {
+                if(sysState.clipboard) {
+                    moveNode(sysState.clipboard.path, curPath, sysState.clipboard.op === 'copy');
+                    if(sysState.clipboard.op === 'move') sysState.clipboard = null;
+                }
+            };
+            w.querySelector('.exp-prop').onclick = () => {
+                if(!selItem) return;
+                let path = curPath === '/' ? `/${selItem}` : `${curPath}/${selItem}`;
+                let n = getNode(path);
+                let size = JSON.stringify(n).length;
+                let info = `Path: ${path}<br>Type: ${n.type.toUpperCase()}<br>Size: ~${size} bytes<br>Permissions: 755 (owner)`;
+                sysModal(`Properties: ${selItem}`, info);
+            };
+            w.querySelector('.exp-del').onclick = () => {
+                if(selItem) {
+                    let fPath = curPath === '/' ? `/${selItem}` : `${curPath}/${selItem}`;
+                    delNode(fPath);
+                }
+            };
+
+            w.querySelector('.win-content').onclick = e => {
+                if(e.target === grid || e.target.classList.contains('win-content')) {
+                    grid.querySelectorAll('.exp-item').forEach(x=>x.classList.remove('sel'));
+                    selItem = null;
+                }
+            };
+            
+            grid.ondragover = e => e.preventDefault();
+            grid.ondrop = e => {
+                e.preventDefault();
+                let src = e.dataTransfer.getData('text/plain');
+                if(src && getParentNode(src) !== getNode(curPath)) {
+                    moveNode(src, curPath);
+                }
+            };
+
+            w.expRender();
+            document.body.appendChild(w);
+            wm.wins.push(w);
+            wm.bind(w);
+            wm.focus(w);
+            return id;
+        };
 
         window.openArchiveViewer = function(id, title, query) {
             let safeTitle = title.replace(/"/g, '&quot;');
             let qParam = query ? `?query=${encodeURIComponent(query)}` : '';
             
             let html = `
-                <div style="color:var(--hlt); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <div style="color:var(--acc); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
                     <span>ENTITY: ${safeTitle}<br>UID: ${id}</span>
                     <span style="text-align: right; color: #666; font-size: 0.7rem;">SRC: SUBSPACE DATABANKS<br>UPLINK: SECURE</span>
                 </div>
                 <div class="archive-wrapper">
-                    <!-- The sandbox attribute securely prevents the embed from redirecting the page or opening popups -->
                     <iframe src="https://archive.org/embed/${id}${qParam}" class="archive-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
                 </div>
             `;
-            let pid = wm.build(`visualizer`, html, true);
-            echo(`remote visualizer mounted at PID ${pid}.`);
+            
+            let winId = Math.floor(Math.random() * 900) + 100;
+            let w = ce('div');
+            w.className = 'win active';
+            w.dataset.pid = winId;
+            w.dataset.app = `viewer_${winId}`;
+            w.dataset.dyn = "1";
+            w.dataset.title = 'Archive Viewer';
+            w.style.left = '100px'; w.style.top = '80px'; w.style.width = '750px'; w.style.height = '550px';
+            w.innerHTML = `
+                <div class="win-bar"><span>[${winId}] Archive Viewer</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
+                <div class="win-content" style="color: #bbb; overflow-y: auto;">${html}</div>
+            `;
+            
+            document.body.appendChild(w);
+            wm.wins.push(w);
+            wm.bind(w);
+            wm.focus(w);
+            print(`Archive viewer opened [${winId}].`);
         };
 
         window.fetchArchive = function(query, page, pid = null) {
             let safeQ = encodeURIComponent(`title:("${query}") AND mediatype:texts`);
             let pageParam = page > 1 ? `&page=${page}` : '';
-            
+
             if (pid) {
-                let w = wm.pids.find(x => x.dataset.pid === String(pid));
-                if(w) w.querySelector('.body').innerHTML = '<div style="color:#aaa;">querying subspace archives...</div>';
+                let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
+                if (w) w.querySelector('.win-content').innerHTML = '<div style="color:#aaa;">Searching subspace archives...</div>';
             }
 
             fetch(`https://archive.org/advancedsearch.php?q=${safeQ}&fl[]=title,description,identifier&sort[]=downloads+desc&output=json&rows=1${pageParam}`)
                 .then(res => res.json())
                 .then(data => {
-                    if(data.response.docs.length > 0) {
+                    if (data.response.docs.length > 0) {
                         let d = data.response.docs[0];
                         let title = d.title || "UNKNOWN";
                         let desc = d.description || "NO PREVIEW METADATA EXTRACTED.";
                         if (Array.isArray(desc)) desc = desc[0];
-                        
+
                         let rawText = new DOMParser().parseFromString(desc, 'text/html').body.textContent || "";
                         let escapeQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                         let rx = new RegExp(`(${escapeQuery})`, 'gi');
-                        let fmt = rawText.replace(rx, '<span class="highlight">$1</span>').replace(/\n/g, '<br>');
-                        
+                        let fmt = rawText.replace(rx, '<span class="hl">$1</span>').replace(/\n/g, '<br>');
                         let safeQueryStr = query.replace(/'/g, "\\'");
                         let safeTitleStr = title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                        
+
                         let html = `
-                            <div style="color:var(--fg); margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px;">RECORD // ${title} (PAGE ${page})</div>
-                            <div style="margin-bottom: 20px; line-height: 1.6;">${fmt}</div>
-                            <div><span class="remote-link" onclick="window.openArchiveViewer('${d.identifier}', '${safeTitleStr}', '${safeQueryStr}')" style="color: var(--hlt); cursor: pointer;">[ MOUNT REMOTE VISUALIZER ]</span></div>
+                            <div style="color:var(--term-fg); margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px;">RECORD // ${title} (PAGE ${page})</div>
+                            <div style="margin-bottom: 20px; line-height: 1.6; overflow-y: auto; flex-grow: 1;">${fmt}</div>
+                            <div><span class="remote-link" onclick="window.openArchiveViewer('${d.identifier}', '${safeTitleStr}', '${safeQueryStr}')" style="color: var(--acc); cursor: pointer;">[ OPEN ARCHIVE VIEWER ]</span></div>
                             <div style="margin-top: 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
-                                <span class="btn-close" onclick="wm.kill('{{PID}}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
-                                <span class="btn-next" onclick="window.fetchArchive('${safeQueryStr}', ${page + 1}, '{{PID}}')" style="cursor: pointer; color: var(--fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ next record &gt; ]</span>
+                                <span class="btn-close" onclick="wm.kill('${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
+                                <span class="btn-next" onclick="window.fetchArchive('${safeQueryStr}', ${page + 1}, '${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--term-fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ next record &gt; ]</span>
                             </div>
                         `;
 
                         if (pid) {
-                            let w = wm.pids.find(x => x.dataset.pid === String(pid));
-                            if (w) w.querySelector('.body').innerHTML = html.replace(/{{PID}}/g, pid);
+                            let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
+                            if (w) w.querySelector('.win-content').innerHTML = html;
                         } else {
-                            let newPid = wm.build(`ext: ${query.substring(0, 10)}`, html);
-                            echo(`record retrieved. process mounted at PID ${newPid}.`);
+                            let newPid = Math.floor(Math.random() * 900) + 100;
+                            let w = ce('div');
+                            w.className = 'win active';
+                            w.dataset.pid = newPid;
+                            w.dataset.app = `search_${newPid}`;
+                            w.dataset.dyn = "1";
+                            w.dataset.title = `Search: ${query}`;
+                            w.style.left = '200px'; w.style.top = '100px'; w.style.width = '600px'; w.style.height = '450px';
+                            w.innerHTML = `
+                                <div class="win-bar"><span>[${newPid}] ext: ${query.substring(0, 10)}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
+                                <div class="win-content" style="display: flex; flex-direction: column;">${html.replace(/\{\{PID\}\}/g, newPid)}</div>
+                            `;
+                            document.body.appendChild(w);
+                            wm.wins.push(w);
+                            wm.bind(w);
+                            wm.focus(w);
+                            print(`Search results fetched [${newPid}].`);
                         }
                     } else {
                         if (pid) {
-                            let w = wm.pids.find(x => x.dataset.pid === String(pid));
-                            if (w) w.querySelector('.body').innerHTML = `
+                            let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
+                            if (w) w.querySelector('.win-content').innerHTML = `
                                 <div style="color:var(--err); margin-bottom: 20px;">end of archive results for '${query}'.</div>
                                 <div style="border-top: 1px solid var(--border); padding-top: 10px;">
                                     <span class="btn-close" onclick="wm.kill('${pid}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
                                 </div>
                             `;
                         } else {
-                            echo(`scan: no external match for '${query}'.`);
+                            print(`scan: no external match for '${query}'.`);
                         }
                     }
-                })
-                .catch(err => {
-                    if(!pid) echo("scan: uplink failure.");
+                }).catch(err => {
+                    if(!pid) print("<span class='err'>scan: uplink failure.</span>");
                     else {
-                        let w = wm.pids.find(x => x.dataset.pid === String(pid));
-                        if (w) w.querySelector('.body').innerHTML = `<div style="color:var(--err)">uplink failure.</div>`;
+                        let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
+                        if (w) w.querySelector('.win-content').innerHTML = `<div class="err">uplink failure.</div>`;
                     }
                 });
         };
 
-        const input = document.getElementById('cmd');
-        const out = document.getElementById('out');
+        const tInp = qs('#term-in');
+        const tOut = qs('#term-out');
+        const tPmt = qs('#prompt-txt');
         const hist = [];
-        let cur = 0;
+        let hCur = 0, cwd = '/';
 
-        const echo = t => {
-            let el = document.createElement('div');
-            el.innerHTML = t;
-            out.appendChild(el);
-            out.scrollTop = out.scrollHeight;
+        const print = t => {
+            let el = ce('div'); el.innerHTML = t;
+            tOut.appendChild(el); tOut.scrollTop = tOut.scrollHeight;
         };
+        const escapeHtml = t => t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const updatePmt = () => { tPmt.textContent = `sys@vgr9:${cwd}$`; };
 
-        const fs = {
-            'readme.txt': 'vgr-9 remote diagnostic interface.\nuse tty1 to manage processes.',
-            'manual.txt': 'VGR-9 COMMAND MANUAL\n====================\n\nhelp [<command>]\n  Displays manual or specific command info.\n  Example: help scan\n\nscan [-r <query>]\n  Lists local files. The -r flag queries subspace archives.\n  Example: scan -r apollo 11\n\nread <file>\n  Outputs file contents to standard output.\n  Example: read anomaly.log\n\nopen <process>\n  Allocates and mounts a GUI window.\n  Example: open doc_viewer\n\nping <host>\n  Tests subspace connection latency to a target.\n  Example: ping earth\n\nclose <pid>\n  Terminates a process by its PID.\n  Example: close 104',
-            'portfolio.md': 'OPERATOR LOGS\n----------------\n> web dev protocols established.\n> architecture patterns stable.\n> github link pending.',
-            'mission_logs.txt': '[DAY 4021] systems nominal. autonomous drift continues.',
-            'anomaly.log': '[ERR] chronometer mismatch. local time drift detected.\n[WARN] spatial displacement > 13.5B ly.',
-            'nav_cache.bin': '0xDEADBEEF: checksum failed. star map unreadable.',
-            'telemetry.log': '[WARN] connection unstable. packet loss 12%.'
-        };
-
-        const docs = {
-            'help': 'help [<cmd>]         :: print manual or command info.',
-            'scan': 'scan                 :: list local directory contents.\nscan -r <query>      :: query external subspace archives.',
-            'read': 'read <file>          :: stream file to stdout.',
-            'open': 'open <target>        :: mount GUI window process.',
-            'close': 'close <pid>         :: send SIGKILL to window process.',
-            'ping': 'ping <host>          :: ICMP echo request.',
-            'nav': 'nav                  :: calculate stellar coordinates.',
-            'sensors': 'sensors              :: poll external hull telemetry.',
-            'ps': 'ps                   :: list active process IDs.',
-            'whoami': 'whoami               :: print effective operator entity.'
-        };
-
-        echo("vgr-9 bash - type 'help' for coreutils.\n");
-
-        input.addEventListener('keydown', e => {
-            if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (cur > 0) input.value = hist[--cur];
-                return;
-            }
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (cur < hist.length - 1) input.value = hist[++cur];
-                else { cur = hist.length; input.value = ''; }
-                return;
-            }
-
+        tInp.onkeydown = e => {
+            if (e.key === 'ArrowUp') { e.preventDefault(); if (hCur > 0) tInp.value = hist[--hCur]; return; }
+            if (e.key === 'ArrowDown') { e.preventDefault(); if (hCur < hist.length - 1) tInp.value = hist[++hCur]; else { hCur = hist.length; tInp.value = ''; } return; }
             if (e.key !== 'Enter') return;
-            
-            let val = input.value.trim();
+
+            let val = tInp.value.trim();
             if (!val) return;
-            
-            echo(`<span style="color:var(--hlt)">operator@vgr9:~$</span> ${val}`);
-            hist.push(val);
-            cur = hist.length;
-            input.value = '';
-            
+            print(`<span class="hl">sys@vgr9:${cwd}$</span> ${escapeHtml(val)}`);
+            hist.push(val); hCur = hist.length; tInp.value = '';
+
             let args = val.split(' ').filter(Boolean);
             let cmd = args[0].toLowerCase();
 
             switch(cmd) {
                 case 'help':
-                    if (args[1]) {
-                        echo(docs[args[1]] || `no manual entry for '${args[1]}'`);
-                    } else {
-                        Object.keys(docs).forEach(k => echo(docs[k]));
-                        echo("\n[hint] type 'read manual.txt' for detailed examples.");
-                    }
+                    print(escapeHtml(defaultFs['manual.txt'].body));
                     break;
-                case 'ls':
-                case 'scan':
+                case 'ls': {
                     if (args[1] === '-r' || args[1] === '--remote') {
                         let query = args.slice(2).join(' ');
-                        if (!query) {
-                            echo("usage: scan -r <query>");
-                            break;
-                        }
-                        echo(`querying external archives for: '${query}'...`);
+                        if (!query) { print("Usage: ls -r <query>"); break; }
+                        print(`querying external archives for: '${escapeHtml(query)}'...`);
                         window.fetchArchive(query, 1);
+                        break;
+                    }
+                    let tgt = resolvePath(cwd, args[1]);
+                    let n = getNode(tgt);
+                    if (!n) print(`ls: ${escapeHtml(args[1]||'')}: No such file or directory`);
+                    else if (n.type !== 'dir') print(tgt.split('/').pop());
+                    else print(Object.keys(n.content).map(k => n.content[k].type === 'dir' ? `[dir] ${k}` : k).join('\n'));
+                    break;
+                }
+                case 'pwd': print(cwd); break;
+                case 'cd': {
+                    let tgt = resolvePath(cwd, args[1] || '/');
+                    let n = getNode(tgt);
+                    if (!n) print(`cd: ${escapeHtml(args[1])}: No such directory`);
+                    else if (n.type !== 'dir') print(`cd: ${escapeHtml(args[1])}: Not a directory`);
+                    else { cwd = tgt; updatePmt(); }
+                    break;
+                }
+                case 'cat':
+                case 'read': {
+                    if (!args[1]) { print("read: missing operand"); break; }
+                    let n = getNode(resolvePath(cwd, args[1]));
+                    if (!n) print(`read: ${escapeHtml(args[1])}: File not found`);
+                    else if (n.type === 'dir') print(`read: ${escapeHtml(args[1])}: Is a directory`);
+                    else print(escapeHtml(n.body));
+                    break;
+                }
+                case 'mkdir': {
+                    if (!args[1]) { print("mkdir: missing operand"); break; }
+                    if(makeNode(cwd, args[1], true)) print(`Created directory ${escapeHtml(args[1])}`);
+                    else print(`mkdir: cannot create directory '${escapeHtml(args[1])}'`);
+                    break;
+                }
+                case 'touch': {
+                    if (!args[1]) { print("touch: missing operand"); break; }
+                    if(makeNode(cwd, args[1], false)) print(`Created file ${escapeHtml(args[1])}`);
+                    else print(`touch: cannot create file '${escapeHtml(args[1])}'`);
+                    break;
+                }
+                case 'rm': {
+                    if (!args[1]) { print("rm: missing operand"); break; }
+                    let tgt = resolvePath(cwd, args[1]);
+                    if(delNode(tgt)) print(`Moved ${escapeHtml(args[1])} to Trash`);
+                    else print(`rm: cannot remove '${escapeHtml(args[1])}'`);
+                    break;
+                }
+                case 'open': {
+                    if (!args[1]) { print("open: missing target"); break; }
+                    let tgt = args[1].toLowerCase();
+                    if (['terminal', 'settings', 'explorer'].includes(tgt)) {
+                        let p = wm.spawn(tgt);
+                        if (p) print(`Launched app [${p}]`);
                     } else {
-                        echo(Object.keys(fs).join('  ') + '  bin/');
+                        let path = resolvePath(cwd, args[1]);
+                        let n = getNode(path);
+                        if (!n) print(`open: ${escapeHtml(args[1])}: Not found`);
+                        else if (n.type === 'dir') openExplorer(path);
+                        else {
+                            let p = openViewer(path.split('/').pop(), n.body, path);
+                            print(`Opened file in viewer [${p}]`);
+                        }
                     }
                     break;
-                case 'cat':
-                case 'read':
-                    if (!args[1]) echo("read: missing operand");
-                    else echo(fs[args[1]] || `read: ${args[1]}: no such file`);
+                }
+                case 'theme': {
+                    if (!args[1]) { print("usage: theme [deepspace|nebula|planet|cyber|neon|void]"); break; }
+                    let t = args[1].toLowerCase();
+                    if (themes.find(x=>x.id===t)) {
+                        sysState.conf.bg = t; saveSys(); applyConf(); print("Theme updated.");
+                    } else print(`theme: unknown theme '${escapeHtml(args[1])}'`);
                     break;
+                }
+                case 'color': {
+                    if (!args[1]) { print("usage: color [hex]"); break; }
+                    let c = args[1];
+                    if (/^#([0-9A-F]{3}){1,2}$/i.test(c)) {
+                        sysState.conf.fg = c; saveSys(); applyConf(); print("Color updated.");
+                    } else print("color: invalid hex code");
+                    break;
+                }
                 case 'ps':
-                    echo("PID   CMD");
-                    wm.pids.forEach(p => {
-                        if (p.classList.contains('active')) echo(`${p.dataset.pid.padEnd(5)} ${p.dataset.cmd}`);
+                    print("PID   APP");
+                    wm.wins.forEach(w => {
+                        if (!w.classList.contains('min') && w.classList.contains('active')) print(`${w.dataset.pid.padEnd(5)} ${w.dataset.app}`);
                     });
                     break;
-                case 'kill':
                 case 'close':
-                    if (!args[1]) echo("close: missing pid");
-                    else if (args[1] === "14") echo("close: permission denied");
-                    else if (wm.kill(args[1])) echo(`killed ${args[1]}`);
-                    else echo(`close: pid ${args[1]} not found`);
+                    if (!args[1]) print("close: missing pid");
+                    else if (args[1] === "10") print("close: cannot terminate root shell");
+                    else if (wm.kill(args[1])) print(`Closed [${escapeHtml(args[1])}]`);
+                    else print(`close: pid not found`);
                     break;
-                case 'spawn':
-                case 'open':
-                    let tgt = args[1] || 'doc_viewer';
-                    let p = wm.spawn(tgt);
-                    if (p) echo(`mounted ${tgt} [${p}]`);
-                    else echo(`open: ${tgt}: not found`);
-                    break;
-                case 'nav':
-                    echo("resolving coordinates...");
-                    setTimeout(() => {
-                        echo("RA: 12h 36m 49.4s | Dec: +62° 12′ 58″");
-                        echo("[WARN] parallax validation failed. est distance: 13.5B ly.");
-                    }, 500);
-                    break;
-                case 'sensors':
-                    echo("ext_radiation: 3.4 mSv/hr");
-                    echo("ext_cameras: OFFLINE");
-                    break;
-                case 'ping':
-                    let h = args[1] || '127.0.0.1';
-                    if (['localhost', '127.0.0.1', 'vgr9'].includes(h)) {
-                        echo(`PING ${h}: time<1ms ttl=64`);
-                    } else if (h === 'earth' || h === 'origin') {
-                        echo(`PING ${h} (origin): 56 data bytes`);
-                        setTimeout(() => echo(`Request timeout. Dist: 13.5B ly.`), 800);
-                    } else {
-                        echo(`PING ${h}: 56 data bytes`);
-                        setTimeout(() => echo(`Request timeout. Route unavailable.`), 800);
-                    }
-                    break;
-                case 'whoami':
-                    echo("uid=1000(operator) species=homo_sapiens classification=terran auth=level_9");
-                    break;
-                case 'clear':
-                    out.innerHTML = '';
-                    break;
-                default:
-                    echo(`bash: ${cmd}: command not found`);
+                case 'ping': print(args[1] ? `PING ${escapeHtml(args[1])}: timeout` : "ping: missing host"); break;
+                case 'history': hist.forEach((h,i) => print(`${i+1}  ${escapeHtml(h)}`)); break;
+                case 'whoami': print("USER: sys_admin\nAUTH: Level 9\nSPECIES_ID: 4294967296\nSTATUS: active"); break;
+                case 'clear': tOut.innerHTML = ''; break;
+                default: print(`bash: ${escapeHtml(cmd)}: command not found`);
             }
+        };
+
+        qs('#term-wrap').onclick = () => { tInp.focus(); };
+
+        const menuBtn = qs('#menu-btn');
+        const startMenu = qs('#start-menu');
+        menuBtn.onclick = e => {
+            e.stopPropagation();
+            startMenu.classList.toggle('open');
+            menuBtn.classList.toggle('open');
+        };
+        document.onclick = e => {
+            if (!startMenu.contains(e.target) && e.target !== menuBtn) {
+                startMenu.classList.remove('open');
+                menuBtn.classList.remove('open');
+            }
+        };
+        startMenu.querySelectorAll('.sm-item').forEach(i => {
+            i.onclick = () => {
+                startMenu.classList.remove('open');
+                menuBtn.classList.remove('open');
+                wm.spawn(i.dataset.run);
+            };
         });
 
-        document.addEventListener('click', () => input.focus());
+       
+        loadSys();
+        buildSettings();
+        renderDesktop();
+        wm.init();
+        print("vgr-9 terminal active. type 'help' to begin.\n");
+        wm.focus(qs('#term'));
+
+        setInterval(() => {
+            sysState.t++;
+            let h = String(Math.floor(sysState.t / 3600)).padStart(2, '0');
+            let m = String(Math.floor((sysState.t % 3600) / 60)).padStart(2, '0');
+            let s = String(sysState.t % 60).padStart(2, '0');
+            let timeStr = `${h}:${m}:${s}`;
+            qs('#hud-up').textContent = timeStr;
+            qs('#tb-clock').textContent = timeStr;
+
+            if (sysState.t % 4 === 0) qs('#hud-v').textContent = (sysState.v + (Math.random() * 2 - 1)).toFixed(1);
+            if (sysState.t % 6 === 0) qs('#hud-t').textContent = (sysState.tmp + (Math.random() * 0.2 - 0.1)).toFixed(2);
+        }, 1000);
     </script>
 </body>
 </html>

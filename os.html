@@ -11,7 +11,7 @@
             --desk: #050505;
             --fg: #e0e0e0;
             --acc: #6a8a84;
-            --err: #b35b5b;
+            --err: #d8d4c8;
             --term-fg: #d0d0d0;
             --win-bg: rgba(10, 10, 10, 0.95);
             --tb-h: 32px;
@@ -36,6 +36,7 @@
             overflow: hidden;
             margin: 0;
             height: 100vh;
+            height: 100dvh;
             display: flex;
             transition: background 0.3s;
         }
@@ -125,6 +126,7 @@
             top: 0 !important; left: 0 !important;
             width: 100vw !important;
             height: calc(100vh - var(--tb-h)) !important;
+            height: calc(100dvh - var(--tb-h)) !important;
             resize: none;
         }
 
@@ -137,7 +139,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            touch-action: none;
         }
+        html, body { overscroll-behavior: none; }
         .win-ctrls { display: flex; gap: 12px; }
         .w-btn { cursor: pointer; transition: 0.1s; color: #888; }
         .w-btn:hover { color: #fff; }
@@ -162,6 +166,7 @@
 
         #term { width: 680px; height: 460px; left: 50px; top: 50px; }
         #settings { width: 550px; height: 500px; left: 150px; top: 100px; }
+        #monitor { width: 480px; height: 420px; left: 250px; top: 130px; }
 
         .term-out {
             flex-grow: 1;
@@ -320,6 +325,25 @@
         .sys-modal-in:focus { border-color: var(--acc); }
         .sys-modal-btn { padding: 6px 16px; background: transparent; border: 1px solid var(--border); color: #fff; cursor: pointer; margin-left: 10px; transition: 0.1s; }
         .sys-modal-btn:hover { border-color: var(--acc); color: var(--acc); }
+        .ctx-menu {
+            position: fixed;
+            min-width: 180px;
+            background: rgba(12,12,12,0.98);
+            border: 1px solid var(--border);
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.8);
+            z-index: 30000;
+            padding: 4px 0;
+            font-size: 0.8rem;
+        }
+        .ctx-item {
+            padding: 8px 14px;
+            color: #ddd;
+            cursor: pointer;
+        }
+        .ctx-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .ctx-item.disabled { color: #555; cursor: default; }
+        .ctx-item.disabled:hover { background: transparent; }
+        .ctx-sep { height: 1px; background: var(--border); margin: 4px 0; }
     </style>
 </head>
 <body>
@@ -370,7 +394,7 @@
                     <button class="opt-btn" data-val="#4af626" style="color:#4af626">Matrix Green</button>
                     <button class="opt-btn" data-val="#ffb000" style="color:#ffb000">Amber</button>
                     <button class="opt-btn" data-val="#00f0ff" style="color:#00f0ff">Cyan Grid</button>
-                    <button class="opt-btn" data-val="#b35b5b" style="color:#b35b5b">Alert Red</button>
+                    <button class="opt-btn" data-val="#d8d4c8" style="color:#d8d4c8">Off-White</button>
                     <button class="opt-btn" data-val="#d0d0d0" style="color:#d0d0d0">Monochrome</button>
                 </div>
             </div>
@@ -392,6 +416,39 @@
                     <button class="opt-btn" data-setting="hud" data-val="hide">Hide HUD</button>
                 </div>
             </div>
+            <div class="settings-sec">
+                <h4>System</h4>
+                <div class="grid-opts" id="sys-grid">
+                    <button class="opt-btn" id="sys-reset-layout">Reset Desktop Layout</button>
+                    <button class="opt-btn" id="sys-empty-trash">Empty Trash</button>
+                    <button class="opt-btn" id="sys-factory-reset" style="color:var(--err)">Factory Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="monitor" class="win" data-pid="12" data-app="monitor">
+        <div class="win-bar">
+            <span>[12] sys_monitor</span>
+            <div class="win-ctrls">
+                <span class="w-btn min">_</span>
+                <span class="w-btn close">x</span>
+            </div>
+        </div>
+        <div class="win-content" style="overflow-y: auto;">
+            <div class="settings-sec">
+                <h4>Telemetry</h4>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem;">
+                    <div style="border:1px solid var(--border); padding:10px;">Uptime<br><span id="mon-up" style="color:var(--acc); font-size:1.1rem;">00:00:00</span></div>
+                    <div style="border:1px solid var(--border); padding:10px;">Velocity<br><span id="mon-v" style="color:var(--acc); font-size:1.1rem;">0.0</span> km/s</div>
+                    <div style="border:1px solid var(--border); padding:10px;">Temperature<br><span id="mon-t" style="color:var(--acc); font-size:1.1rem;">0.00</span> k</div>
+                    <div style="border:1px solid var(--border); padding:10px;">Processes<br><span id="mon-pc" style="color:var(--acc); font-size:1.1rem;">0</span> active</div>
+                </div>
+            </div>
+            <div class="settings-sec">
+                <h4>Running Processes</h4>
+                <div id="mon-procs" style="font-size: 0.8rem; color: #ccc;"></div>
+            </div>
         </div>
     </div>
 
@@ -404,6 +461,10 @@
         <div class="sm-item" data-run="explorer">
             <span>Explorer</span>
             <span class="sm-sub">Filesystem visualizer</span>
+        </div>
+        <div class="sm-item" data-run="monitor">
+            <span>Monitor</span>
+            <span class="sm-sub">System diagnostics</span>
         </div>
         <div class="sm-item" data-run="settings">
             <span>Settings</span>
@@ -447,7 +508,150 @@
                     'Media': { type: 'dir', content: {} }
                 }
             },
-            'manual.txt': { type: 'file', body: `VGR-9 COMMAND REFERENCE\n\nhelp [cmd]           :: Shows manual.\nls                   :: Lists contents.\nls -r [query]        :: Searches Archive.\ncd [dir]             :: Changes directory.\npwd                  :: Prints directory.\nread [file]          :: Prints file.\nmkdir [dir]          :: Creates folder.\ntouch [file]         :: Creates file.\nrm [target]          :: Moves to Trash.\nopen [target]        :: Opens app/file.\nclose [pid]          :: Closes window.\nps                   :: Lists processes.\nwhoami               :: Displays user.\nclear                :: Clears terminal.` },
+            'manual.txt': { type: 'file', body: `VGR-9 MANUAL
+
+This is the full reference. For a one-line cheat sheet type 'help'.
+For a single entry only, type 'man <cmd>'.
+
+===============================
+FILESYSTEM
+===============================
+
+ls [-r query]
+  List contents of the current directory.
+  -r/--remote sends the query to the external archive instead of
+  reading the local filesystem.
+    ex: ls
+    ex: ls -r ion drive schematics
+
+scan <query>
+  Query the external archive directly. Shorthand for ls -r.
+    ex: scan pulsar navigation
+
+cd [dir]
+  Change directory. No argument returns to /. Supports .. and
+  relative or absolute paths.
+    ex: cd Desktop
+    ex: cd ../Logs
+    ex: cd /
+
+pwd
+  Print the current working directory.
+
+read <file>            (alias: cat)
+  Print a file's contents to the terminal.
+    ex: read manual.txt
+    ex: cat Logs/sys.log
+
+mkdir <name>
+  Create a new directory in the current location.
+    ex: mkdir Notes
+
+touch <name>
+  Create a new empty file in the current location.
+    ex: touch flight_plan.txt
+
+mv <src> <dest_dir>
+  Move src into dest_dir. If a name collision occurs, the moved
+  item is renamed with a numeric suffix automatically.
+    ex: mv flight_plan.txt Desktop
+    ex: mv Notes/draft.txt Notes/Archive
+
+cp <src> <dest_dir>
+  Copy src into dest_dir, leaving the original in place.
+    ex: cp Logs/sys.log Desktop
+
+rm <target>
+  Move a file or directory to Trash. Running rm again on something
+  already inside Trash deletes it permanently - there is no
+  further recovery after that second removal.
+    ex: rm flight_plan.txt
+    ex: cd Trash; rm flight_plan.txt   (permanent)
+
+find <name>
+  Search the entire filesystem for paths containing a match.
+    ex: find log
+    ex: find .txt
+
+grep <pattern> <file>
+  Print only the lines of a file that contain the pattern.
+    ex: grep boot Logs/sys.log
+
+stat <path>
+  Show type and size information for a file or directory.
+    ex: stat manual.txt
+    ex: stat Desktop
+
+df
+  Summarize total files and approximate storage used across the
+  whole filesystem.
+
+===============================
+APPS & PROCESSES
+===============================
+
+open <target>
+  Opens a file or directory in Explorer, or launches an app by
+  name: terminal, explorer, settings, monitor.
+    ex: open manual.txt
+    ex: open Desktop
+    ex: open monitor
+
+ps
+  List currently running processes (pid + app name).
+
+close <pid>
+  Terminate a process by its pid. The root shell (pid 10) cannot
+  be closed.
+    ex: close 104
+
+===============================
+SYSTEM
+===============================
+
+theme <name>
+  Set the desktop wallpaper.
+  Options: deepspace, nebula, planet, cyber, neon, void.
+    ex: theme nebula
+
+color <#hex>
+  Set the accent color used across the interface.
+    ex: color #d8d4c8
+
+whoami
+  Show the current user, auth level, and session status.
+
+uptime
+  Show elapsed session time since boot.
+
+history
+  List previously entered commands, in order.
+
+echo <text>
+  Print text back to the terminal. Useful for quick notes or
+  testing.
+    ex: echo checking comms array
+
+clear
+  Clear the terminal output buffer.
+
+ping <host>
+  Attempt to reach a host. Always times out - there is no live
+  network access from this shell. To search the outside world,
+  use scan instead.
+    ex: ping relay-7
+
+===============================
+DESKTOP & EXPLORER
+===============================
+
+Drag a file or folder icon onto another folder, onto a breadcrumb
+in Explorer, or onto Trash to move it there. Dropping an icon on
+open desktop space anchors it at that exact spot instead of
+snapping back to alphabetical order.
+
+Explorer's toolbar supports new folder/file, rename, copy, move
+(cut), paste, properties, and delete on the selected item.` },
             'Trash': { type: 'dir', content: {} }
         };
 
@@ -457,6 +661,31 @@
             fs: null,
             clipboard: null
         };
+
+        const ctxMenu = (items, x, y) => {
+            qs('.ctx-menu')?.remove();
+            let m = ce('div');
+            m.className = 'ctx-menu';
+            m.style.left = x + 'px';
+            m.style.top = y + 'px';
+            items.forEach(it => {
+                if (it === '-') { let sep = ce('div'); sep.className = 'ctx-sep'; m.appendChild(sep); return; }
+                let row = ce('div');
+                row.className = 'ctx-item' + (it.disabled ? ' disabled' : '');
+                row.textContent = it.label;
+                if (!it.disabled) row.onclick = e => { e.stopPropagation(); m.remove(); it.action(); };
+                m.appendChild(row);
+            });
+            document.body.appendChild(m);
+            let r = m.getBoundingClientRect();
+            if (r.right > window.innerWidth) m.style.left = Math.max(4, window.innerWidth - r.width - 6) + 'px';
+            if (r.bottom > window.innerHeight) m.style.top = Math.max(4, window.innerHeight - r.height - 6) + 'px';
+        };
+        document.addEventListener('click', () => qs('.ctx-menu')?.remove());
+        document.addEventListener('contextmenu', e => {
+            if (e.target.closest('input, textarea')) return;
+            e.preventDefault();
+        });
 
         const sysModal = (title, content, callback, showInput = false) => {
             let m = ce('div');
@@ -558,12 +787,31 @@
                 if(s === 'hud') sysState.conf.hud = v;
                 saveSys(); applyConf();
             };
+            qs('#sys-reset-layout').onclick = () => {
+                sysModal('Reset Desktop Layout', 'Return all desktop icons to their default arrangement?', () => {
+                    sysState.conf.iconPos = {}; saveSys(); renderDesktop();
+                });
+            };
+            qs('#sys-empty-trash').onclick = () => {
+                let trashN = getNode('/Trash');
+                if (!trashN || Object.keys(trashN.content).length === 0) return;
+                sysModal('Empty Trash', 'Permanently delete all items in Trash? This cannot be undone.', () => {
+                    trashN.content = {}; fsUpdated();
+                });
+            };
+            qs('#sys-factory-reset').onclick = () => {
+                sysModal('Factory Reset', 'This will erase all files, folders, and preferences and restore vgr-9 to its default state. This cannot be undone.', () => {
+                    localStorage.removeItem('vgr9_conf');
+                    localStorage.removeItem('vgr9_fs');
+                    location.reload();
+                });
+            };
         };
 
         const resolvePath = (base, target) => {
             if (!target) return base;
             if (target === '/') return '/';
-            let p = target.startsWith('/') ? [] : (base === '/' ? [] : base.split('/'));
+            let p = target.startsWith('/') ? [] : (base === '/' ? [] : base.split('/').filter(Boolean));
             for (let part of target.split('/')) {
                 if (part === '.' || !part) continue;
                 if (part === '..') p.pop();
@@ -616,6 +864,10 @@
             if (!pNode || !pNode.content[oldName] || pNode.content[newName]) return false;
             pNode.content[newName] = pNode.content[oldName];
             delete pNode.content[oldName];
+            if (getParentNode(path) === pNode && path.startsWith('/Desktop/') && sysState.conf.iconPos && sysState.conf.iconPos[oldName]) {
+                sysState.conf.iconPos[newName] = sysState.conf.iconPos[oldName];
+                delete sysState.conf.iconPos[oldName];
+            }
             fsUpdated();
             return true;
         };
@@ -623,6 +875,7 @@
         const cloneNode = node => JSON.parse(JSON.stringify(node));
 
         const moveNode = (src, destDir, isCopy = false) => {
+            if(!isCopy && (src === '/Trash' || src === '/Desktop')) return false;
             if(src === destDir || destDir.startsWith(src + '/')) return false;
             let sNode = getNode(src);
             let dNode = getNode(destDir);
@@ -638,6 +891,9 @@
             if(!isCopy) {
                 let pNode = getParentNode(src);
                 delete pNode.content[name];
+                if (src.startsWith('/Desktop/') && destDir !== '/Desktop' && sysState.conf.iconPos) {
+                    delete sysState.conf.iconPos[name];
+                }
             }
             fsUpdated();
             return true;
@@ -659,9 +915,9 @@
             return true;
         };
 
-        const attachDragDrop = (el, path, isDir, onNavigate) => {
-            el.draggable = true;
-            el.ondragstart = e => {
+        const attachDragDrop = (el, path, isDir, draggableSrc = true) => {
+            el.draggable = draggableSrc;
+            if (draggableSrc) el.ondragstart = e => {
                 e.dataTransfer.setData('text/plain', path);
                 e.dataTransfer.effectAllowed = 'move';
             };
@@ -673,6 +929,7 @@
                 el.ondragleave = e => el.classList.remove('drag-over');
                 el.ondrop = e => {
                     e.preventDefault();
+                    e.stopPropagation();
                     el.classList.remove('drag-over');
                     let src = e.dataTransfer.getData('text/plain');
                     if(src && src !== path) {
@@ -682,38 +939,112 @@
             }
         };
 
+        let deskSel = null;
+
         const renderDesktop = () => {
             const d = qs('#desktop');
             d.innerHTML = '';
             let deskNode = getNode('/Desktop');
             if(!deskNode) return;
-            
+            sysState.conf.iconPos = sysState.conf.iconPos || {};
+
             let tIcon = ce('div');
             tIcon.className = 'desk-icon';
             tIcon.innerHTML = `${ICONS.trash}<div class="label">Trash</div>`;
             tIcon.ondblclick = () => openExplorer('/Trash');
-            attachDragDrop(tIcon, '/Trash', true);
+            tIcon.onclick = e => { e.stopPropagation(); deskSel = '__trash__'; d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel')); tIcon.classList.add('sel'); };
+            tIcon.oncontextmenu = e => {
+                e.stopPropagation();
+                deskSel = '__trash__'; d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel')); tIcon.classList.add('sel');
+                let trashN = getNode('/Trash');
+                let empty = trashN && Object.keys(trashN.content).length === 0;
+                ctxMenu([
+                    { label: 'Open', action: () => openExplorer('/Trash') },
+                    { label: 'Empty Trash', disabled: empty, action: () => {
+                        if (empty) return;
+                        sysModal('Empty Trash', 'Permanently delete all items in Trash? This cannot be undone.', () => {
+                            trashN.content = {}; fsUpdated();
+                        });
+                    }}
+                ], e.clientX, e.clientY);
+            };
+            attachDragDrop(tIcon, '/Trash', true, false);
             d.appendChild(tIcon);
 
             Object.keys(deskNode.content).sort().forEach(k => {
                 let n = deskNode.content[k];
                 let full = `/Desktop/${k}`;
                 let el = ce('div');
-                el.className = 'desk-icon';
+                el.className = 'desk-icon' + (deskSel === k ? ' sel' : '');
                 el.innerHTML = `${n.type === 'dir' ? ICONS.dir : ICONS.file}<div class="label">${k}</div>`;
+                el.onclick = e => {
+                    e.stopPropagation();
+                    deskSel = k;
+                    d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
+                    el.classList.add('sel');
+                };
                 el.ondblclick = () => {
                     if (n.type === 'dir') openExplorer(full);
                     else openViewer(k, n.body, full);
                 };
+                el.oncontextmenu = e => {
+                    e.stopPropagation();
+                    deskSel = k;
+                    d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
+                    el.classList.add('sel');
+                    ctxMenu([
+                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, n.body, full) },
+                        { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
+                        { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
+                        { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
+                        '-',
+                        { label: 'Properties', action: () => {
+                            let size = JSON.stringify(n).length;
+                            sysModal(`Properties: ${k}`, `Path: ${full}<br>Type: ${n.type.toUpperCase()}<br>Size: ~${size} bytes<br>Permissions: 755 (owner)`);
+                        }},
+                        { label: 'Move to Trash', action: () => delNode(full) }
+                    ], e.clientX, e.clientY);
+                };
                 attachDragDrop(el, full, n.type === 'dir');
+                let pos = sysState.conf.iconPos[k];
+                if (pos) { el.style.position = 'absolute'; el.style.left = pos.x + 'px'; el.style.top = pos.y + 'px'; }
                 d.appendChild(el);
             });
-            
+
+            d.onclick = () => { deskSel = null; d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel')); };
+            d.oncontextmenu = e => {
+                if (e.target !== d) return;
+                deskSel = null; d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
+                ctxMenu([
+                    { label: 'New Folder', action: () => sysModal('New Folder', 'Enter folder name:', val => { if(val && !val.includes('/')) makeNode('/Desktop', val, true); }, true) },
+                    { label: 'New File', action: () => sysModal('New File', 'Enter file name:', val => { if(val && !val.includes('/')) makeNode('/Desktop', val, false); }, true) },
+                    { label: 'Paste', disabled: !sysState.clipboard, action: () => {
+                        if (!sysState.clipboard) return;
+                        moveNode(sysState.clipboard.path, '/Desktop', sysState.clipboard.op === 'copy');
+                        if (sysState.clipboard.op === 'move') sysState.clipboard = null;
+                    }},
+                    '-',
+                    { label: 'Reset Icon Layout', action: () => { sysState.conf.iconPos = {}; saveSys(); renderDesktop(); } },
+                    { label: 'Refresh', action: () => renderDesktop() }
+                ], e.clientX, e.clientY);
+            };
+
             d.ondragover = e => e.preventDefault();
             d.ondrop = e => {
                 e.preventDefault();
                 let src = e.dataTransfer.getData('text/plain');
-                if(src && !src.startsWith('/Desktop/')) {
+                if (!src) return;
+                let isDeskItem = src.startsWith('/Desktop/') && src.slice(9).indexOf('/') === -1;
+                if (isDeskItem) {
+                    // Reposition the icon to where it was actually dropped.
+                    let rect = d.getBoundingClientRect();
+                    let iconW = 75, iconH = 90;
+                    let x = Math.max(0, Math.min(rect.width - iconW, e.clientX - rect.left - iconW / 2));
+                    let y = Math.max(0, Math.min(rect.height - iconH, e.clientY - rect.top - iconH / 2));
+                    sysState.conf.iconPos[src.slice(9)] = { x: Math.round(x), y: Math.round(y) };
+                    saveSys();
+                    renderDesktop();
+                } else if (!src.startsWith('/Desktop/')) {
                     moveNode(src, '/Desktop');
                 }
             };
@@ -736,17 +1067,23 @@
                 const bar = w.querySelector('.win-bar');
                 let d = false, sx, sy, wx, wy;
 
-                bar.onmousedown = e => {
+                bar.onpointerdown = e => {
                     if (e.target.classList.contains('w-btn')) return;
                     d = true; sx = e.clientX; sy = e.clientY;
                     wx = w.offsetLeft; wy = w.offsetTop;
+                    bar.setPointerCapture(e.pointerId);
+                    e.preventDefault();
                 };
-                window.addEventListener('mousemove', e => {
+                bar.addEventListener('pointermove', e => {
                     if (!d || w.classList.contains('maximized')) return;
+                    e.preventDefault();
+                    const tbH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tb-h')) || 0;
+                    const maxTop = window.innerHeight - tbH - bar.getBoundingClientRect().height - 2;
                     w.style.left = Math.max(-w.offsetWidth + 50, Math.min(window.innerWidth - 50, wx + (e.clientX - sx))) + 'px';
-                    w.style.top = Math.max(0, Math.min(window.innerHeight - 50, wy + (e.clientY - sy))) + 'px';
+                    w.style.top = Math.max(0, Math.min(maxTop, wy + (e.clientY - sy))) + 'px';
                 });
-                window.addEventListener('mouseup', () => d = false);
+                bar.addEventListener('pointerup', e => { d = false; bar.releasePointerCapture(e.pointerId); });
+                bar.addEventListener('pointercancel', () => d = false);
 
                 w.querySelector('.close')?.addEventListener('click', () => this.kill(w.dataset.pid));
                 w.querySelector('.min')?.addEventListener('click', e => {
@@ -915,6 +1252,7 @@
                     bl.ondragleave = () => bl.classList.remove('drag-over');
                     bl.ondrop = e => {
                         e.preventDefault();
+                        e.stopPropagation();
                         bl.classList.remove('drag-over');
                         let src = e.dataTransfer.getData('text/plain');
                         if(src && src !== bl.dataset.path) moveNode(src, bl.dataset.path);
@@ -938,6 +1276,25 @@
                         el.classList.add('sel');
                         selItem = k;
                     };
+
+                    el.oncontextmenu = e => {
+                        e.stopPropagation();
+                        grid.querySelectorAll('.exp-item').forEach(x=>x.classList.remove('sel'));
+                        el.classList.add('sel');
+                        selItem = k;
+                        ctxMenu([
+                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, item.body, fPath); } },
+                            { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
+                            { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
+                            { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
+                            '-',
+                            { label: 'Properties', action: () => {
+                                let size = JSON.stringify(item).length;
+                                sysModal(`Properties: ${k}`, `Path: ${fPath}<br>Type: ${item.type.toUpperCase()}<br>Size: ~${size} bytes<br>Permissions: 755 (owner)`);
+                            }},
+                            { label: 'Delete', action: () => delNode(fPath) }
+                        ], e.clientX, e.clientY);
+                    };
                     
                     el.ondblclick = () => {
                         if(item.type === 'dir') { curPath = fPath; w.expRender(); }
@@ -947,6 +1304,23 @@
                     attachDragDrop(el, fPath, item.type === 'dir');
                     grid.appendChild(el);
                 });
+
+                grid.oncontextmenu = e => {
+                    if (e.target !== grid) return;
+                    grid.querySelectorAll('.exp-item').forEach(x=>x.classList.remove('sel'));
+                    selItem = null;
+                    ctxMenu([
+                        { label: 'New Folder', action: () => sysModal("Create Directory", "Enter new folder name:", val => { if(val && !val.includes('/')) makeNode(curPath, val, true); }, true) },
+                        { label: 'New File', action: () => sysModal("Create File", "Enter new file name:", val => { if(val && !val.includes('/')) makeNode(curPath, val, false); }, true) },
+                        { label: 'Paste', disabled: !sysState.clipboard, action: () => {
+                            if (!sysState.clipboard) return;
+                            moveNode(sysState.clipboard.path, curPath, sysState.clipboard.op === 'copy');
+                            if (sysState.clipboard.op === 'move') sysState.clipboard = null;
+                        }},
+                        '-',
+                        { label: 'Refresh', action: () => w.expRender() }
+                    ], e.clientX, e.clientY);
+                };
             };
 
             w.querySelector('.exp-up').onclick = () => {
@@ -1165,8 +1539,23 @@
 
             switch(cmd) {
                 case 'help':
-                    print(escapeHtml(defaultFs['manual.txt'].body));
+                    print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
                     break;
+                case 'man': {
+                    if (!args[1]) { print("usage: man <cmd>"); break; }
+                    let full = defaultFs['manual.txt'].body;
+                    let lines = full.split('\n');
+                    let target = args[1].toLowerCase();
+                    let idx = lines.findIndex(l => {
+                        let t = l.trim().toLowerCase();
+                        return t === target || t.startsWith(target + ' ') || t.startsWith(target + '(');
+                    });
+                    if (idx === -1) { print(`man: no entry for '${escapeHtml(args[1])}'. try 'read manual.txt'.`); break; }
+                    let block = [lines[idx]];
+                    for (let i = idx + 1; i < lines.length && lines[i].trim() !== ''; i++) block.push(lines[i]);
+                    print(escapeHtml(block.join('\n')));
+                    break;
+                }
                 case 'ls': {
                     if (args[1] === '-r' || args[1] === '--remote') {
                         let query = args.slice(2).join(' ');
@@ -1180,6 +1569,13 @@
                     if (!n) print(`ls: ${escapeHtml(args[1]||'')}: No such file or directory`);
                     else if (n.type !== 'dir') print(tgt.split('/').pop());
                     else print(Object.keys(n.content).map(k => n.content[k].type === 'dir' ? `[dir] ${k}` : k).join('\n'));
+                    break;
+                }
+                case 'scan': {
+                    let query = args.slice(1).join(' ');
+                    if (!query) { print("usage: scan <query>"); break; }
+                    print(`querying external archives for: '${escapeHtml(query)}'...`);
+                    window.fetchArchive(query, 1);
                     break;
                 }
                 case 'pwd': print(cwd); break;
@@ -1212,17 +1608,29 @@
                     else print(`touch: cannot create file '${escapeHtml(args[1])}'`);
                     break;
                 }
+                case 'mv':
+                case 'cp': {
+                    if (!args[1] || !args[2]) { print(`${cmd}: usage: ${cmd} <src> <dest_dir>`); break; }
+                    let src = resolvePath(cwd, args[1]);
+                    let dest = resolvePath(cwd, args[2]);
+                    let destNode = getNode(dest);
+                    if (!destNode || destNode.type !== 'dir') { print(`${cmd}: ${escapeHtml(args[2])}: not a directory`); break; }
+                    if (moveNode(src, dest, cmd === 'cp')) print(`${cmd === 'cp' ? 'Copied' : 'Moved'} ${escapeHtml(args[1])} to ${escapeHtml(args[2])}`);
+                    else print(`${cmd}: cannot ${cmd === 'cp' ? 'copy' : 'move'} '${escapeHtml(args[1])}'`);
+                    break;
+                }
                 case 'rm': {
                     if (!args[1]) { print("rm: missing operand"); break; }
                     let tgt = resolvePath(cwd, args[1]);
-                    if(delNode(tgt)) print(`Moved ${escapeHtml(args[1])} to Trash`);
+                    let wasInTrash = tgt.startsWith('/Trash/');
+                    if(delNode(tgt)) print(wasInTrash ? `Permanently deleted ${escapeHtml(args[1])}` : `Moved ${escapeHtml(args[1])} to Trash`);
                     else print(`rm: cannot remove '${escapeHtml(args[1])}'`);
                     break;
                 }
                 case 'open': {
                     if (!args[1]) { print("open: missing target"); break; }
                     let tgt = args[1].toLowerCase();
-                    if (['terminal', 'settings', 'explorer'].includes(tgt)) {
+                    if (['terminal', 'settings', 'explorer', 'monitor'].includes(tgt)) {
                         let p = wm.spawn(tgt);
                         if (p) print(`Launched app [${p}]`);
                     } else {
@@ -1251,6 +1659,57 @@
                     if (/^#([0-9A-F]{3}){1,2}$/i.test(c)) {
                         sysState.conf.fg = c; saveSys(); applyConf(); print("Color updated.");
                     } else print("color: invalid hex code");
+                    break;
+                }
+                case 'echo':
+                    print(escapeHtml(args.slice(1).join(' ')));
+                    break;
+                case 'uptime': {
+                    let h = String(Math.floor(sysState.t / 3600)).padStart(2, '0');
+                    let m = String(Math.floor((sysState.t % 3600) / 60)).padStart(2, '0');
+                    let s = String(sysState.t % 60).padStart(2, '0');
+                    print(`up ${h}:${m}:${s}`);
+                    break;
+                }
+                case 'find': {
+                    if (!args[1]) { print("usage: find <name>"); break; }
+                    let query = args[1].toLowerCase();
+                    let hits = [];
+                    let walk = (node, path) => {
+                        if (path.toLowerCase().includes(query)) hits.push(path);
+                        if (node.type === 'dir') Object.keys(node.content).forEach(k => walk(node.content[k], path === '/' ? `/${k}` : `${path}/${k}`));
+                    };
+                    walk({ type: 'dir', content: sysState.fs }, '');
+                    print(hits.length ? hits.join('\n') : `find: no matches for '${escapeHtml(args[1])}'`);
+                    break;
+                }
+                case 'grep': {
+                    if (!args[1] || !args[2]) { print("usage: grep <pattern> <file>"); break; }
+                    let n = getNode(resolvePath(cwd, args[2]));
+                    if (!n) { print(`grep: ${escapeHtml(args[2])}: No such file`); break; }
+                    if (n.type !== 'file') { print(`grep: ${escapeHtml(args[2])}: Is a directory`); break; }
+                    let pat = args[1].toLowerCase();
+                    let matches = n.body.split('\n').filter(l => l.toLowerCase().includes(pat));
+                    print(matches.length ? matches.map(escapeHtml).join('\n') : `grep: no matches for '${escapeHtml(args[1])}' in ${escapeHtml(args[2])}`);
+                    break;
+                }
+                case 'stat': {
+                    if (!args[1]) { print("usage: stat <path>"); break; }
+                    let path = resolvePath(cwd, args[1]);
+                    let n = getNode(path);
+                    if (!n) { print(`stat: ${escapeHtml(args[1])}: No such file or directory`); break; }
+                    let size = n.type === 'dir' ? `${Object.keys(n.content).length} items` : `${(n.body || '').length} bytes`;
+                    print(`Path: ${path}\nType: ${n.type}\nSize: ${size}`);
+                    break;
+                }
+                case 'df': {
+                    let files = 0, bytes = 0, dirs = 0;
+                    let walk = node => {
+                        if (node.type === 'dir') { dirs++; Object.values(node.content).forEach(walk); }
+                        else { files++; bytes += (node.body || '').length; }
+                    };
+                    walk({ type: 'dir', content: sysState.fs });
+                    print(`FILES: ${files}\nDIRECTORIES: ${dirs}\nSTORAGE USED: ~${bytes} bytes`);
                     break;
                 }
                 case 'ps':
@@ -1312,9 +1771,25 @@
             let timeStr = `${h}:${m}:${s}`;
             qs('#hud-up').textContent = timeStr;
             qs('#tb-clock').textContent = timeStr;
+            let monUp = qs('#mon-up'); if (monUp) monUp.textContent = timeStr;
 
-            if (sysState.t % 4 === 0) qs('#hud-v').textContent = (sysState.v + (Math.random() * 2 - 1)).toFixed(1);
-            if (sysState.t % 6 === 0) qs('#hud-t').textContent = (sysState.tmp + (Math.random() * 0.2 - 0.1)).toFixed(2);
+            if (sysState.t % 4 === 0) {
+                let vVal = (sysState.v + (Math.random() * 2 - 1)).toFixed(1);
+                qs('#hud-v').textContent = vVal;
+                let monV = qs('#mon-v'); if (monV) monV.textContent = vVal;
+            }
+            if (sysState.t % 6 === 0) {
+                let tVal = (sysState.tmp + (Math.random() * 0.2 - 0.1)).toFixed(2);
+                qs('#hud-t').textContent = tVal;
+                let monT = qs('#mon-t'); if (monT) monT.textContent = tVal;
+            }
+
+            let monPc = qs('#mon-pc'), monProcs = qs('#mon-procs');
+            if (monPc || monProcs) {
+                let live = wm.wins.filter(w => w.classList.contains('active') && !w.classList.contains('min'));
+                if (monPc) monPc.textContent = live.length;
+                if (monProcs) monProcs.innerHTML = live.map(w => `${w.dataset.pid.padEnd(6)} ${w.dataset.app}`).join('<br>') || '(none)';
+            }
         }, 1000);
     </script>
 </body>

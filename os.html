@@ -3,6 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vgr-9 environment</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E">
     <style>
         @import url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css');
 
@@ -351,7 +352,7 @@
     <div class="desktop" id="desktop"></div>
 
     <div class="desktop-hud">
-        <div>vgr-9 os // deep survey</div>
+        <div>vgr-9 os // sys</div>
         <div>up: <span id="hud-up">00:00:00</span></div>
         <div>v: <span id="hud-v">28500.0</span> km/s</div>
         <div>t: <span id="hud-t">2.70</span> k</div>
@@ -639,19 +640,7 @@ ping <host>
   Attempt to reach a host. Always times out - there is no live
   network access from this shell. To search the outside world,
   use scan instead.
-    ex: ping relay-7
-
-===============================
-DESKTOP & EXPLORER
-===============================
-
-Drag a file or folder icon onto another folder, onto a breadcrumb
-in Explorer, or onto Trash to move it there. Dropping an icon on
-open desktop space anchors it at that exact spot instead of
-snapping back to alphabetical order.
-
-Explorer's toolbar supports new folder/file, rename, copy, move
-(cut), paste, properties, and delete on the selected item.` },
+    ex: ping relay-7` },
             'Trash': { type: 'dir', content: {} }
         };
 
@@ -685,7 +674,7 @@ Explorer's toolbar supports new folder/file, rename, copy, move
         document.addEventListener('contextmenu', e => {
             if (e.target.closest('input, textarea')) return;
             e.preventDefault();
-        });
+        }, true);
 
         const sysModal = (title, content, callback, showInput = false) => {
             let m = ce('div');
@@ -1404,8 +1393,8 @@ Explorer's toolbar supports new folder/file, rename, copy, move
             
             let html = `
                 <div style="color:var(--acc); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
-                    <span>ENTITY: ${safeTitle}<br>UID: ${id}</span>
-                    <span style="text-align: right; color: #666; font-size: 0.7rem;">SRC: SUBSPACE DATABANKS<br>UPLINK: SECURE</span>
+                    <span>RECORD: ${safeTitle}<br>ID: ${id}</span>
+                    <span style="text-align: right; color: #666; font-size: 0.7rem;">SRC: EXTERNAL ARCHIVE<br>UPLINK: SECURE</span>
                 </div>
                 <div class="archive-wrapper">
                     <iframe src="https://archive.org/embed/${id}${qParam}" class="archive-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
@@ -1438,7 +1427,7 @@ Explorer's toolbar supports new folder/file, rename, copy, move
 
             if (pid) {
                 let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
-                if (w) w.querySelector('.win-content').innerHTML = '<div style="color:#aaa;">Searching subspace archives...</div>';
+                if (w) w.querySelector('.win-content').innerHTML = '<div style="color:#aaa;">Querying external archive...</div>';
             }
 
             fetch(`https://archive.org/advancedsearch.php?q=${safeQ}&fl[]=title,description,identifier&sort[]=downloads+desc&output=json&rows=1${pageParam}`)
@@ -1560,7 +1549,7 @@ Explorer's toolbar supports new folder/file, rename, copy, move
                     if (args[1] === '-r' || args[1] === '--remote') {
                         let query = args.slice(2).join(' ');
                         if (!query) { print("Usage: ls -r <query>"); break; }
-                        print(`querying external archives for: '${escapeHtml(query)}'...`);
+                        print(`querying external archive for: '${escapeHtml(query)}'...`);
                         window.fetchArchive(query, 1);
                         break;
                     }
@@ -1574,7 +1563,7 @@ Explorer's toolbar supports new folder/file, rename, copy, move
                 case 'scan': {
                     let query = args.slice(1).join(' ');
                     if (!query) { print("usage: scan <query>"); break; }
-                    print(`querying external archives for: '${escapeHtml(query)}'...`);
+                    print(`querying external archive for: '${escapeHtml(query)}'...`);
                     window.fetchArchive(query, 1);
                     break;
                 }
@@ -1760,7 +1749,7 @@ Explorer's toolbar supports new folder/file, rename, copy, move
         buildSettings();
         renderDesktop();
         wm.init();
-        print("vgr-9 terminal active. type 'help' to begin.\n");
+        print("vgr-9 terminal active. type 'help'.\n");
         wm.focus(qs('#term'));
 
         setInterval(() => {

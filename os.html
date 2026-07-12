@@ -84,6 +84,14 @@
             color: var(--fg);
         }
         .icon-svg.acc-tint { color: var(--acc); }
+        .icon-thumb {
+            width: calc(32px * var(--spacing-mod));
+            height: calc(32px * var(--spacing-mod));
+            margin-bottom: 5px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: #0a0a0a;
+        }
         
         .desk-icon .label, .exp-item .label {
             font-size: 0.75rem;
@@ -571,6 +579,12 @@
             image: `<svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`
         };
 
+        const iconFor = n => {
+            if (n.type === 'dir') return ICONS.dir;
+            if (n.image) return `<img class="icon-thumb" src="${n.image}" loading="lazy" style="${n.whiteBg ? 'background:#fff;' : ''}" onerror="this.outerHTML='${ICONS.image.replace(/'/g, "\\'")}'">`;
+            return ICONS.file;
+        };
+
         const themes = [
             { id: 'deepspace', name: 'Deep Space', bg: "linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://cdn.pixabay.com/photo/2016/09/08/20/52/starry-sky-1655503_1280.jpg')" },
             { id: 'nebula', name: 'Nebula', bg: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')" },
@@ -622,6 +636,7 @@
             { t: '2011', who: 'Threnody Accord', msg: 'Status requested. Delay acknowledged, both directions.' },
             { t: '2013', who: 'Sol', msg: 'Debris-field alert, sector 7. Automatic avoidance maneuver, no contact. Logged for the record.' },
             { t: '2014', who: 'Calyx Ministry', msg: 'Quiet on our end for a period. Internal matter, unrelated to Compact business.' },
+            { t: '2014', who: 'Sol', msg: "Requesting review of the termination lockout Engineering added to a background process this year. An emergency stop shouldn't require Compact sign-off. Denied - Threnody flagged it as inconsistent with Article III maintenance terms." },
             { t: '2015', who: 'Sol', msg: 'Requesting maintenance rotation. Current cycle running long.' },
             { t: '2016', who: 'Threnody Accord', msg: 'Rotation acknowledged. Relief schema attached.' },
             { t: '2018', who: 'Sol', msg: 'Ten years elapsed. Logged per rotation audit.' },
@@ -748,6 +763,7 @@ Reserve              30%
 Reserve floor 15%. Below that, comms array sheds load first.` },
                             'backup.log': { type: 'file', body: `[2008] Initial fs snapshot taken post-launch.
 [2012] Snapshot interval changed: 90d -> 30d.
+[2014] Process supervisor patched to reject termination signals for PID 000. Not reversed since.
 [2019] Snapshot corrupted, restored from previous. Cause not isolated.
 [2024] Snapshot interval changed: 30d -> 7d.` },
                             'known_issues.txt': { type: 'file', body: `- Gimbal sticks after cold restart below -40. Preheat first. (Logs/eng.log, 2016)
@@ -765,14 +781,20 @@ RULE 03: threnody_manifold_sync and calyx_flux_gate are not ours. Neither was in
 RULE 04: Do not attempt to kill process PID 000 [threnody_manifold_sync].
 We do not know what it is calculating.
 In 2014, Nav-Officer [REDACTED] paused it to free up RAM.
-The ship dropped 0.02% velocity in three seconds. Just leave it.
+The ship dropped 0.02% velocity in three seconds. Patched that same
+year so it won't accept a termination signal again - see
+System/backup.log, 2014. Just leave it.
 
-RULE 05: PID 001 [calyx_flux_gate] can technically be closed, unlike PID 000.
-It will close. Velocity drops hard and fast when it does. It reopens
-on its own within a minute and velocity recovers. Nobody has found
-a reason to do this on purpose. Closing it does not count toward
-maintenance rotation under Article III - Engineering has tried that
-argument, it did not hold.` }
+RULE 05: PID 001 [calyx_flux_gate] doesn't have PID 000's lockout.
+Nobody's written down what closing it does. Engineering's policy is
+not to find out on a whim.` },
+                            'avatar_src.txt': { type: 'file', body: `Pulled this out of Trash instead of deleting it - didn't feel right losing the only unstripped copy.
+
+Raw source for the login avatar, capture tags and all. The version the login screen actually uses has had those tags stripped; this one hasn't.
+
+Tags read Calyx-side. Same tech that's on loan for the registry thing. Checked the capture date once out of curiosity - lands about six years before the first reply on record (Compact/Archive/contact_event.log). Before, not after. No idea.
+
+Article II says it's the only file that counts as a registry avatar anyway, so it's not getting replaced regardless. Leaving it here so it stops getting flagged for cleanup.` }
                         } },
                         'Logs': { type: 'dir', content: {
                             'sys.log': { type: 'file', body: '[SYS] Boot sequence initiated.\n[SYS] Storage mounted.' },
@@ -798,7 +820,7 @@ Subject: rotating crew complement, VGR-9. Automated unless incident-triggered.
                     } },
                     'Media': { type: 'dir', content: Object.fromEntries(themes.map(t => {
                         let urlMatch = t.bg.match(/url\('([^']+)'\)/);
-                        return [`wallpaper_${t.id}.img`, { type: 'file', image: urlMatch ? urlMatch[1] : '', body: `Wallpaper preview - ${t.name}.\n\nRendered locally from a stored asset, not the long-range array. Nothing to do with the Registry render tech. Apply with 'theme ${t.id}' or Settings > System Wallpaper.` }];
+                        return [`wallpaper_${t.id}.img`, { type: 'file', image: urlMatch ? urlMatch[1] : '', body: `${t.name} - local wallpaper asset.\n\nCached at launch. Not sourced from the long-range array, not related to the Registry render pipeline.` }];
                     })) }
                 }
             },
@@ -1039,9 +1061,6 @@ confirm much.
 Sol filed one entry: Sol. Everyone else already had it on file
 anyway. Render's not ours either - same source as usual.
 
-Species_id (see 'whoami') happens to match the tally above, digit
-for digit. Make of that what you will.
-
 Local interface: Start Menu > Alien Registry. Not authoritative,
 built ahead of ratification. Replace or remove if the real thing
 ever passes a vote.` }
@@ -1145,47 +1164,12 @@ mode=passthrough
 phase_variance=locked
 sync=quorum-relative
 maintained_by=threnody_accord` }
-                        } },
-                        'render_notes.dat': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 003
-CLASS: TECHNICAL NOTE - AVATAR / IMAGING
-SUBMITTING PARTY: SOL
-RETENTION: PERMANENT, COMPACT ARCHIVE
-
-Moved here from Trash and rewritten for clarity. Old copy said the
-same things badly.
-
-What this file is: a source copy of the image used as this
-delegate's default login avatar. Not the copy the login screen
-actually boots with - that one's been cleaned up. This is the raw
-capture, artifacts and all.
-
-Long-range renders are never delivered clean. At range, resolution
-artifacts are normal and expected, and they get stripped before a
-render goes anywhere near a display. This copy was never stripped.
-It still carries its original capture tags, which the display
-version doesn't.
-
-Those tags point to a Calyx-side platform. The same long-range
-render tech is what's on loan for the proposed species registry
-(see Compact/Registry/alien_registry.dat) - it's long range, and
-Calyx has said outright that renders at that distance aren't
-precise. Expect an approximate shape and a designation, not
-confirmed detail. Worth remembering before reading too much into
-any single render, this one included.
-
-Converted, the capture timestamp on this file lands roughly six
-years before the first decoded reply logged in
-Archive/contact_event.log. Before, not after. Nobody's explained
-why a render exists that far back.
-
-Per Article II, this render is the only image on file that
-qualifies as this delegate's registry avatar - true for any
-signatory, not just Sol.` }
+                        } }
                     } }
                 }
             },
             'Trash': { type: 'dir', content: {
-                'sol_profile_submission.img': { type: 'file', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adi_Stick_Fig.svg', body: `[LOCAL SUBMISSION - DECLINED]
+                'sol_profile_submission.img': { type: 'file', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adi_Stick_Fig.svg', whiteBg: true, body: `[LOCAL SUBMISSION - DECLINED]
 Held for review. Not approved.
 
 Per Article II, only sanctioned render-tech output qualifies as a
@@ -1516,7 +1500,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 let full = `/Desktop/${k}`;
                 let el = ce('div');
                 el.className = 'desk-icon' + (deskSel === k ? ' sel' : '');
-                el.innerHTML = `${n.type === 'dir' ? ICONS.dir : (n.image ? ICONS.image : ICONS.file)}<div class="label">${k}</div>`;
+                el.innerHTML = `${iconFor(n)}<div class="label">${k}</div>`;
                 el.onclick = e => {
                     e.stopPropagation();
                     deskSel = k;
@@ -1525,7 +1509,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 };
                 el.ondblclick = () => {
                     if (n.type === 'dir') openExplorer(full);
-                    else openViewer(k, getFileBody(full, n), full, n.image);
+                    else openViewer(k, getFileBody(full, n), full, n.image, n.whiteBg);
                 };
                 el.oncontextmenu = e => {
                     e.stopPropagation();
@@ -1533,7 +1517,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
                     el.classList.add('sel');
                     ctxMenu([
-                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full, n.image) },
+                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full, n.image, n.whiteBg) },
                         { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
                         { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
                         { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
@@ -1720,7 +1704,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             });
         };
 
-        const openImageViewer = (title, content, path, imgSrc) => {
+        const openImageViewer = (title, content, path, imgSrc, whiteBg = false) => {
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
             w.className = 'win active';
@@ -1737,7 +1721,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             w.innerHTML = `
                 <div class="win-bar"><span>[${id}] image_viewer - ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
-                    <div class="viewer-img-wrap"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>
+                    <div class="viewer-img-wrap" style="${whiteBg ? 'background:#fff;' : ''}"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>
                     ${content ? `<div class="viewer-caption">${content}</div>` : ''}
                 </div>
             `;
@@ -1755,8 +1739,8 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             return id;
         };
 
-        const openViewer = (title, content, path = null, imgSrc = null) => {
-            if (imgSrc) return openImageViewer(title, content, path, imgSrc);
+        const openViewer = (title, content, path = null, imgSrc = null, whiteBg = false) => {
+            if (imgSrc) return openImageViewer(title, content, path, imgSrc, whiteBg);
 
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
@@ -1874,7 +1858,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     let fPath = curPath === '/' ? `/${k}` : `${curPath}/${k}`;
                     let el = ce('div');
                     el.className = 'exp-item';
-                    el.innerHTML = `${item.type === 'dir' ? ICONS.dir : (item.image ? ICONS.image : ICONS.file)}<div class="label">${k}</div>`;
+                    el.innerHTML = `${iconFor(item)}<div class="label">${k}</div>`;
                     
                     el.onclick = e => {
                         e.stopPropagation();
@@ -1889,7 +1873,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         el.classList.add('sel');
                         selItem = k;
                         ctxMenu([
-                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath, item.image); } },
+                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath, item.image, item.whiteBg); } },
                             { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
                             { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
                             { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
@@ -1904,7 +1888,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     
                     el.ondblclick = () => {
                         if(item.type === 'dir') { curPath = fPath; w.expRender(); }
-                        else openViewer(k, getFileBody(fPath, item), fPath, item.image);
+                        else openViewer(k, getFileBody(fPath, item), fPath, item.image, item.whiteBg);
                     };
                     
                     attachDragDrop(el, fPath, item.type === 'dir');
@@ -2290,7 +2274,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         if (!n) print(`open: ${escapeHtml(args[1])}: Not found`);
                         else if (n.type === 'dir') openExplorer(path);
                         else {
-                            let p = openViewer(path.split('/').pop(), getFileBody(path, n), path, n.image);
+                            let p = openViewer(path.split('/').pop(), getFileBody(path, n), path, n.image, n.whiteBg);
                             print(`Opened file in viewer [${p}]`);
                         }
                     }

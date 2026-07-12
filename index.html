@@ -2,122 +2,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>vgr-9 environment</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3C/svg%3E">
+    <title>VGR-9 Login</title>
     <style>
         @import url('https://cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.css');
 
         :root {
             --bg: #000;
-            --desk: #050505;
             --fg: #e0e0e0;
-            --acc: #d4a373;
+            --acc: #6a8a84;
+            --err: #d8d4c8;
+            --win-bg: rgba(15, 15, 15, 0.95);
+            --border: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         body {
             font-family: 'Hack', ui-monospace, monospace;
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.90)), url('https://cdn.pixabay.com/photo/2016/09/08/20/52/starry-sky-1655503_1280.jpg') no-repeat center center fixed;
-            background-size: cover;
+            background: #050505;
             color: var(--fg);
-            overflow: hidden;
             margin: 0;
-            user-select: none;
             height: 100vh;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
         }
 
-        .cursor::after {
-            content: '█';
-            animation: blink 1s step-start infinite;
-            margin-left: 4px;
-            color: var(--acc);
-        }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
-        #boot {
-            position: absolute;
-            inset: 0;
+        .login-wrapper {
+            background: var(--win-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 500px;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            transition: opacity 0.8s;
+            gap: 24px;
         }
-        .wrap { width: 100%; max-width: 600px; padding: 20px; box-sizing: border-box; }
+
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        
+        .header-title { 
+            font-weight: bold; 
+            font-size: 1.1rem; 
+            color: #fff;
+        }
+        
+        .header-sub { 
+            color: var(--acc); 
+            font-size: 0.75rem; 
+        }
+
+        .section-title {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: -10px;
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-row {
+            border: 1px solid var(--border);
+            background: #0a0a0a;
+            padding: 12px;
+            display: flex;
+            gap: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .user-row:hover {
+            border-color: #666;
+            background: #111;
+        }
+        
+        .user-row.active {
+            border-color: var(--acc);
+            background: rgba(106, 138, 132, 0.08);
+        }
+
+        .avatar-box {
+            width: 64px;
+            height: 64px;
+            border: 1px solid var(--border);
+            background: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-canvas { 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        .static-noise {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
+        }
+
+        .user-info { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            gap: 6px; 
+        }
+        
+        .user-name { 
+            font-weight: bold; 
+            color: #fff; 
+            font-size: 0.95rem; 
+        }
+        
+        .user-id { 
+            color: #666; 
+            font-size: 0.75rem; 
+        }
+        
+        .user-status { 
+            font-size: 0.7rem; 
+            padding: 3px 8px; 
+            border: 1px solid var(--border); 
+            display: inline-block; 
+            align-self: flex-start; 
+        }
+        
+        .status-local { 
+            color: var(--acc); 
+            border-color: var(--acc); 
+        }
+        
+        .status-remote { 
+            color: #777; 
+        }
+
+        .auth-panel {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            flex-direction: column;
+            gap: 12px;
+            cursor: default;
+        }
+
+        .user-row.active .auth-panel { 
+            display: flex; 
+        }
+
+        .auth-input-group { 
+            display: flex; 
+            gap: 8px; 
+        }
+        
+        .auth-input {
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            flex-grow: 1;
+            outline: none;
+        }
+        
+        .auth-input:focus { 
+            border-color: var(--acc); 
+        }
+        
+        .auth-btn {
+            background: #111;
+            border: 1px solid var(--border);
+            color: #eee;
+            padding: 0 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: 0.15s;
+        }
+        
+        .auth-btn:hover { 
+            border-color: var(--acc); 
+            background: rgba(106, 138, 132, 0.15);
+        }
+
+        .auth-msg { 
+            color: var(--err); 
+            font-size: 0.75rem; 
+            min-height: 16px; 
+        }
+        
+        .sys-msg { 
+            color: #888; 
+            font-size: 0.8rem; 
+        }
     </style>
 </head>
 <body>
-  
-    <div id="boot">
-        <div class="wrap">
-            <div id="out"></div>
-            <div id="prompt" style="display:none; margin-top: 2rem;">
-                <span style="color:var(--acc)">> press [enter] to wake.</span><span class="cursor"></span>
+
+    <div class="login-wrapper">
+        <div class="header">
+            <div class="header-title">VGR-9 System Login</div>
+            <div class="header-sub">Network Connected</div>
+        </div>
+
+        <div class="section-title">Authorized Delegates</div>
+
+        <div class="user-list">
+            
+            <div class="user-row" id="row-sol" onclick="selectRow('sol')">
+                <div class="avatar-box">
+                    <canvas id="canvas-sol" class="avatar-canvas" width="64" height="64"></canvas>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Sol</div>
+                    <div class="user-id">ID: 4294967296</div>
+                    <div class="user-status status-local">Local User</div>
+                    <div class="auth-panel" onclick="event.stopPropagation()">
+                        <div class="sys-msg">[LOCAL &mdash; session cached]</div>
+                        <button class="auth-btn" style="padding: 10px; margin-top: 4px;" onclick="bootOS()">Initiate Session</button>
+                    </div>
+                </div>
             </div>
+
+            <div class="user-row" id="row-threnody" onclick="selectRow('threnody')">
+                <div class="avatar-box">
+                    <div class="static-noise"></div>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Threnody Accord</div>
+                    <div class="user-id">ID: 1099511627776</div>
+                    <div class="user-status status-remote">Remote User</div>
+                    <div class="auth-panel" onclick="event.stopPropagation()">
+                        <div class="auth-input-group">
+                            <input type="password" class="auth-input" id="pwd-threnody" autocomplete="off" spellcheck="false">
+                            <button class="auth-btn" onclick="attemptLogin('threnody')">Connect</button>
+                        </div>
+                        <div class="auth-msg" id="msg-threnody"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-row" id="row-calyx" onclick="selectRow('calyx')">
+                <div class="avatar-box">
+                    <div class="static-noise" style="background: repeating-radial-gradient(circle, transparent, transparent 3px, rgba(255,255,255,0.02) 3px, rgba(255,255,255,0.02) 6px);"></div>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Calyx Ministry</div>
+                    <div class="user-id">ID: 281474976710656</div>
+                    <div class="user-status status-remote">Remote User</div>
+                    <div class="auth-panel" onclick="event.stopPropagation()">
+                        <div class="auth-input-group">
+                            <input type="password" class="auth-input" id="pwd-calyx" autocomplete="off" spellcheck="false">
+                            <button class="auth-btn" onclick="attemptLogin('calyx')">Connect</button>
+                        </div>
+                        <div class="auth-msg" id="msg-calyx"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-row" id="row-purged" onclick="selectRow('purged')">
+                <div class="avatar-box" style="border-color: #222;">
+                    <div class="static-noise" style="opacity: 0.5; background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.02) 2px, rgba(255,255,255,0.02) 4px);"></div>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" style="color: #555;">[Profile_Purged]</div>
+                    <div class="user-id" style="color: #444;">ID: 72057594037927936</div>
+                    <div class="user-status status-local" style="color: #555; border-color: #333;">Local User</div>
+                    <div class="auth-panel" onclick="event.stopPropagation()">
+                        <button class="auth-btn" style="padding: 10px; margin-top: 4px; border-color: #333; color: #666;" onclick="attemptLogin('purged')">Recover Session</button>
+                        <div class="auth-msg" id="msg-purged"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        const seq = [
-            "> connection established.",
-            "> probe: voyager-9",
-            "> distance from sol: 4.62 ly",
-            "> systems online."
-        ];
+        const qs = s => document.querySelector(s);
         
-        const out = document.getElementById('out');
-        const prompt = document.getElementById('prompt');
-        const boot = document.getElementById('boot');
-        
-        let ready = false;
-        let skipped = false;
+        let activeRow = null;
 
-        const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-        async function type(str, el) {
-            el.classList.add('cursor');
-            for (let i = 0; i < str.length; i++) {
-                if (skipped) {
-                    el.textContent = str;
-                    break;
+        function selectRow(id) {
+            document.querySelectorAll('.user-row').forEach(r => r.classList.remove('active'));
+            qs('#row-' + id).classList.add('active');
+            activeRow = id;
+            
+            if (id !== 'sol' && id !== 'purged') {
+                const inp = qs('#pwd-' + id);
+                if (inp) {
+                    inp.value = '';
+                    qs('#msg-' + id).textContent = '';
+                    inp.focus();
                 }
-                el.textContent += str[i];
-                await sleep(30);
+            } else if (id === 'purged') {
+                qs('#msg-purged').textContent = '';
             }
-            el.classList.remove('cursor');
         }
 
-        async function init() {
-            await sleep(500);
-            for (let msg of seq) {
-                let d = document.createElement('div');
-                out.appendChild(d);
-                await type(msg, d);
-                if (!skipped) await sleep(200);
-            }
-            prompt.style.display = 'block';
-            ready = true;
-        }
-
-        window.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                if (!ready) {
-                    skipped = true;
-                    return;
+        document.querySelectorAll('.auth-input').forEach(inp => {
+            inp.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    let id = inp.id.split('-')[1];
+                    attemptLogin(id);
                 }
-                
-                ready = false;
-                boot.style.opacity = 0;
-                
-                setTimeout(() => {
-                    window.location.href = 'os.html';
-                }, 800);
-            }
+            });
         });
 
-        init();
+        function logFailedAccess(userName, noteText) {
+            try {
+                let raw = localStorage.getItem('vgr9_access');
+                let log = raw ? JSON.parse(raw) : [];
+                
+                log.push({
+                    t: new Date().getFullYear().toString(),
+                    who: userName,
+                    note: noteText
+                });
+                
+                localStorage.setItem('vgr9_access', JSON.stringify(log));
+            } catch(e) {}
+        }
+
+        function attemptLogin(id) {
+            const msgBox = qs('#msg-' + id);
+            
+            if (id !== 'purged') {
+                const pwdInput = qs('#pwd-' + id);
+                if (!pwdInput.value.trim()) return;
+                pwdInput.value = ''; 
+            }
+            
+            msgBox.textContent = 'Authenticating...';
+            msgBox.style.color = '#888';
+            
+            setTimeout(() => {
+                msgBox.style.color = 'var(--err)';
+                if (id === 'threnody') {
+                    msgBox.textContent = 'Login rejected: Authentication Failure';
+                    logFailedAccess('Threnody Accord', 'Network rejection: Quorum absent.');
+                } else if (id === 'calyx') {
+                    msgBox.textContent = 'Login rejected: Authentication Failure';
+                    logFailedAccess('Calyx Ministry', 'Hardware rejection: Incompatible interface.');
+                } else if (id === 'purged') {
+                    msgBox.textContent = 'Error: Account Purged.';
+                    logFailedAccess('72057594037927936', 'Recovery failed: Clearance Absent.');
+                }
+            }, 600);
+        }
+
+        function bootOS() {
+            const btn = qs('#row-sol .auth-btn');
+            btn.textContent = 'Connecting...';
+            btn.style.color = 'var(--acc)';
+            btn.style.borderColor = 'var(--acc)';
+            
+            setTimeout(() => {
+                window.location.href = 'os.html'; 
+            }, 600);
+        }
+
+        function drawAvatar() {
+            const c = qs('#canvas-sol');
+            const ctx = c.getContext('2d');
+            
+            ctx.clearRect(0, 0, c.width, c.height);
+            ctx.save();
+            ctx.translate(32, 10);
+            ctx.scale(0.38, 0.38);
+            ctx.fillStyle = '#b0b0b0';
+
+            const cap = (x1, y1, x2, y2, r1, r2) => {
+                ctx.beginPath();
+                let dx = x2 - x1, dy = y2 - y1;
+                let a = Math.atan2(dy, dx);
+                ctx.arc(x1, y1, r1, a + Math.PI/2, a - Math.PI/2);
+                ctx.arc(x2, y2, r2, a - Math.PI/2, a + Math.PI/2);
+                ctx.closePath();
+                ctx.fill();
+            };
+
+            const sph = (x, y, r) => {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI*2);
+                ctx.fill();
+            };
+
+            cap(0, 10, 0, 35, 14, 11);
+            cap(0, 35, 0, 45, 11, 13);
+            
+            cap(0, 10, 0, -5, 5, 5);
+            sph(0, -15, 11);
+            cap(0, -15, 0, -5, 11, 7);
+            
+            cap(-14, 12, -22, 30, 4.5, 3.5);
+            cap(14, 12, 22, 30, 4.5, 3.5);
+            cap(-22, 30, -26, 50, 3.5, 2.5);
+            cap(22, 30, 26, 50, 3.5, 2.5);
+            
+            cap(-6, 42, -9, 75, 6, 4.5);
+            cap(6, 42, 9, 75, 6, 4.5);
+            cap(-9, 75, -9, 110, 4.5, 3);
+            cap(9, 75, 9, 110, 4.5, 3);
+            
+            cap(-9, 110, -14, 113, 3, 2);
+            cap(9, 110, 14, 113, 3, 2);
+
+            ctx.restore();
+        }
+
+        window.onload = drawAvatar;
     </script>
 </body>
 </html>

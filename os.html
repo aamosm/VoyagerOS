@@ -190,6 +190,38 @@
             max-height: 90%;
             object-fit: contain;
         }
+        .viewer-img-error {
+            color: var(--err);
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 10px;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+        .viewer-caption {
+            font-size: 0.75rem;
+            color: #999;
+            padding: 8px 10px;
+            border-top: 1px solid var(--border);
+            max-height: 110px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            flex-shrink: 0;
+        }
+        .viewer-resize-grip {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 16px;
+            height: 16px;
+            cursor: nwse-resize;
+            color: #666;
+            font-size: 13px;
+            line-height: 16px;
+            text-align: center;
+            z-index: 5;
+        }
+        .viewer-resize-grip:hover { color: var(--acc); }
 
         .term-out {
             flex-grow: 1;
@@ -483,24 +515,16 @@
                 <span class="w-btn close">x</span>
             </div>
         </div>
-        <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
-            <div style="padding: calc(10px * var(--spacing-mod)) calc(12px * var(--spacing-mod)) 0;">
-                <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px; font-size:0.75rem;">
-                    <span style="color:#ccc;">Tally: <span style="color:var(--acc);">4,294,967,296</span></span>
-                    <span style="color:#666;">feed: thisaliendoesnotexist.app - unofficial, not ratified</span>
-                </div>
-                <div style="display:flex; gap:6px; margin: 8px 0;">
-                    <input id="ar-seed-input" type="text" inputmode="numeric" placeholder="entity seed" style="flex-grow:1; width:auto;">
-                    <button id="ar-lookup-btn" type="button" style="width:auto; white-space:nowrap;">Look Up</button>
-                    <button id="ar-random-btn" type="button" style="width:auto; white-space:nowrap;">Random</button>
-                </div>
+        <div class="win-content" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; color:#888;">
+            <div style="font-size:0.75rem; letter-spacing:1px; color:#555;">JOINT SPECIES REGISTRY</div>
+            <div style="font-size:0.8rem; color:#aaa; max-width:380px; line-height:1.6;">
+                Proposal has not reached a vote. No sanctioned interface exists yet.
             </div>
-            <div style="flex-grow:1; border-top:1px solid var(--border); min-height:0;">
-                <iframe id="ar-frame" src="https://thisaliendoesnotexist.app/4294967296" title="alien registry feed" style="width:100%; height:100%; border:0; background:#0a0a0a;"></iframe>
+            <div style="font-size:0.7rem; color:#555; border:1px solid var(--border); padding:6px 14px;">
+                STATUS: NOT RATIFIED
             </div>
-            <div style="padding: 6px calc(12px * var(--spacing-mod)); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                <span style="font-size:0.7rem; color:#666;">Sol filed one entry: Sol. Everyone else already had it on file.</span>
-                <a id="ar-open-tab" href="https://thisaliendoesnotexist.app/4294967296" target="_blank" rel="noopener" style="font-size:0.7rem; color:var(--acc); white-space:nowrap;">open full feed ↗</a>
+            <div style="font-size:0.7rem; color:#444; max-width:380px;">
+                See Compact/Registry/alien_registry.dat for filing notes.
             </div>
         </div>
     </div>
@@ -571,7 +595,7 @@
             '001': { name: 'calyx_flux_gate', killable: true, active: true }
         };
 
-        const ACCESS_SEED = [
+        const ACCESS_DEFAULTS = [
             { t: '1997', who: 'Sol', note: 'Charter ratified. Registry opened, founding keys issued.' },
             { t: '1997', who: 'Threnody Accord', note: 'Founding signature recorded.' },
             { t: '1997', who: 'Calyx Ministry', note: 'Founding signature recorded.' },
@@ -580,7 +604,7 @@
             { t: '2025', who: 'Sol', note: 'Local avatar submission logged. Not entered.' }
         ];
 
-        const SUBMISSIONS_SEED = [
+        const SUBMISSIONS_DEFAULTS = [
             { t: '1997', who: 'Sol', msg: 'Charter signed. Keys issued to the three founding delegates.' },
             { t: '1997', who: 'Threnody Accord', msg: 'Ratification confirmed. Minority dissent recorded against the founding terms, not blocking passage.' },
             { t: '1997', who: 'Calyx Ministry', msg: "Confirmed on our end. Article II term 'rank' has no clean equivalent here. Proceeding on best translation." },
@@ -619,8 +643,8 @@
                 let raw = localStorage.getItem('vgr9_access');
                 if (raw) return JSON.parse(raw);
             } catch(e) {}
-            localStorage.setItem('vgr9_access', JSON.stringify(ACCESS_SEED));
-            return ACCESS_SEED.slice();
+            localStorage.setItem('vgr9_access', JSON.stringify(ACCESS_DEFAULTS));
+            return ACCESS_DEFAULTS.slice();
         };
 
         const logAccess = entry => {
@@ -634,8 +658,8 @@
                 let raw = localStorage.getItem('vgr9_submissions');
                 if (raw) return JSON.parse(raw);
             } catch(e) {}
-            localStorage.setItem('vgr9_submissions', JSON.stringify(SUBMISSIONS_SEED));
-            return SUBMISSIONS_SEED.slice();
+            localStorage.setItem('vgr9_submissions', JSON.stringify(SUBMISSIONS_DEFAULTS));
+            return SUBMISSIONS_DEFAULTS.slice();
         };
 
         const renderAccessLog = () => {
@@ -670,7 +694,7 @@
             'Desktop': {
                 type: 'dir',
                 content: {
-                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry added under Start Menu. Unofficial - see Compact/Registry/alien_registry.dat.' },
+                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry under Start Menu is a placeholder - proposal never reached a vote. See Compact/Registry/alien_registry.dat.' },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
 [ ] Confirm uplink handshake
@@ -729,7 +753,8 @@ Reserve floor 15%. Below that, comms array sheds load first.` },
                             'known_issues.txt': { type: 'file', body: `- Gimbal sticks after cold restart below -40. Preheat first. (Logs/eng.log, 2016)
 - Occasional double entry in Compact/Registry/access.log after a hard reset. Harmless, just noisy.
 - Desktop icon positions reset if Trash is emptied mid-drag. Rare, not reproduced since 2015.
-- ps will list two processes nobody on this crew wrote. Leave them. See proc_rules.txt.` },
+- ps will list two processes nobody on this crew wrote. Leave them. See proc_rules.txt.
+- Someone on rotation tried to swap the default login avatar again. Didn't take, same as every other time. Article II, not a bug. Stop filing this one.` },
                             'proc_rules.txt': { type: 'file', body: `VGR-9 PROCESS HANDLING - STANDING RULES
 Compiled by Engineering. Binding on all rotations.
 
@@ -935,11 +960,10 @@ submit <message>
   delegate id.
     ex: submit requesting propulsion schema exchange
 
-registry [seed]
-  Opens the alien_registry app. With a numeric seed, loads that
-  entry directly instead of the default.
-    ex: registry
-    ex: registry 4294967296` },
+registry
+  Opens the alien_registry app. Placeholder only - the proposal
+  hasn't reached a vote, so there's no lookup interface yet.
+    ex: registry` },
             'Compact': {
                 type: 'dir',
                 content: {
@@ -1671,7 +1695,69 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
 
         const VIRTUAL_PATHS = ['/Compact/Registry/access.log', '/Compact/Registry/submissions.log', '/Compact/Registry/roster.dat'];
 
+        const attachResizeGrip = w => {
+            let grip = ce('div');
+            grip.className = 'viewer-resize-grip';
+            grip.textContent = '⤡';
+            grip.title = 'Resize';
+            w.appendChild(grip);
+            grip.addEventListener('pointerdown', e => {
+                e.preventDefault(); e.stopPropagation();
+                wm.focus(w);
+                let startX = e.clientX, startY = e.clientY;
+                let startW = w.offsetWidth, startH = w.offsetHeight;
+                if (w.classList.contains('maximized')) w.classList.remove('maximized');
+                const move = ev => {
+                    w.style.width = Math.max(320, startW + (ev.clientX - startX)) + 'px';
+                    w.style.height = Math.max(240, startH + (ev.clientY - startY)) + 'px';
+                };
+                const up = () => {
+                    document.removeEventListener('pointermove', move);
+                    document.removeEventListener('pointerup', up);
+                };
+                document.addEventListener('pointermove', move);
+                document.addEventListener('pointerup', up);
+            });
+        };
+
+        const openImageViewer = (title, content, path, imgSrc) => {
+            let id = Math.floor(Math.random() * 900) + 100;
+            let w = ce('div');
+            w.className = 'win active';
+            w.dataset.pid = id;
+            w.dataset.app = `image_viewer_${id}`;
+            w.dataset.dyn = "1";
+            w.dataset.title = title;
+
+            let off = (wm.wins.length * 25) % 200;
+            w.style.left = (250 + off) + 'px';
+            w.style.top = (150 + off) + 'px';
+            w.style.width = '520px'; w.style.height = '480px';
+
+            w.innerHTML = `
+                <div class="win-bar"><span>[${id}] image_viewer - ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
+                <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
+                    <div class="viewer-img-wrap"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>
+                    ${content ? `<div class="viewer-caption">${content}</div>` : ''}
+                </div>
+            `;
+
+            let imgEl = w.querySelector('.viewer-img');
+            imgEl.onerror = () => {
+                imgEl.closest('.viewer-img-wrap').innerHTML = `<div class="viewer-img-error">Image failed to load.<br>${imgSrc}</div>`;
+            };
+
+            document.body.appendChild(w);
+            attachResizeGrip(w);
+            wm.wins.push(w);
+            wm.bind(w);
+            wm.focus(w);
+            return id;
+        };
+
         const openViewer = (title, content, path = null, imgSrc = null) => {
+            if (imgSrc) return openImageViewer(title, content, path, imgSrc);
+
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
             w.className = 'win active';
@@ -1680,16 +1766,15 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             w.dataset.dyn = "1";
             w.dataset.title = title;
             let readOnly = path && VIRTUAL_PATHS.includes(path);
-            
+
             let off = (wm.wins.length * 25) % 200;
             w.style.left = (250 + off) + 'px';
             w.style.top = (150 + off) + 'px';
-            w.style.width = '550px'; w.style.height = imgSrc ? '480px' : '400px';
+            w.style.width = '550px'; w.style.height = '400px';
 
             w.innerHTML = `
                 <div class="win-bar"><span>[${id}] ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
-                    ${imgSrc ? `<div class="viewer-img-wrap"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>` : ''}
                     <textarea class="viewer-text" spellcheck="false" ${readOnly ? 'readonly' : ''}>${content}</textarea>
                     <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
                         <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">${readOnly ? '[Read-only]' : '[Save]'}</span>
@@ -2126,11 +2211,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 case 'access': doRead('/Compact/Registry/access.log'); break;
                 case 'registry': {
                     let p = wm.spawn('alien_registry');
-                    if (args[1]) {
-                        let digits = args[1].replace(/\D/g, '');
-                        if (digits) { setAlienSeed(digits); print(`registry: entity ${digits} loaded`); }
-                        else print("registry: seed must be numeric");
-                    }
+                    if (args[1]) print("registry: no lookup interface yet - proposal isn't ratified");
                     if (p) print(`Launched app [${p}]`);
                     break;
                 }
@@ -2142,7 +2223,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         break;
                     }
                     let q = args.slice(1).join(' ').toLowerCase();
-                    let r = registry.find(x => String(x.id) === q || x.name.toLowerCase() === q);
+                    let r = registry.find(x => String(x.id) === q || x.name.toLowerCase() === q || (q === 'human' && x.name.toLowerCase() === 'sol'));
                     if (!r) { print(`whois: no dossier for '${escapeHtml(args.slice(1).join(' '))}'`); break; }
                     if (r.redacted) {
                         print(`DESIGNATION    : [REDACTED]\nSPECIES_ID     : ${r.id}\nCLASSIFICATION : [REDACTED]\nSTATUS         : ${r.status}\nFOUNDING       : [REDACTED]\nNOTES          : [REDACTED]`);
@@ -2343,26 +2424,6 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 wm.spawn(i.dataset.run);
             };
         });
-
-        const ARFRAME = qs('#ar-frame');
-        const ARTAB = qs('#ar-open-tab');
-        const ARINPUT = qs('#ar-seed-input');
-        const setAlienSeed = seed => {
-            let url = `https://thisaliendoesnotexist.app/${seed}`;
-            ARFRAME.src = url;
-            ARTAB.href = url;
-            ARINPUT.value = seed;
-        };
-        qs('#ar-lookup-btn').onclick = () => {
-            let digits = ARINPUT.value.replace(/\D/g, '');
-            if (digits) setAlienSeed(digits);
-        };
-        ARINPUT.onkeydown = e => { if (e.key === 'Enter') qs('#ar-lookup-btn').click(); };
-        qs('#ar-random-btn').onclick = () => {
-            ARFRAME.src = 'https://thisaliendoesnotexist.app/';
-            ARTAB.href = 'https://thisaliendoesnotexist.app/';
-            ARINPUT.value = '';
-        };
 
         loadSys();
         buildSettings();

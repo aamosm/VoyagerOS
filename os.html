@@ -177,6 +177,7 @@
         #settings { width: 550px; height: 500px; left: 150px; top: 100px; }
         #monitor { width: 480px; height: 420px; left: 250px; top: 130px; }
         #alien-registry { width: 520px; height: 460px; left: 320px; top: 160px; }
+        #paint { width: 760px; height: 580px; left: 180px; top: 70px; }
 
         .viewer-img-wrap {
             flex-shrink: 0;
@@ -381,7 +382,39 @@
         .archive-iframe { width: 100%; height: calc(100% + 55px); margin-top: -55px; border: none; filter: invert(1) grayscale(1) contrast(1.2) brightness(0.9); background: #fff; }
         .remote-link:hover { text-decoration: underline !important; color: #fff !important; }
 
-        
+        .paint-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .paint-tool-btn { background: transparent; border: 1px solid var(--border); color: #aaa; padding: 6px 10px; cursor: pointer; font-family: inherit; font-size: 0.72rem; transition: 0.15s; flex-grow: 0; height: 28px; }
+        .paint-tool-btn:hover { border-color: #666; color: #fff; }
+        .paint-tool-btn.sel { border-color: var(--acc); background: rgba(255,255,255,0.08); color: #fff; }
+        .paint-ctrl { display: flex; flex-direction: column; gap: 2px; font-size: 0.62rem; color: #777; text-transform: uppercase; letter-spacing: 0.5px; }
+        .paint-toolbar input, .paint-toolbar select { flex-grow: 0; }
+        .paint-toolbar input[type=range] { width: 70px; }
+        .paint-toolbar input[type=color] { width: 32px; height: 28px; padding: 0; border: 1px solid var(--border) !important; cursor: pointer; }
+        .paint-toolbar select { border: 1px solid var(--border); height: 28px; }
+        .paint-grid-check { flex-direction: row; align-items: center; gap: 5px; }
+        .paint-grid-check input { width: auto; }
+        .paint-sep { width: 1px; align-self: stretch; background: var(--border); margin: 0 2px; }
+        .paint-canvas-area { flex-grow: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);
+            background:
+                linear-gradient(45deg, #151515 25%, transparent 25%) -8px 0/16px 16px,
+                linear-gradient(-45deg, #151515 25%, transparent 25%) -8px 0/16px 16px,
+                linear-gradient(45deg, transparent 75%, #151515 75%) -8px 0/16px 16px,
+                #0a0a0a;
+        }
+        .paint-canvas-wrap { position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
+        #paint-canvas { display: block; background: #fff; cursor: crosshair; touch-action: none; }
+        .paint-grid-overlay { position: absolute; inset: 0; pointer-events: none; display: none;
+            background-image: linear-gradient(rgba(0,0,0,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.25) 1px, transparent 1px);
+            background-size: 10% 10%;
+        }
+        .paint-grid-overlay.on { display: block; }
+        .paint-bottom-bar { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--border); flex-shrink: 0; flex-wrap: wrap; gap: 8px; }
+        .paint-status { font-size: 0.65rem; color: #555; }
+        .paint-autosave { font-size: 0.65rem; color: #555; font-style: italic; flex-grow: 1; margin-left: 12px; }
+        .paint-action-btn { border: 1px solid var(--border); padding: 5px 12px; color: var(--acc); cursor: pointer; font-size: 0.72rem; transition: 0.15s; }
+        .paint-action-btn:hover { border-color: var(--acc); background: rgba(255,255,255,0.05); }
+        .alr-lbl { font-size: 0.68rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+
         .sys-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .sys-modal-box { background: var(--win-bg); border: 1px solid var(--acc); padding: 20px; min-width: 320px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
         .sys-modal-in { width: 100%; padding: 8px; margin: 15px 0; background: #050505; color: #fff; border: 1px solid var(--border); font-family: inherit; }
@@ -537,6 +570,63 @@
         </div>
     </div>
 
+    <div id="paint" class="win" data-pid="14" data-app="paint">
+        <div class="win-bar">
+            <span>[14] paint_utility</span>
+            <div class="win-ctrls">
+                <span class="w-btn min">_</span>
+                <span class="w-btn max">□</span>
+                <span class="w-btn close">x</span>
+            </div>
+        </div>
+        <div class="win-content" style="padding: 8px;">
+            <div class="paint-toolbar">
+                <button class="paint-tool-btn sel" data-tool="pencil">Pencil</button>
+                <button class="paint-tool-btn" data-tool="brush">Brush</button>
+                <button class="paint-tool-btn" data-tool="spray">Spray</button>
+                <button class="paint-tool-btn" data-tool="eraser">Eraser</button>
+                <button class="paint-tool-btn" data-tool="bucket">Bucket Fill</button>
+                <button class="paint-tool-btn" data-tool="picker" title="Sample a color from the canvas">Picker</button>
+                <div class="paint-sep"></div>
+                <label class="paint-ctrl">Texture
+                    <select id="paint-texture" title="Brush stamp texture">
+                        <option value="smooth">Smooth</option>
+                        <option value="grain">Organic Grain</option>
+                        <option value="porous">Porous</option>
+                        <option value="scales">Scales</option>
+                        <option value="speckle">Speckles</option>
+                        <option value="stripe">Stripes</option>
+                        <option value="vein">Veins</option>
+                        <option value="mottled">Mottled</option>
+                    </select>
+                </label>
+                <div class="paint-sep"></div>
+                <label class="paint-ctrl">Size <span id="paint-size-val">14</span><input type="range" id="paint-size" min="1" max="60" value="14"></label>
+                <label class="paint-ctrl">Opacity <span id="paint-opacity-val">100</span><input type="range" id="paint-opacity" min="1" max="100" value="100"></label>
+                <label class="paint-ctrl">Color<input type="color" id="paint-color" value="#e0e0e0"></label>
+                <div class="paint-sep"></div>
+                <button class="paint-tool-btn" id="paint-undo" title="Undo">Undo</button>
+                <button class="paint-tool-btn" id="paint-redo" title="Redo">Redo</button>
+                <label class="paint-ctrl paint-grid-check"><input type="checkbox" id="paint-grid">Grid</label>
+                <button class="paint-tool-btn" id="paint-clear" style="color: var(--err); border-color: var(--err);">Clear</button>
+            </div>
+            <div class="paint-canvas-area" id="paint-canvas-area">
+                <div class="paint-canvas-wrap">
+                    <canvas id="paint-canvas" width="640" height="480"></canvas>
+                    <div class="paint-grid-overlay" id="paint-grid-overlay"></div>
+                </div>
+            </div>
+            <div class="paint-bottom-bar">
+                <span class="paint-status" id="paint-status">640 x 480 fixed canvas</span>
+                <span class="paint-autosave" id="paint-autosave-status"></span>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span class="paint-action-btn" id="paint-alien-reg">File Alien Registration</span>
+                    <span class="paint-action-btn" id="paint-save">Save to Filesystem</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="start-menu" id="start-menu">
         <div class="sm-hdr">Installed Packages</div>
         <div class="sm-item" data-run="terminal">
@@ -558,6 +648,10 @@
         <div class="sm-item" data-run="alien_registry">
             <span>Alien Registry</span>
             <span class="sm-sub">Joint species catalog</span>
+        </div>
+        <div class="sm-item" data-run="paint">
+            <span>Paint</span>
+            <span class="sm-sub">Raster drawing utility</span>
         </div>
     </div>
 
@@ -705,11 +799,35 @@
             return node.body;
         };
 
+        const triggerDownload = (href, filename) => {
+            let a = ce('a');
+            a.href = href; a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        };
+
+        const downloadNode = (path, node) => {
+            let name = path.split('/').pop() || 'file';
+            if (node.image && node.image.startsWith('data:')) {
+                triggerDownload(node.image, name);
+                return;
+            }
+            if (node.image) {
+                window.open(node.image, '_blank');
+                return;
+            }
+            let blob = new Blob([getFileBody(path, node)], { type: 'text/plain' });
+            let url = URL.createObjectURL(blob);
+            triggerDownload(url, name.includes('.') ? name : name + '.txt');
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+        };
+
         const defaultFs = {
             'Desktop': {
                 type: 'dir',
                 content: {
-                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry under Start Menu is a placeholder - proposal never reached a vote. See Compact/Registry/alien_registry.dat.' },
+                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry under Start Menu is a placeholder - proposal never reached a vote. See Compact/Registry/alien_registry.dat.\n\nThe Paint utility is real, though, and does support filing a specimen through the Alien Registration wizard. See manual.txt for the full walkthrough - tools, textures, saving, transferring files off the array, and how a filed .alr record is put together. It autosaves your canvas locally every 30 seconds and offers to recover it if you come back to a blank one.' },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
 [ ] Confirm uplink handshake
@@ -908,11 +1026,13 @@ APPS & PROCESSES
 
 open <target>
   Opens a file or directory in Explorer, or launches an app by
-  name: terminal, explorer, settings, monitor, alien_registry.
+  name: terminal, explorer, settings, monitor, alien_registry,
+  paint.
     ex: open manual.txt
     ex: open Desktop
     ex: open monitor
     ex: open alien_registry
+    ex: open paint
 
 ps
   List currently running processes (pid + app name).
@@ -985,7 +1105,68 @@ submit <message>
 registry
   Opens the alien_registry app. Placeholder only - the proposal
   hasn't reached a vote, so there's no lookup interface yet.
-    ex: registry` },
+    ex: registry
+
+===============================
+PAINT
+===============================
+
+open paint launches the Paint utility - a fixed-size canvas for
+sketching whatever the crew spots off the array. Everything drawn
+lives only in that canvas until you explicitly save it somewhere.
+
+Tools:
+  Pencil    hard 1px-ish line, follows the cursor exactly
+  Brush     textured stamp, size/opacity/texture all apply
+  Spray     scatters dots in a radius while held down
+  Eraser    same as Pencil but cuts through to transparent
+  Bucket Fill   fills the contiguous region under the cursor
+  Picker    samples a color off the canvas into the color well
+
+Texture (affects Brush and Spray):
+  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes,
+  Veins, Mottled
+
+Other controls:
+  Size / Opacity   sliders, apply to Pencil/Brush/Spray/Eraser
+  Color            the active color well
+  Grid             toggles an alignment overlay, doesn't paint
+  Undo / Redo      also bound to Ctrl+Z and Ctrl+Shift+Z while
+                   the Paint window is focused
+  Clear            wipes the canvas back to blank - confirm first
+
+Autosave:
+  The canvas is autosaved locally every 30 seconds while Paint is
+  open. If you come back to a blank canvas after a page reload
+  and an autosave exists, Paint will offer to recover it before
+  you start drawing.
+
+Saving and transferring:
+  Save to Filesystem writes the current canvas into the virtual
+  filesystem as an image file, at a directory you choose. Once a
+  file exists anywhere in the filesystem - Desktop, Explorer,
+  anywhere - right-click it and choose "Transfer to another
+  device" to actually pull it off the array and onto your local
+  machine. There's no separate download button in Paint itself;
+  saving and transferring are deliberately two different steps.
+
+Alien Registration filing:
+  File Alien Registration walks through a short wizard instead of
+  one long form:
+    Step 1  Common Name        whatever the crew calls it
+    Step 2  Physical Characteristics
+              height (m), mass (kg), body plan, symmetry,
+              eye count, mouth, arm count, leg count, tail
+              present, surface texture, observed behaviour,
+              notable features (free text - "large crest",
+              "glowing eyes", etc.)
+    Step 3  Colors              primary and secondary
+    Step 4  Notes                anything else worth logging
+  On save, an internal registry ID (VGR9-##### format) is
+  assigned automatically - you never have to make one up. The
+  result is written as a .alr file: a JSON record pairing your
+  answers with the drawing itself. Like any other saved file, get
+  it off the array with right-click - Transfer to another device.` },
             'Compact': {
                 type: 'dir',
                 content: {
@@ -1052,11 +1233,7 @@ Filed by signatory (visible portion only):
   Sol                1
   Threnody Accord    212
   Calyx Ministry     89
-  KV-118             [REDACTED] - largest filer on record, value withheld
-
-Visible entries don't come close to summing to the tally above.
-Difference presumed filed under KV-118. Not confirmed - they don't
-confirm much.
+  KV-118             [REDACTED]
 
 Sol filed one entry: Sol. Everyone else already had it on file
 anyway. Render's not ours either - same source as usual.
@@ -1100,8 +1277,7 @@ anyone yet.
 
 Authentication run twice before a signature would go on it. Not a
 reflection artifact, not our own signal bounced back at us across
-thirteen years. Something answered - and read as though it had
-been listening a long time before it ever spoke.
+thirteen years. Something answered.
 
 Escalated that same night. Someone asked what we should call it
 instead of signal designation 9821-B. Nobody had an answer ready.
@@ -1148,9 +1324,11 @@ concepts into pulse-modulation keeps losing precision on anything
 without a direct physical referent.
 
 [2019] Baseline. Nothing flagged.
-[2021] First flagged term: "ownership" (Charter Article I). Closest
-Calyx equivalent reads as "temporary custodial state," which is not
-what Article I means. Filed, not resolved.
+[2021] Flagged term: "ownership" (Charter Article I). Calyx has no
+linguistic concept for permanent possession. Translation matrix
+forces "ownership" into "temporary biological custody prior to
+reassignment." Article I reads to them as: "VGR-9 is not under
+temporary biological custody." Filed. Unresolved.
 [2023] "rank" (Article II) flagged - see Registry/submissions.log,
 1997 entry, same problem, different party.
 [2025] Drift now measurable on abstract legal terms generally.
@@ -1521,6 +1699,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
                         { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
                         { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
+                        ...(n.type === 'file' ? [{ label: 'Transfer to another device', action: () => downloadNode(full, n) }] : []),
                         '-',
                         { label: 'Properties', action: () => {
                             let size = JSON.stringify(n).length;
@@ -1723,12 +1902,23 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
                     <div class="viewer-img-wrap" style="${whiteBg ? 'background:#fff;' : ''}"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>
                     ${content ? `<div class="viewer-caption">${content}</div>` : ''}
+                    <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
+                        <span class="w-btn dl-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">[Transfer to another device]</span>
+                    </div>
                 </div>
             `;
 
             let imgEl = w.querySelector('.viewer-img');
             imgEl.onerror = () => {
                 imgEl.closest('.viewer-img-wrap').innerHTML = `<div class="viewer-img-error">Image failed to load.<br>${imgSrc}</div>`;
+            };
+
+            w.querySelector('.dl-btn').onclick = () => {
+                if (path) {
+                    let n = getNode(path);
+                    if (n) { downloadNode(path, n); return; }
+                }
+                triggerDownload(imgSrc, title.includes('.') ? title : title + '.img');
             };
 
             document.body.appendChild(w);
@@ -1761,6 +1951,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
                     <textarea class="viewer-text" spellcheck="false" ${readOnly ? 'readonly' : ''}>${content}</textarea>
                     <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
+                        <span class="w-btn dl-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">[Transfer to another device]</span>
                         <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">${readOnly ? '[Read-only]' : '[Save]'}</span>
                     </div>
                 </div>
@@ -1775,6 +1966,18 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 }
                 w.querySelector('.save-btn').textContent = '[Saved]';
                 setTimeout(()=>w.querySelector('.save-btn').textContent = '[Save]', 1000);
+            };
+
+            w.querySelector('.dl-btn').onclick = () => {
+                if (path) {
+                    let n = getNode(path);
+                    if (n) { downloadNode(path, n); return; }
+                }
+                let v = w.querySelector('textarea').value;
+                let blob = new Blob([v], { type: 'text/plain' });
+                let url = URL.createObjectURL(blob);
+                triggerDownload(url, title.includes('.') ? title : title + '.txt');
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
             };
 
             document.body.appendChild(w);
@@ -1877,6 +2080,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                             { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
                             { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
                             { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
+                            ...(item.type === 'file' ? [{ label: 'Transfer to another device', action: () => downloadNode(fPath, item) }] : []),
                             '-',
                             { label: 'Properties', action: () => {
                                 let size = JSON.stringify(item).length;
@@ -2265,7 +2469,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 case 'open': {
                     if (!args[1]) { print("open: missing target"); break; }
                     let tgt = args[1].toLowerCase();
-                    if (['terminal', 'settings', 'explorer', 'monitor', 'alien_registry'].includes(tgt)) {
+                    if (['terminal', 'settings', 'explorer', 'monitor', 'alien_registry', 'paint'].includes(tgt)) {
                         let p = wm.spawn(tgt);
                         if (p) print(`Launched app [${p}]`);
                     } else {
@@ -2367,10 +2571,10 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         if (!g.killable) { print(`close: [${g.name}] does not respond to termination signals. Ignored.`); break; }
                         if (!g.active) { print(`close: pid not found`); break; }
                         g.active = false;
-                        print(`Closed [${pid}] ${g.name}. Velocity dropping.`);
+                        print(`Closed [${pid}] ${g.name}.`);
                         setTimeout(() => {
                             g.active = true;
-                            print(`[${g.name}] resumed automatically. Velocity recovering.`);
+                            print(`[${g.name}] resumed automatically.`);
                         }, 12000);
                         break;
                     }
@@ -2409,10 +2613,549 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             };
         });
 
+        const PAINT_W = 640, PAINT_H = 480;
+
+        const hexToRgb = hex => {
+            let h = hex.replace('#', '');
+            if (h.length === 3) h = h.split('').map(c => c + c).join('');
+            let num = parseInt(h, 16);
+            return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+        };
+
+        const paintStamp = (pctx, x, y, radius, colorHex, op, texture) => {
+            let { r, g, b } = hexToRgb(colorHex);
+            radius = Math.max(0.6, radius);
+            switch (texture) {
+                case 'grain': {
+                    let n = Math.max(6, Math.floor(radius * 2.2));
+                    for (let i = 0; i < n; i++) {
+                        let a = Math.random() * Math.PI * 2, d = Math.random() * radius;
+                        let px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+                        let s = Math.random() * radius * 0.15 + 0.4;
+                        pctx.fillStyle = `rgba(${r},${g},${b},${(Math.random() * 0.5 + 0.3) * op})`;
+                        pctx.beginPath(); pctx.arc(px, py, s, 0, Math.PI * 2); pctx.fill();
+                    }
+                    break;
+                }
+                case 'porous': {
+                    pctx.save();
+                    pctx.beginPath(); pctx.arc(x, y, radius, 0, Math.PI * 2); pctx.clip();
+                    pctx.fillStyle = `rgba(${r},${g},${b},${op})`;
+                    pctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+                    pctx.globalCompositeOperation = 'destination-out';
+                    let holes = Math.max(4, Math.floor(radius * 0.6));
+                    for (let i = 0; i < holes; i++) {
+                        let a = Math.random() * Math.PI * 2, d = Math.random() * radius * 0.85;
+                        let px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+                        let hr = Math.random() * radius * 0.22 + radius * 0.06;
+                        pctx.globalAlpha = Math.random() * 0.6 + 0.3;
+                        pctx.beginPath(); pctx.arc(px, py, hr, 0, Math.PI * 2); pctx.fill();
+                    }
+                    pctx.restore();
+                    break;
+                }
+                case 'scales': {
+                    pctx.save();
+                    pctx.beginPath(); pctx.arc(x, y, radius, 0, Math.PI * 2); pctx.clip();
+                    let rows = Math.max(2, Math.floor(radius / 4));
+                    let cell = radius / rows;
+                    let row = 0;
+                    for (let ry = -radius; ry <= radius; ry += cell, row++) {
+                        for (let rx = -radius; rx <= radius; rx += cell * 1.3) {
+                            let px = x + rx + (row % 2 ? cell * 0.6 : 0);
+                            let py = y + ry;
+                            if (Math.hypot(px - x, py - y) > radius) continue;
+                            pctx.fillStyle = `rgba(${r},${g},${b},${(Math.random() * 0.3 + 0.5) * op})`;
+                            pctx.beginPath();
+                            pctx.arc(px, py, cell * 0.7, Math.PI, Math.PI * 2);
+                            pctx.fill();
+                        }
+                    }
+                    pctx.restore();
+                    break;
+                }
+                case 'speckle': {
+                    let n = Math.max(3, Math.floor(radius * 0.5));
+                    for (let i = 0; i < n; i++) {
+                        let a = Math.random() * Math.PI * 2, d = Math.random() * radius;
+                        let px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+                        let s = Math.random() * radius * 0.3 + radius * 0.08;
+                        pctx.fillStyle = `rgba(${r},${g},${b},${(Math.random() * 0.3 + 0.6) * op})`;
+                        pctx.beginPath(); pctx.arc(px, py, s, 0, Math.PI * 2); pctx.fill();
+                    }
+                    break;
+                }
+                case 'stripe': {
+                    pctx.save();
+                    pctx.beginPath(); pctx.arc(x, y, radius, 0, Math.PI * 2); pctx.clip();
+                    pctx.strokeStyle = `rgba(${r},${g},${b},${op})`;
+                    let lw = Math.max(1, radius * 0.18);
+                    pctx.lineWidth = lw;
+                    let ang = Math.random() * Math.PI;
+                    let cosP = Math.cos(ang + Math.PI / 2), sinP = Math.sin(ang + Math.PI / 2);
+                    for (let off = -radius; off <= radius; off += lw * 1.8) {
+                        pctx.beginPath();
+                        pctx.moveTo(x + Math.cos(ang) * radius + cosP * off, y + Math.sin(ang) * radius + sinP * off);
+                        pctx.lineTo(x - Math.cos(ang) * radius + cosP * off, y - Math.sin(ang) * radius + sinP * off);
+                        pctx.stroke();
+                    }
+                    pctx.restore();
+                    break;
+                }
+                case 'vein': {
+                    pctx.save();
+                    pctx.beginPath(); pctx.arc(x, y, radius, 0, Math.PI * 2); pctx.clip();
+                    pctx.strokeStyle = `rgba(${r},${g},${b},${op})`;
+                    pctx.lineWidth = Math.max(0.6, radius * 0.08);
+                    let branches = Math.max(3, Math.floor(radius * 0.25));
+                    for (let i = 0; i < branches; i++) {
+                        let a0 = Math.random() * Math.PI * 2;
+                        let cx1 = x + Math.cos(a0) * radius * 0.4, cy1 = y + Math.sin(a0) * radius * 0.4;
+                        let a1 = a0 + (Math.random() - 0.5);
+                        let ex = x + Math.cos(a1) * radius, ey = y + Math.sin(a1) * radius;
+                        pctx.beginPath();
+                        pctx.moveTo(x, y);
+                        pctx.quadraticCurveTo(cx1, cy1, ex, ey);
+                        pctx.stroke();
+                    }
+                    pctx.restore();
+                    break;
+                }
+                case 'mottled': {
+                    let blobs = Math.max(3, Math.floor(radius * 0.3));
+                    for (let i = 0; i < blobs; i++) {
+                        let a = Math.random() * Math.PI * 2, d = Math.random() * radius * 0.6;
+                        let px = x + Math.cos(a) * d, py = y + Math.sin(a) * d;
+                        let br = radius * (0.4 + Math.random() * 0.5);
+                        let grad = pctx.createRadialGradient(px, py, 0, px, py, br);
+                        let al = (Math.random() * 0.3 + 0.35) * op;
+                        grad.addColorStop(0, `rgba(${r},${g},${b},${al})`);
+                        grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                        pctx.fillStyle = grad;
+                        pctx.beginPath(); pctx.arc(px, py, br, 0, Math.PI * 2); pctx.fill();
+                    }
+                    break;
+                }
+                default: {
+                    let grad = pctx.createRadialGradient(x, y, 0, x, y, radius);
+                    grad.addColorStop(0, `rgba(${r},${g},${b},${op})`);
+                    grad.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                    pctx.fillStyle = grad;
+                    pctx.beginPath(); pctx.arc(x, y, radius, 0, Math.PI * 2); pctx.fill();
+                }
+            }
+        };
+
+        const paintSaveModal = (dataUrl, defaultName, bodyText, onSaved) => {
+            let m = ce('div');
+            m.className = 'sys-modal';
+            m.innerHTML = `
+                <div class="sys-modal-box" style="min-width:360px;">
+                    <div style="color:var(--acc); margin-bottom:10px; font-weight:bold;">Save to Filesystem</div>
+                    <div style="font-size:0.8rem; color:#ccc; margin-bottom:4px;">Filename</div>
+                    <input type="text" class="sys-modal-in psm-name" spellcheck="false" autocomplete="off">
+                    <div style="font-size:0.8rem; color:#ccc; margin:10px 0 4px;">Destination directory</div>
+                    <input type="text" class="sys-modal-in psm-dir" spellcheck="false" autocomplete="off">
+                    <div style="font-size:0.68rem; color:#555; margin-top:4px;">ex: /Desktop, /Local_Ops</div>
+                    <div style="text-align:right; margin-top:15px;">
+                        <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Cancel</button>
+                        <button class="sys-modal-btn sys-ok">Save</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(m);
+            let nameInp = m.querySelector('.psm-name');
+            let dirInp = m.querySelector('.psm-dir');
+            nameInp.value = defaultName;
+            dirInp.value = '/Desktop';
+            nameInp.focus(); nameInp.select();
+            const close = () => m.remove();
+            m.querySelector('.sys-cancel').onclick = close;
+            const doSave = () => {
+                let name = nameInp.value.trim();
+                let dir = dirInp.value.trim() || '/';
+                if (!name) { nameInp.style.borderColor = 'var(--err)'; return; }
+                let dirNode = getNode(dir);
+                if (!dirNode || dirNode.type !== 'dir') { dirInp.style.borderColor = 'var(--err)'; return; }
+                let c = 1, base = name;
+                while (dirNode.content[name]) name = `${base}_${c++}`;
+                dirNode.content[name] = { type: 'file', image: dataUrl, whiteBg: true, body: bodyText };
+                fsUpdated();
+                close();
+                if (onSaved) onSaved((dir === '/' ? '' : dir) + '/' + name);
+            };
+            m.querySelector('.sys-ok').onclick = doSave;
+            [nameInp, dirInp].forEach(inp => inp.onkeydown = e => { if (e.key === 'Enter') doSave(); });
+        };
+
+        const nextRegistryId = () => {
+            sysState.conf.regCounter = (sysState.conf.regCounter || 0) + 1;
+            saveSys();
+            return 'VGR9-' + String(sysState.conf.regCounter).padStart(5, '0');
+        };
+
+        const ALR_STEP_TITLES = ['Common Name', 'Physical Characteristics', 'Colors', 'Notes'];
+
+        const openAlienRegModal = (dataUrl) => {
+            let m = ce('div');
+            m.className = 'sys-modal';
+            document.body.appendChild(m);
+
+            let reg = {
+                commonName: '', heightM: '', massKg: '', bodyPlan: '', symmetry: '',
+                eyeCount: '', mouth: '', armCount: '', legCount: '', tailPresent: '',
+                notableFeatures: '', surfaceTexture: '', behaviour: '',
+                primaryColor: '', secondaryColor: '', notes: ''
+            };
+            let step = 0;
+            const lastStep = ALR_STEP_TITLES.length - 1;
+
+            const close = () => m.remove();
+
+            const collect = () => {
+                m.querySelectorAll('.alr-f').forEach(f => reg[f.dataset.f] = f.value.trim());
+            };
+
+            const sel = (field, opts, placeholder) => `
+                <select class="sys-modal-in alr-f" data-f="${field}" style="margin:4px 0 0;">
+                    <option value="">${placeholder || '-'}</option>
+                    ${opts.map(o => `<option${reg[field] === o ? ' selected' : ''}>${o}</option>`).join('')}
+                </select>`;
+            const txt = (field, placeholder, type) => `<input class="sys-modal-in alr-f" data-f="${field}" ${type ? `type="${type}"` : ''} placeholder="${placeholder || ''}" value="${reg[field] || ''}" style="margin:4px 0 0;">`;
+
+            const stepBody = () => {
+                if (step === 0) {
+                    return `
+                        <div class="alr-lbl">Common Name</div>
+                        ${txt('commonName', 'e.g. Tall Stalker, Glass Walker, Red Moss Grazer')}
+                        <div style="font-size:0.68rem; color:#555; margin-top:6px;">Whatever the crew has taken to calling it. An internal registry ID is assigned automatically once filed.</div>`;
+                }
+                if (step === 1) {
+                    return `
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div><div class="alr-lbl">Estimated height (m)</div><input class="sys-modal-in alr-f" data-f="heightM" type="number" step="0.1" list="alr-height-dl" placeholder="e.g. 0.5, 2.3, 14" value="${reg.heightM || ''}" style="margin:4px 0 0;"><datalist id="alr-height-dl"><option value="0.5"><option value="2.3"><option value="14"></datalist></div>
+                            <div><div class="alr-lbl">Estimated mass (kg)</div>${txt('massKg', 'e.g. 60', 'number')}</div>
+                            <div><div class="alr-lbl">Body plan</div>${sel('bodyPlan', ['Biped','Quadruped','Serpentine','Winged','Radial','Cephalopod','Insectoid','Other'])}</div>
+                            <div><div class="alr-lbl">Symmetry</div>${sel('symmetry', ['Bilateral','Radial','Asymmetrical'])}</div>
+                            <div><div class="alr-lbl">Eye count</div>${sel('eyeCount', ['0','1','2','3','4','5+'])}</div>
+                            <div><div class="alr-lbl">Mouth</div>${sel('mouth', ['None','Mandibles','Beak','Jaw','Unknown','Other'])}</div>
+                            <div><div class="alr-lbl">Arms</div>${sel('armCount', ['0','2','4','Other'])}</div>
+                            <div><div class="alr-lbl">Legs</div>${sel('legCount', ['0','2','4','6','Other'])}</div>
+                            <div><div class="alr-lbl">Tail present</div>${sel('tailPresent', ['Yes','No'])}</div>
+                            <div><div class="alr-lbl">Surface</div>${sel('surfaceTexture', ['Smooth','Scaled','Segmented','Rough','Soft','Metallic','Unknown'])}</div>
+                            <div style="grid-column:1/3;"><div class="alr-lbl">Observed behaviour</div>${sel('behaviour', ['Passive','Curious','Territorial','Aggressive','Unknown'])}</div>
+                            <div style="grid-column:1/3;"><div class="alr-lbl">Notable features</div>${txt('notableFeatures', 'e.g. Large crest, long neck, glowing eyes, massive claws')}</div>
+                        </div>`;
+                }
+                if (step === 2) {
+                    return `
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div><div class="alr-lbl">Primary color</div>${txt('primaryColor', 'e.g. mottled green')}</div>
+                            <div><div class="alr-lbl">Secondary color</div>${txt('secondaryColor', 'e.g. pale gold')}</div>
+                        </div>`;
+                }
+                return `
+                    <div class="alr-lbl">Notes</div>
+                    <textarea class="sys-modal-in alr-f" data-f="notes" rows="5" placeholder="Anything else worth logging - encounter context, behavior, uncertainty." style="margin:4px 0 0; resize:vertical;">${reg.notes || ''}</textarea>`;
+            };
+
+            const render = () => {
+                m.innerHTML = `
+                    <div class="sys-modal-box" style="min-width:420px; max-width:480px; max-height:82vh; overflow-y:auto;">
+                        <div style="color:var(--acc); margin-bottom:4px; font-weight:bold;">Alien Registration Filing</div>
+                        <div style="font-size:0.68rem; color:#666; margin-bottom:4px;">Step ${step + 1} of ${ALR_STEP_TITLES.length} - ${ALR_STEP_TITLES[step]}</div>
+                        <div style="font-size:0.72rem; color:#777; margin-bottom:14px;">Record only what could actually be observed at range. Leave uncertain fields blank.</div>
+                        <div id="alr-step-body">${stepBody()}</div>
+                        <div style="text-align:right; margin-top:16px; display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
+                            <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Cancel</button>
+                            ${step > 0 ? `<button class="sys-modal-btn" id="alr-back">Back</button>` : ''}
+                            ${step < lastStep ? `<button class="sys-modal-btn sys-ok" id="alr-next">Next</button>` : `<button class="sys-modal-btn sys-ok" id="alr-save">Save to Filesystem</button>`}
+                        </div>
+                    </div>
+                `;
+                m.querySelector('.sys-cancel').onclick = close;
+                let backBtn = m.querySelector('#alr-back');
+                if (backBtn) backBtn.onclick = () => { collect(); step--; render(); };
+                let nextBtn = m.querySelector('#alr-next');
+                if (nextBtn) nextBtn.onclick = () => { collect(); step++; render(); };
+                m.querySelectorAll('.alr-f').forEach(f => {
+                    if (f.tagName === 'TEXTAREA') return;
+                    f.onkeydown = e => { if (e.key === 'Enter') (nextBtn || m.querySelector('#alr-save'))?.click(); };
+                });
+                let saveBtn = m.querySelector('#alr-save');
+                if (saveBtn) saveBtn.onclick = () => {
+                    collect();
+                    let registryId = nextRegistryId();
+                    let record = {
+                        vgr9_format: 'alien_registration',
+                        format_version: 2,
+                        metadata: { created: new Date().toISOString(), tool: 'vgr-9 paint utility', canvas: { width: PAINT_W, height: PAINT_H }, registryId },
+                        registration: reg,
+                        drawing: dataUrl
+                    };
+                    let name = (reg.commonName || 'unregistered').replace(/[^a-z0-9_\-]/gi, '_').toLowerCase() + '.alr';
+                    close();
+                    paintSaveModal(dataUrl, name, JSON.stringify(record, null, 2), () => {
+                        sysModal('Filed', `'${escapeHtml(reg.commonName || 'Unregistered specimen')}' has been recorded.<br><br>Internal registry ID assigned: <span style="color:var(--acc);">${registryId}</span>`);
+                    });
+                };
+            };
+            render();
+        };
+
+        const initPaint = () => {
+            let win = qs('#paint');
+            let canvas = qs('#paint-canvas');
+            let ctx = canvas.getContext('2d', { willReadFrequently: true });
+            let area = qs('#paint-canvas-area');
+            let gridOverlay = qs('#paint-grid-overlay');
+            let statusEl = qs('#paint-status');
+
+            let currentTool = 'pencil';
+            let currentSize = 14;
+            let currentOpacity = 100;
+            let currentColor = '#e0e0e0';
+            let currentTexture = 'smooth';
+            let painting = false, lastX = 0, lastY = 0, sprayTimer = null;
+            let history = [], histIndex = -1;
+            let autosaveEl = qs('#paint-autosave-status');
+            const AUTOSAVE_KEY = 'vgr9_paint_autosave';
+            const clearPaintAutosave = () => { localStorage.removeItem(AUTOSAVE_KEY); if (autosaveEl) autosaveEl.textContent = ''; };
+            const doAutosave = () => {
+                try {
+                    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ t: Date.now(), data: canvas.toDataURL('image/png') }));
+                    if (autosaveEl) {
+                        let d = new Date();
+                        autosaveEl.textContent = `Autosaved ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+                    }
+                } catch (e) { /* storage unavailable, fail silently */ }
+            };
+
+            const fitCanvas = () => {
+                let aw = area.clientWidth - 16, ah = area.clientHeight - 16;
+                let scale = Math.max(0.05, Math.min(aw / PAINT_W, ah / PAINT_H));
+                let dw = Math.round(PAINT_W * scale), dh = Math.round(PAINT_H * scale);
+                canvas.style.width = dw + 'px';
+                canvas.style.height = dh + 'px';
+                gridOverlay.style.width = dw + 'px';
+                gridOverlay.style.height = dh + 'px';
+            };
+            new ResizeObserver(fitCanvas).observe(area);
+
+            const getCanvasPos = e => {
+                let rect = canvas.getBoundingClientRect();
+                let sx = canvas.width / rect.width, sy = canvas.height / rect.height;
+                return {
+                    x: Math.max(0, Math.min(PAINT_W, (e.clientX - rect.left) * sx)),
+                    y: Math.max(0, Math.min(PAINT_H, (e.clientY - rect.top) * sy))
+                };
+            };
+
+            const updateStatus = () => { statusEl.textContent = `${PAINT_W} x ${PAINT_H} fixed canvas · ${currentTool}`; };
+
+            const commitHistory = () => {
+                history = history.slice(0, histIndex + 1);
+                history.push(canvas.toDataURL());
+                if (history.length > 30) history.shift();
+                histIndex = history.length - 1;
+            };
+            const restoreSnapshot = data => {
+                let img = new Image();
+                img.onload = () => { ctx.clearRect(0, 0, PAINT_W, PAINT_H); ctx.drawImage(img, 0, 0); };
+                img.src = data;
+            };
+            const doUndo = () => { if (histIndex > 0) { histIndex--; restoreSnapshot(history[histIndex]); } };
+            const doRedo = () => { if (histIndex < history.length - 1) { histIndex++; restoreSnapshot(history[histIndex]); } };
+
+            const stampAt = (x, y) => paintStamp(ctx, x, y, currentSize, currentColor, currentOpacity / 100, currentTexture);
+
+            const sprayAt = (cx, cy) => {
+                let { r, g, b } = hexToRgb(currentColor);
+                let density = Math.max(6, Math.floor(currentSize * 1.1));
+                for (let i = 0; i < density; i++) {
+                    let a = Math.random() * Math.PI * 2, d = Math.random() * currentSize;
+                    let px = cx + Math.cos(a) * d, py = cy + Math.sin(a) * d;
+                    let s = Math.random() * 1.4 + 0.5;
+                    ctx.fillStyle = `rgba(${r},${g},${b},${(Math.random() * 0.5 + 0.3) * (currentOpacity / 100)})`;
+                    ctx.beginPath(); ctx.arc(px, py, s, 0, Math.PI * 2); ctx.fill();
+                }
+            };
+
+            const floodFill = (sx, sy, fillHex) => {
+                sx = Math.max(0, Math.min(PAINT_W - 1, Math.floor(sx)));
+                sy = Math.max(0, Math.min(PAINT_H - 1, Math.floor(sy)));
+                let img = ctx.getImageData(0, 0, PAINT_W, PAINT_H);
+                let data = img.data;
+                let idx = (sy * PAINT_W + sx) * 4;
+                let startR = data[idx], startG = data[idx + 1], startB = data[idx + 2], startA = data[idx + 3];
+                let { r: fr, g: fg, b: fb } = hexToRgb(fillHex);
+                let fa = Math.round((currentOpacity / 100) * 255);
+                if (Math.abs(startR - fr) < 8 && Math.abs(startG - fg) < 8 && Math.abs(startB - fb) < 8 && Math.abs(startA - fa) < 8) return;
+                let tolerance = 42;
+                let stack = [[sx, sy]];
+                let visited = new Uint8Array(PAINT_W * PAINT_H);
+                while (stack.length) {
+                    let [x, y] = stack.pop();
+                    if (x < 0 || x >= PAINT_W || y < 0 || y >= PAINT_H) continue;
+                    let vi = y * PAINT_W + x;
+                    if (visited[vi]) continue;
+                    let i = vi * 4;
+                    let dr = data[i] - startR, dg = data[i + 1] - startG, db = data[i + 2] - startB, da = data[i + 3] - startA;
+                    if (Math.sqrt(dr * dr + dg * dg + db * db + da * da) > tolerance) continue;
+                    visited[vi] = 1;
+                    data[i] = fr; data[i + 1] = fg; data[i + 2] = fb; data[i + 3] = fa;
+                    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+                }
+                ctx.putImageData(img, 0, 0);
+            };
+
+            const pickColorAt = e => {
+                let p = getCanvasPos(e);
+                let px = Math.max(0, Math.min(PAINT_W - 1, Math.floor(p.x)));
+                let py = Math.max(0, Math.min(PAINT_H - 1, Math.floor(p.y)));
+                let d = ctx.getImageData(px, py, 1, 1).data;
+                let hex = '#' + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, '0')).join('');
+                currentColor = hex;
+                qs('#paint-color').value = hex;
+            };
+
+            const strokeLine = (x0, y0, x1, y1, erase) => {
+                ctx.save();
+                ctx.globalAlpha = currentOpacity / 100;
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = Math.max(1, currentSize * 0.5);
+                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                if (erase) ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+                ctx.restore();
+            };
+
+            canvas.addEventListener('pointerdown', e => {
+                wm.focus(win);
+                if (currentTool === 'picker') { pickColorAt(e); return; }
+                if (currentTool === 'bucket') {
+                    let p = getCanvasPos(e);
+                    floodFill(p.x, p.y, currentColor);
+                    commitHistory();
+                    return;
+                }
+                painting = true;
+                let p = getCanvasPos(e);
+                lastX = p.x; lastY = p.y;
+                canvas.setPointerCapture(e.pointerId);
+                if (currentTool === 'pencil' || currentTool === 'eraser') {
+                    strokeLine(p.x, p.y, p.x + 0.01, p.y + 0.01, currentTool === 'eraser');
+                } else if (currentTool === 'brush') {
+                    stampAt(p.x, p.y);
+                } else if (currentTool === 'spray') {
+                    sprayAt(p.x, p.y);
+                    sprayTimer = setInterval(() => sprayAt(lastX, lastY), 45);
+                }
+            });
+
+            canvas.addEventListener('pointermove', e => {
+                if (!painting) return;
+                let p = getCanvasPos(e);
+                if (currentTool === 'pencil' || currentTool === 'eraser') {
+                    strokeLine(lastX, lastY, p.x, p.y, currentTool === 'eraser');
+                } else if (currentTool === 'brush') {
+                    let dist = Math.hypot(p.x - lastX, p.y - lastY);
+                    let step = Math.max(1, currentSize * 0.3);
+                    let n = Math.max(1, Math.floor(dist / step));
+                    for (let i = 1; i <= n; i++) {
+                        let t = i / n;
+                        stampAt(lastX + (p.x - lastX) * t, lastY + (p.y - lastY) * t);
+                    }
+                }
+                lastX = p.x; lastY = p.y;
+            });
+
+            const stopPaint = () => {
+                if (!painting) return;
+                painting = false;
+                if (sprayTimer) { clearInterval(sprayTimer); sprayTimer = null; }
+                commitHistory();
+            };
+            canvas.addEventListener('pointerup', stopPaint);
+            canvas.addEventListener('pointerleave', stopPaint);
+            canvas.addEventListener('pointercancel', stopPaint);
+
+            win.querySelectorAll('.paint-tool-btn[data-tool]').forEach(btn => {
+                btn.onclick = () => {
+                    win.querySelectorAll('.paint-tool-btn[data-tool]').forEach(b => b.classList.remove('sel'));
+                    btn.classList.add('sel');
+                    currentTool = btn.dataset.tool;
+                    canvas.style.cursor = currentTool === 'picker' ? 'copy' : (currentTool === 'bucket' ? 'cell' : 'crosshair');
+                    updateStatus();
+                };
+            });
+
+            qs('#paint-texture').onchange = e => { currentTexture = e.target.value; };
+            qs('#paint-size').oninput = e => { currentSize = parseInt(e.target.value); qs('#paint-size-val').textContent = currentSize; };
+            qs('#paint-opacity').oninput = e => { currentOpacity = parseInt(e.target.value); qs('#paint-opacity-val').textContent = currentOpacity; };
+            qs('#paint-color').oninput = e => { currentColor = e.target.value; };
+            qs('#paint-grid').onchange = e => { gridOverlay.classList.toggle('on', e.target.checked); };
+            qs('#paint-undo').onclick = doUndo;
+            qs('#paint-redo').onclick = doRedo;
+            qs('#paint-clear').onclick = () => {
+                sysModal('Clear Canvas', 'Erase the entire drawing? This cannot be undone once history rolls over.', () => {
+                    ctx.clearRect(0, 0, PAINT_W, PAINT_H);
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(0, 0, PAINT_W, PAINT_H);
+                    commitHistory();
+                });
+            };
+
+            qs('#paint-save').onclick = () => {
+                paintSaveModal(canvas.toDataURL('image/png'), 'drawing.img', 'Created in the Paint utility.', () => clearPaintAutosave());
+            };
+            qs('#paint-alien-reg').onclick = () => {
+                openAlienRegModal(canvas.toDataURL('image/png'));
+            };
+
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, PAINT_W, PAINT_H);
+            commitHistory();
+            updateStatus();
+            fitCanvas();
+
+            setInterval(doAutosave, 30000);
+
+            try {
+                let saved = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null');
+                if (saved && saved.data) {
+                    let when = new Date(saved.t).toLocaleTimeString();
+                    sysModal('Recover Unsaved Work', `An autosaved drawing from ${when} was found. Recover it into the canvas?`, () => {
+                        let img = new Image();
+                        img.onload = () => { ctx.clearRect(0, 0, PAINT_W, PAINT_H); ctx.drawImage(img, 0, 0); commitHistory(); };
+                        img.src = saved.data;
+                    });
+                }
+            } catch (e) { /* ignore corrupt autosave */ }
+
+            const isTopActiveWin = w => {
+                let top = null, topZ = -1;
+                wm.wins.forEach(x => {
+                    if (!x.classList.contains('active') || x.classList.contains('min')) return;
+                    let z = parseInt(x.style.zIndex || 0);
+                    if (z > topZ) { topZ = z; top = x; }
+                });
+                return top === w;
+            };
+            document.addEventListener('keydown', e => {
+                if (!isTopActiveWin(win)) return;
+                if (e.target.closest('input, textarea, select')) return;
+                if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z') return;
+                e.preventDefault();
+                if (e.shiftKey) doRedo(); else doUndo();
+            });
+        };
+
         loadSys();
         buildSettings();
         renderDesktop();
         wm.init();
+        initPaint();
         print("vgr-9 terminal active. type 'help'.\n");
         wm.focus(qs('#term'));
 

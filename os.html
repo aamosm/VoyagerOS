@@ -499,13 +499,216 @@
             { id: 'void', name: 'Absolute Void', bg: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80')" }
         ];
 
+        const registry = [
+            { id: 4294967296, name: 'Sol', kind: 'biological', status: 'local-active', founded: null, redacted: false, notes: 'Origin point. Crew rotation and day-to-day admin run out of here.' },
+            { id: 1099511627776, name: 'Threnody Accord', kind: 'quorum-collective', status: 'remote-active', founded: 8841, redacted: false, notes: "Founding signatory. Year given is theirs, not ours - never got a clean conversion." },
+            { id: 281474976710656, name: 'Calyx Ministry', kind: 'electromagnetic-pulse', status: 'remote-active', founded: 129, redacted: false, notes: 'Founding signatory. Same dating issue as Threnody - filed as given.' },
+            { id: 72057594037927936, name: 'KV-118', kind: 'encrypted-unknown', status: 'remote-dormant', founded: null, redacted: true, notes: '' }
+        ];
+
+        // Background processes
+        const ghostState = {
+            '000': { name: 'threnody_manifold_sync', killable: false, active: true },
+            '001': { name: 'calyx_flux_gate', killable: true, active: true }
+        };
+
+        const ACCESS_SEED = [
+            { t: '1997', who: 'Sol', note: 'Charter ratified. Registry opened, founding keys issued.' },
+            { t: '1997', who: 'Threnody Accord', note: 'Founding signature recorded.' },
+            { t: '1997', who: 'Calyx Ministry', note: 'Founding signature recorded.' },
+            { t: '2003', who: 'Sol', note: 'VGR-9 keel laid. Joint propulsion program opened.' },
+            { t: '2008', who: 'Sol', note: 'VGR-9 launch. Administration handed to onboard systems.' }
+        ];
+
+        const SUBMISSIONS_SEED = [
+            { t: '1997', who: 'Sol', msg: 'Charter signed. Keys issued to the three founding delegates.' },
+            { t: '1997', who: 'Threnody Accord', msg: 'Ratification confirmed. Minority dissent recorded against the founding terms, not blocking passage.' },
+            { t: '1997', who: 'Calyx Ministry', msg: "Confirmed on our end. Article II term 'rank' has no clean equivalent here. Proceeding on best translation." },
+            { t: '1998', who: 'Sol', msg: 'Requesting propulsion schema ahead of keel-laying. No reply yet.' },
+            { t: '2000', who: 'Threnody Accord', msg: 'Schema sent. Compatibility issues flagged at three junctions, corrections attached.' },
+            { t: '2002', who: 'Calyx Ministry', msg: 'First real-time exchange since signing. Lag reduced, not resolved.' },
+            { t: '2003', who: 'Sol', msg: 'Keel laid today. No incidents to log.' },
+            { t: '2004', who: 'Sol', msg: 'Fabrication delay on hull segment 4. Six months. Logged per Article II.' },
+            { t: '2005', who: 'Threnody Accord', msg: 'Requesting inspection rights before launch.' },
+            { t: '2006', who: 'Calyx Ministry', msg: 'Inspection complete on our end. No objections.' },
+            { t: '2007', who: 'Sol', msg: 'Final systems check complete. Launch window confirmed.' },
+            { t: '2008', who: 'Sol', msg: 'Launch successful. Administration handed to onboard systems as agreed.' },
+            { t: '2008', who: 'Sol', msg: 'First telemetry check nominal.' },
+            { t: '2010', who: 'Sol', msg: 'Two years elapsed. Nothing to report.' },
+            { t: '2011', who: 'Threnody Accord', msg: 'Status requested. Delay acknowledged, both directions.' },
+            { t: '2013', who: 'Sol', msg: 'Debris-field alert, sector 7. Automatic avoidance maneuver, no contact. Logged for the record.' },
+            { t: '2014', who: 'Calyx Ministry', msg: 'Quiet on our end for a period. Internal matter, unrelated to Compact business.' },
+            { t: '2015', who: 'Sol', msg: 'Requesting maintenance rotation. Current cycle running long.' },
+            { t: '2016', who: 'Threnody Accord', msg: 'Rotation acknowledged. Relief schema attached.' },
+            { t: '2018', who: 'Sol', msg: 'Ten years elapsed. Logged per rotation audit.' },
+            { t: '2019', who: 'KV-118', msg: '[SIGNAL PARTIAL] ...requesting... [UNRESOLVED] ...admission...' },
+            { t: '2020', who: 'Sol', msg: 'Passing the partial request logged last year to Accord and Ministry, per Article IV.' },
+            { t: '2020', who: 'Threnody Accord', msg: 'Reviewing. Designation unconfirmed. Recommend caution, not rejection.' },
+            { t: '2020', who: 'Calyx Ministry', msg: 'Concur. Requesting additional data before any vote.' },
+            { t: '2021', who: 'KV-118', msg: '[REDACTED]' },
+            { t: '2021', who: 'Sol', msg: 'Accession granted. Species_id assigned. Article IV requires consent, not a dossier. Proceeding on that basis.' },
+            { t: '2023', who: 'Sol', msg: 'Requesting sensor recalibration. Background readings off expected baseline.' },
+            { t: '2024', who: 'Sol', msg: 'Recalibration complete. Attributed to noise. Closed.' },
+            { t: '2025', who: 'Sol', msg: "Flagging an unlisted long-range render, source unclear. Proposing a standing registry entry so this isn't handled ad hoc again. No further action logged." }
+        ];
+
+        const loadAccess = () => {
+            try {
+                let raw = localStorage.getItem('vgr9_access');
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            localStorage.setItem('vgr9_access', JSON.stringify(ACCESS_SEED));
+            return ACCESS_SEED.slice();
+        };
+
+        const logAccess = entry => {
+            let log = loadAccess();
+            log.push(entry);
+            localStorage.setItem('vgr9_access', JSON.stringify(log));
+        };
+
+        const loadSubmissions = () => {
+            try {
+                let raw = localStorage.getItem('vgr9_submissions');
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            localStorage.setItem('vgr9_submissions', JSON.stringify(SUBMISSIONS_SEED));
+            return SUBMISSIONS_SEED.slice();
+        };
+
+        const renderAccessLog = () => {
+            let log = loadAccess();
+            return log.map(e => `[${e.t}] ${e.who} - ${e.note}`).join('\n');
+        };
+
+        const renderSubmissions = () => {
+            let log = loadSubmissions();
+            if (!log.length) return '(no submissions on record)';
+            return log.map(e => `[${e.t}] ${e.who} - ${e.msg}`).join('\n');
+        };
+
+        const renderRoster = () => {
+            let header = 'DESIGNATION'.padEnd(20) + 'SPECIES_ID'.padEnd(24) + 'STATUS'.padEnd(18) + 'FOUNDING';
+            let rows = registry.map(r => {
+                let name = r.redacted ? '[REDACTED]' : r.name;
+                let founded = r.redacted ? '[REDACTED]' : (r.founded || 'n/a');
+                return name.padEnd(20) + String(r.id).padEnd(24) + r.status.padEnd(18) + founded;
+            });
+            return header + '\n' + rows.join('\n');
+        };
+
+        const getFileBody = (path, node) => {
+            if (path === '/Compact/Registry/access.log') return renderAccessLog();
+            if (path === '/Compact/Registry/submissions.log') return renderSubmissions();
+            if (path === '/Compact/Registry/roster.dat') return renderRoster();
+            return node.body;
+        };
+
         const defaultFs = {
             'Desktop': {
                 type: 'dir',
                 content: {
-                    'readme.txt': { type: 'file', body: 'vgr-9 environment.\nTerminal provides core access.\nUse `read manual.txt` or explore via the Explorer to get started.' },
-                    'System': { type: 'dir', content: { 'config.ini': { type: 'file', body: '[deep_survey]\nboot_mode=fast\ndiag_level=verbose' } } },
-                    'Logs': { type: 'dir', content: { 'sys.log': { type: 'file', body: '[SYS] Boot sequence initiated.\n[SYS] Storage mounted.' } } },
+                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.' },
+                    'Local_Ops': { type: 'dir', content: {
+                        'checklist.txt': { type: 'file', body: `DAILY
+[ ] Confirm uplink handshake
+[ ] Log temperature and velocity readings
+[ ] Visual check, Panel 3 (see Logs/eng.log, 2009)
+
+WEEKLY
+[ ] Run df, confirm storage headroom
+[ ] Clear Trash if it's over 50 items
+
+ANNUAL
+[ ] Full diagnostics pass
+[ ] Review backup interval, see System/backup.log` },
+                        'inventory.txt': { type: 'file', body: `CONSUMABLES - LAST COUNT 2025
+
+Rations             auto-replenish, nominal
+Water reclaim       94% efficiency
+Spare fabric seal   6 units
+O2 candles          12 units, unused
+Medical kit         sealed, unopened
+
+Count is manual. Update on physical check, not on a timer.` },
+                        'roster.txt': { type: 'file', body: `CREW ROSTER - CURRENT ROTATION
+
+Engineering    1 active
+Navigation     1 active
+Medical        1 active, cross-trained comms
+
+Rotation length unspecified. Interval screening records: Logs/psych_audit.log.` },
+                        'nav_plan.txt': { type: 'file', body: `VGR-9 FLIGHT PLAN - SUMMARY
+
+Cruise velocity: 0.19c
+Transit elapsed: 18y
+Distance covered: 3.42 ly
+
+Course held within tolerance since launch. One correction
+burn logged, 2019 - see Logs/eng.log.
+
+No deceleration phase scheduled. None requested.` },
+                        'System': { type: 'dir', content: {
+                            'config.ini': { type: 'file', body: '[deep_survey]\nboot_mode=fast\ndiag_level=verbose' },
+                            'nav.cfg': { type: 'file', body: '[navigation]\nvelocity=0.19c\ntransit_time=18y\ndistance=3.42ly\nstatus=in transit\nlast_correction=2019' },
+                            'power_budget.txt': { type: 'file', body: `POWER ALLOCATION - NOMINAL
+
+Comms array         18%
+Life support         31%
+Propulsion (idle)    12%
+Sensors               9%
+Reserve              30%
+
+Reserve floor 15%. Below that, comms array sheds load first.` },
+                            'backup.log': { type: 'file', body: `[2008] Initial fs snapshot taken post-launch.
+[2012] Snapshot interval changed: 90d -> 30d.
+[2019] Snapshot corrupted, restored from previous. Cause not isolated.
+[2024] Snapshot interval changed: 30d -> 7d.` },
+                            'known_issues.txt': { type: 'file', body: `- Gimbal sticks after cold restart below -40. Preheat first. (Logs/eng.log, 2016)
+- Occasional double entry in Compact/Registry/access.log after a hard reset. Harmless, just noisy.
+- Desktop icon positions reset if Trash is emptied mid-drag. Rare, not reproduced since 2015.
+- ps will list two processes nobody on this crew wrote. Leave them. See proc_rules.txt.` },
+                            'proc_rules.txt': { type: 'file', body: `VGR-9 PROCESS HANDLING - STANDING RULES
+Compiled by Engineering. Binding on all rotations.
+
+RULE 01: Do not attempt to close pid 10 (root shell). It will refuse anyway.
+RULE 02: If 'ps' shows an app name you don't recognize, check this file before you touch it.
+RULE 03: threnody_manifold_sync and calyx_flux_gate are not ours. Neither was installed by anyone on a crew rotation, and neither has an entry in the manual for a reason.
+
+RULE 04: Do not attempt to kill process PID 000 [threnody_manifold_sync].
+We do not know what it is calculating.
+In 2014, Nav-Officer [REDACTED] paused it to free up RAM.
+The ship dropped 0.02% velocity in three seconds. Just leave it.
+
+RULE 05: PID 001 [calyx_flux_gate] can technically be closed, unlike PID 000.
+It will close. Velocity drops hard and fast when it does. It reopens
+on its own within a minute and velocity recovers. Nobody has found
+a reason to do this on purpose. Closing it does not count toward
+maintenance rotation under Article III - Engineering has tried that
+argument, it did not hold.` }
+                        } },
+                        'Logs': { type: 'dir', content: {
+                            'sys.log': { type: 'file', body: '[SYS] Boot sequence initiated.\n[SYS] Storage mounted.' },
+                            'eng.log': { type: 'file', body: `[2009] Panel 3 temp sensor drifting +0.4k. Within tolerance, watching it.
+[2011] Panel 3 sensor replaced. Drift resolved.
+[2013] Debris-field alert, sector 7. Automatic avoidance maneuver, no contact. Hull integrity nominal throughout.
+[2016] Comms dish gimbal sticking on cold restarts. Workaround: preheat 10 min before use.
+[2019] Course correction burn, 0.02% delta-v. Reason redacted at request of Sol delegate.
+[2022] Gimbal issue from 2016 finally fixed properly. Should've done this years ago.
+[2025] Routine diagnostics, all systems nominal.` },
+                            'psych_audit.log': { type: 'file', body: `[PSYCH-AUDIT DAEMON - INTERVAL SCREENING]
+Retention per Compact Article III, maintenance-fitness provision.
+Subject: rotating crew complement, VGR-9. Automated unless incident-triggered.
+
+[2008] Baseline screening, post-launch. Nav-Officer reports zero-point acoustic resonance outside preflight baseline. Flagged, no intervention indicated - consistent with adjustment window, not deficit.
+[2010] Interval screening. Comms-delay adaptation marker still open, not closed out. No action required; carried to next cycle.
+[2013] Incident-triggered screening, 0300 ship time, debris-alert trigger (automatic avoidance maneuver, no contact, hull integrity confirmed nominal within 40 min). Elevated stress markers recorded across on-duty personnel, resolved without incident inside 6 hours. No follow-up flagged.
+[2016] Interval screening. Morale marker improvement associated with resolution of standing comms-gimbal fault (see Logs/eng.log). Logged for pattern data, not independently significant.
+[2018] Interval screening, decade mark. Elevated affect noted, within tolerance. Continuity-of-service marker logged per standard rotation audit.
+[2021] Interval screening. Marker shift recorded coincident with KV-118 accession notice (see Compact/Registry/submissions.log). Categorized as environmental, not clinical.
+[2024] Interval screening. Acoustic-baseline drift downward, sustained across three consecutive cycles. Reclassified from anomaly to expected - no correlating system fault found. Flagged for annual review only, not escalation.` }
+                        } }
+                    } },
                     'Media': { type: 'dir', content: {} }
                 }
             },
@@ -637,11 +840,204 @@ clear
   Clear the terminal output buffer.
 
 ping <host>
-  Attempt to reach a host. Always times out - there is no live
-  network access from this shell. To search the outside world,
-  use scan instead.
-    ex: ping relay-7` },
-            'Trash': { type: 'dir', content: {} }
+  Attempt to reach a host.
+    ex: ping relay-7
+
+===============================
+COMPACT
+===============================
+
+whois [id|designation]
+  No argument prints the Registry index. With an argument,
+  prints one dossier.
+    ex: whois
+    ex: whois 1099511627776
+    ex: whois Threnody Accord
+
+delegates
+  List reachable delegates.
+    ex: delegates
+
+charter
+  Alias for 'read /Compact/Registry/charter.txt'.
+
+access
+  Alias for 'read /Compact/Registry/access.log'.
+
+submit <message>
+  Record an entry in /Compact/Registry/submissions.log under your
+  delegate id.
+    ex: submit requesting propulsion schema exchange` },
+            'Compact': {
+                type: 'dir',
+                content: {
+                    'Registry': { type: 'dir', content: {
+                        'charter.txt': { type: 'file', body: `VOYAGER COMPACT
+Opened for signature 1997.
+
+The undersigned,
+
+Recognizing VGR-9 as a joint undertaking beyond the interest
+of any one party,
+
+Agreeing that no signatory shall claim sovereignty over the
+vessel, its systems, or the data it carries,
+
+Have agreed as follows -
+
+ARTICLE I
+VGR-9 has no owner. It is maintained, not commanded.
+
+ARTICLE II
+Access is granted per delegate and per signatory, not by
+nationality, species, or rank. A delegate's standing may be
+suspended by their own signatory and by no other.
+
+ARTICLE III
+Maintenance duties rotate among signatories capable of
+performing them. Refusal without cause is entered in the
+Registry.
+
+ARTICLE IV
+New signatories are admitted by unanimous consent, recorded
+in /Compact/Registry/roster.dat.
+
+ARTICLE V
+This Compact may be amended by unanimous consent. No amendment
+shall grant ownership of VGR-9 to any signatory.
+
+Signed,
+  Sol
+  Threnody Accord
+  Calyx Ministry` },
+                        'roster.dat': { type: 'file', body: '' },
+                        'access.log': { type: 'file', body: '' },
+                        'submissions.log': { type: 'file', body: '' },
+                        'amendments.log': { type: 'file', body: `[2011] Article II amended - maintenance refusal must be logged within 30 days, not "reasonable time." Unanimous.
+[2019] Proposal for a fourth founding seat, retroactive, withdrawn before it reached a vote.
+[2022] Article IV clarified - accession requires consent, not a complete dossier. Passed unanimously following KV-118's admission.` }
+                    } },
+                    'Archive': { type: 'dir', content: {
+                        'contact_event.log': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 002
+CLASS: CONTACT EVENT - SOURCE TRANSMISSION, UNEDITED
+TRANSLATION STATUS: PARTIAL (see Linguistics/drift_report.dat)
+ORIGIN: VGR-5 DEEP RANGE ARRAY, GROUND DOWNLINK TEAM
+RETENTION: PERMANENT, COMPACT ARCHIVE
+---
+
+TRANSMISSION LOG - VGR-5 - DEEP RANGE ARRAY
+DATE: 1992
+
+Thirteen years of silence. Then the return carrier locked, and the
+room went quiet in a way rooms don't usually go quiet.
+
+[SIGNAL ACQUIRED - DECODING, T+00:00]
+
+>> partial recovery, first block
+>> repeating structure matches outbound Golden Record encoding
+>> response confirms receipt of arithmetic sequence, plate
+   diagrams
+>> [REDACTED - 4 LINES]
+
+>> "[REDACTED] ... your vessel is noted. your intent is read
+   as exploratory, not territorial. [REDACTED] ... a path
+   exists for continued contact, if your signatories are
+   willing to commit to terms."
+
+[CARRIER DROPPED, T+00:41:12]
+
+Nobody moved for a full minute after the carrier dropped. Someone
+finally said we should call the shift supervisor. Nobody had called
+anyone yet.
+
+Authentication run twice before a signature would go on it. Not a
+reflection artifact, not our own signal bounced back at us across
+thirteen years. Something answered - and read as though it had
+been listening a long time before it ever spoke.
+
+Escalated that same night. Someone asked what we should call it
+instead of signal designation 9821-B. Nobody had an answer ready.
+Some of us still don't.
+
+- ground crew, VGR-5 downlink team` },
+                        'historical_context.dat': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 001
+CLASS: HISTORICAL CONTEXT
+TRANSLATION STATUS: VERIFIED - CALYX MINISTRY PROTOCOL, PASS 3
+SUBMITTING PARTY: SOL
+RETENTION: PERMANENT, COMPACT ARCHIVE
+
+Prepared for signatories without a shared calendar. Dates given
+in Sol-local terrestrial years; see Linguistics/ for known
+conversion gaps against Threnody and Calyx dating.
+
+1977   Voyager 1 and Voyager 2 launched, terrestrial deep-space
+       program.
+
+1979   VGR-3 laid down under [REDACTED - PROGRAM DESIGNATION],
+       riding the visibility of the public launches.
+
+1992   VGR-5 downlink array receives a decoded reply. See
+       contact_event.log.
+
+1997   Voyager Compact opened for signature. Founding parties:
+       Sol, Threnody Accord, Calyx Ministry.
+
+2003   VGR-9 keel laid. Joint propulsion development begins.
+
+2008   VGR-9 launched. Administration handed to onboard systems.
+
+[ENTRY WITHHELD PENDING NEXT SCHEDULED SUBMISSION]` },
+                        'Linguistics': { type: 'dir', content: {
+                            'drift_report.dat': { type: 'file', body: `SEMANTIC DRIFT REPORT - CALYX MINISTRY CHANNEL
+Compiled from incoming/outgoing translation daemon, rolling 90-day window.
+
+Inbound (their signal to our text): stable. Calyx-side tech carries
+its own translation layer, tuned on their end, before it reaches us.
+We mostly just read the output.
+
+Outbound (our text to their signal): drift climbing. Encoding our
+concepts into pulse-modulation keeps losing precision on anything
+without a direct physical referent.
+
+[2019] Baseline. Nothing flagged.
+[2021] First flagged term: "ownership" (Charter Article I). Closest
+Calyx equivalent reads as "temporary custodial state," which is not
+what Article I means. Filed, not resolved.
+[2023] "rank" (Article II) flagged - see Registry/submissions.log,
+1997 entry, same problem, different party.
+[2025] Drift now measurable on abstract legal terms generally.
+Concrete/technical terms (schema, coordinates, quantities) still
+translate clean. Recommend keeping new Article language concrete
+where possible.` },
+                            'threnody_interface.cfg': { type: 'file', body: `[threnody_channel]
+# Do not touch the phase-variance settings. Threnody specs are not
+# compatible with local physics models. Just let it run.
+mode=passthrough
+phase_variance=locked
+sync=quorum-relative
+maintained_by=threnody_accord` }
+                        } }
+                    } }
+                }
+            },
+            'Trash': { type: 'dir', content: {
+                'render_sol_local_09_src.img': { type: 'file', body: `[LONG-RANGE RENDER - SOURCE FILE]
+Same subject as the login default. Not the same file.
+
+Long-range renders are never clean - resolution artifacts at that
+distance are normal, expected, usually the first thing stripped
+before a render goes anywhere near a display. This copy still has
+its capture tags. The one every session boots with doesn't.
+
+Origin tags to a Calyx-side platform. Capture timestamp, once
+converted, lands roughly six years before the first decoded reply
+in Compact/Archive/contact_event.log. Before, not after.
+
+No entry filed against it. Proposal for a standing registry (see
+Compact/Registry/submissions.log, 2025) never reached a vote.
+
+Moved here. Not restored. Not deleted either.` }
+            } }
         };
 
         const sysState = {
@@ -974,7 +1370,7 @@ ping <host>
                 };
                 el.ondblclick = () => {
                     if (n.type === 'dir') openExplorer(full);
-                    else openViewer(k, n.body, full);
+                    else openViewer(k, getFileBody(full, n), full);
                 };
                 el.oncontextmenu = e => {
                     e.stopPropagation();
@@ -982,7 +1378,7 @@ ping <host>
                     d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
                     el.classList.add('sel');
                     ctxMenu([
-                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, n.body, full) },
+                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full) },
                         { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
                         { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
                         { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
@@ -1142,6 +1538,8 @@ ping <host>
             }
         };
 
+        const VIRTUAL_PATHS = ['/Compact/Registry/access.log', '/Compact/Registry/submissions.log', '/Compact/Registry/roster.dat'];
+
         const openViewer = (title, content, path = null) => {
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
@@ -1150,6 +1548,7 @@ ping <host>
             w.dataset.app = `file_${id}`;
             w.dataset.dyn = "1";
             w.dataset.title = title;
+            let readOnly = path && VIRTUAL_PATHS.includes(path);
             
             let off = (wm.wins.length * 25) % 200;
             w.style.left = (250 + off) + 'px';
@@ -1159,14 +1558,15 @@ ping <host>
             w.innerHTML = `
                 <div class="win-bar"><span>[${id}] ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
-                    <textarea class="viewer-text" spellcheck="false">${content}</textarea>
+                    <textarea class="viewer-text" spellcheck="false" ${readOnly ? 'readonly' : ''}>${content}</textarea>
                     <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
-                        <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">[Save]</span>
+                        <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">${readOnly ? '[Read-only]' : '[Save]'}</span>
                     </div>
                 </div>
             `;
             
             w.querySelector('.save-btn').onclick = () => {
+                if (readOnly) return;
                 let v = w.querySelector('textarea').value;
                 if(path) {
                     let n = getNode(path);
@@ -1272,7 +1672,7 @@ ping <host>
                         el.classList.add('sel');
                         selItem = k;
                         ctxMenu([
-                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, item.body, fPath); } },
+                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath); } },
                             { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
                             { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
                             { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
@@ -1287,7 +1687,7 @@ ping <host>
                     
                     el.ondblclick = () => {
                         if(item.type === 'dir') { curPath = fPath; w.expRender(); }
-                        else openViewer(k, item.body, fPath);
+                        else openViewer(k, getFileBody(fPath, item), fPath);
                     };
                     
                     attachDragDrop(el, fPath, item.type === 'dir');
@@ -1513,6 +1913,13 @@ ping <host>
         const escapeHtml = t => t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const updatePmt = () => { tPmt.textContent = `sys@vgr9:${cwd}$`; };
 
+        const doRead = path => {
+            let n = getNode(path);
+            if (!n) { print(`read: ${escapeHtml(path)}: File not found`); return; }
+            if (n.type === 'dir') { print(`read: ${escapeHtml(path)}: Is a directory`); return; }
+            print(escapeHtml(getFileBody(path, n)));
+        };
+
         tInp.onkeydown = e => {
             if (e.key === 'ArrowUp') { e.preventDefault(); if (hCur > 0) tInp.value = hist[--hCur]; return; }
             if (e.key === 'ArrowDown') { e.preventDefault(); if (hCur < hist.length - 1) tInp.value = hist[++hCur]; else { hCur = hist.length; tInp.value = ''; } return; }
@@ -1528,7 +1935,7 @@ ping <host>
 
             switch(cmd) {
                 case 'help':
-                    print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
+                    print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear, whois, delegates, charter, access, submit\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
                     break;
                 case 'man': {
                     if (!args[1]) { print("usage: man <cmd>"); break; }
@@ -1579,10 +1986,41 @@ ping <host>
                 case 'cat':
                 case 'read': {
                     if (!args[1]) { print("read: missing operand"); break; }
-                    let n = getNode(resolvePath(cwd, args[1]));
-                    if (!n) print(`read: ${escapeHtml(args[1])}: File not found`);
-                    else if (n.type === 'dir') print(`read: ${escapeHtml(args[1])}: Is a directory`);
-                    else print(escapeHtml(n.body));
+                    doRead(resolvePath(cwd, args[1]));
+                    break;
+                }
+                case 'charter': doRead('/Compact/Registry/charter.txt'); break;
+                case 'access': doRead('/Compact/Registry/access.log'); break;
+                case 'whois': {
+                    if (!args[1]) {
+                        let header = 'DESIGNATION'.padEnd(20) + 'SPECIES_ID'.padEnd(24) + 'STATUS';
+                        let rows = registry.map(r => (r.redacted ? '[REDACTED]' : r.name).padEnd(20) + String(r.id).padEnd(24) + r.status);
+                        print(`REGISTRY\n\n${header}\n${rows.join('\n')}`);
+                        break;
+                    }
+                    let q = args.slice(1).join(' ').toLowerCase();
+                    let r = registry.find(x => String(x.id) === q || x.name.toLowerCase() === q);
+                    if (!r) { print(`whois: no dossier for '${escapeHtml(args.slice(1).join(' '))}'`); break; }
+                    if (r.redacted) {
+                        print(`DESIGNATION    : [REDACTED]\nSPECIES_ID     : ${r.id}\nCLASSIFICATION : [REDACTED]\nSTATUS         : ${r.status}\nFOUNDING       : [REDACTED]\nNOTES          : [REDACTED]`);
+                    } else {
+                        print(`DESIGNATION    : ${r.name}\nSPECIES_ID     : ${r.id}\nCLASSIFICATION : ${r.kind}\nSTATUS         : ${r.status}\nFOUNDING       : ${r.founded || 'n/a'}\nNOTES          : ${r.notes}`);
+                    }
+                    break;
+                }
+                case 'delegates': {
+                    let allowed = ['local-active', 'remote-active', 'remote-dormant'];
+                    let list = registry.filter(r => allowed.includes(r.status));
+                    print(`DELEGATES\n\n${list.map(r => r.name.padEnd(20) + r.status).join('\n')}`);
+                    break;
+                }
+                case 'submit': {
+                    let msg = args.slice(1).join(' ');
+                    if (!msg) { print("usage: submit <message>"); break; }
+                    let log = loadSubmissions();
+                    log.push({ t: new Date().toISOString().slice(0, 10), who: 'Sol', msg: msg });
+                    localStorage.setItem('vgr9_submissions', JSON.stringify(log));
+                    print(`Recorded to /Compact/Registry/submissions.log`);
                     break;
                 }
                 case 'mkdir': {
@@ -1628,7 +2066,7 @@ ping <host>
                         if (!n) print(`open: ${escapeHtml(args[1])}: Not found`);
                         else if (n.type === 'dir') openExplorer(path);
                         else {
-                            let p = openViewer(path.split('/').pop(), n.body, path);
+                            let p = openViewer(path.split('/').pop(), getFileBody(path, n), path);
                             print(`Opened file in viewer [${p}]`);
                         }
                     }
@@ -1674,11 +2112,12 @@ ping <host>
                 }
                 case 'grep': {
                     if (!args[1] || !args[2]) { print("usage: grep <pattern> <file>"); break; }
-                    let n = getNode(resolvePath(cwd, args[2]));
+                    let gPath = resolvePath(cwd, args[2]);
+                    let n = getNode(gPath);
                     if (!n) { print(`grep: ${escapeHtml(args[2])}: No such file`); break; }
                     if (n.type !== 'file') { print(`grep: ${escapeHtml(args[2])}: Is a directory`); break; }
                     let pat = args[1].toLowerCase();
-                    let matches = n.body.split('\n').filter(l => l.toLowerCase().includes(pat));
+                    let matches = getFileBody(gPath, n).split('\n').filter(l => l.toLowerCase().includes(pat));
                     print(matches.length ? matches.map(escapeHtml).join('\n') : `grep: no matches for '${escapeHtml(args[1])}' in ${escapeHtml(args[2])}`);
                     break;
                 }
@@ -1687,17 +2126,17 @@ ping <host>
                     let path = resolvePath(cwd, args[1]);
                     let n = getNode(path);
                     if (!n) { print(`stat: ${escapeHtml(args[1])}: No such file or directory`); break; }
-                    let size = n.type === 'dir' ? `${Object.keys(n.content).length} items` : `${(n.body || '').length} bytes`;
+                    let size = n.type === 'dir' ? `${Object.keys(n.content).length} items` : `${getFileBody(path, n).length} bytes`;
                     print(`Path: ${path}\nType: ${n.type}\nSize: ${size}`);
                     break;
                 }
                 case 'df': {
                     let files = 0, bytes = 0, dirs = 0;
-                    let walk = node => {
-                        if (node.type === 'dir') { dirs++; Object.values(node.content).forEach(walk); }
-                        else { files++; bytes += (node.body || '').length; }
+                    let walk = (node, path) => {
+                        if (node.type === 'dir') { dirs++; Object.keys(node.content).forEach(k => walk(node.content[k], path === '/' ? `/${k}` : `${path}/${k}`)); }
+                        else { files++; bytes += getFileBody(path, node).length; }
                     };
-                    walk({ type: 'dir', content: sysState.fs });
+                    walk({ type: 'dir', content: sysState.fs }, '');
                     print(`FILES: ${files}\nDIRECTORIES: ${dirs}\nSTORAGE USED: ~${bytes} bytes`);
                     break;
                 }
@@ -1706,16 +2145,34 @@ ping <host>
                     wm.wins.forEach(w => {
                         if (!w.classList.contains('min') && w.classList.contains('active')) print(`${w.dataset.pid.padEnd(5)} ${w.dataset.app}`);
                     });
+                    Object.keys(ghostState).forEach(pid => {
+                        let g = ghostState[pid];
+                        if (g.active) print(`${pid.padEnd(5)} ${g.name}`);
+                    });
                     break;
-                case 'close':
-                    if (!args[1]) print("close: missing pid");
-                    else if (args[1] === "10") print("close: cannot terminate root shell");
-                    else if (wm.kill(args[1])) print(`Closed [${escapeHtml(args[1])}]`);
+                case 'close': {
+                    if (!args[1]) { print("close: missing pid"); break; }
+                    let pid = args[1];
+                    if (pid === "10") { print("close: cannot terminate root shell"); break; }
+                    let g = ghostState[pid];
+                    if (g) {
+                        if (!g.killable) { print(`close: [${g.name}] does not respond to termination signals. Ignored.`); break; }
+                        if (!g.active) { print(`close: pid not found`); break; }
+                        g.active = false;
+                        print(`Closed [${pid}] ${g.name}. Velocity dropping.`);
+                        setTimeout(() => {
+                            g.active = true;
+                            print(`[${g.name}] resumed automatically. Velocity recovering.`);
+                        }, 12000);
+                        break;
+                    }
+                    if (wm.kill(pid)) print(`Closed [${escapeHtml(pid)}]`);
                     else print(`close: pid not found`);
                     break;
+                }
                 case 'ping': print(args[1] ? `PING ${escapeHtml(args[1])}: timeout` : "ping: missing host"); break;
                 case 'history': hist.forEach((h,i) => print(`${i+1}  ${escapeHtml(h)}`)); break;
-                case 'whoami': print("USER: sys_admin\nAUTH: Level 9\nSPECIES_ID: 4294967296\nSTATUS: active"); break;
+                case 'whoami': print("USER: sys_admin\nAUTH: Level 9\nSPECIES_ID: 4294967296\nSTATUS: active\nAVATAR: render_sol_local_09.img (default since launch, unedited)"); break;
                 case 'clear': tOut.innerHTML = ''; break;
                 default: print(`bash: ${escapeHtml(cmd)}: command not found`);
             }
@@ -1763,7 +2220,8 @@ ping <host>
             let monUp = qs('#mon-up'); if (monUp) monUp.textContent = timeStr;
 
             if (sysState.t % 4 === 0) {
-                let vVal = (sysState.v + (Math.random() * 2 - 1)).toFixed(1);
+                let vBase = ghostState['001'].active ? sysState.v : sysState.v * 0.03;
+                let vVal = (vBase + (Math.random() * 2 - 1)).toFixed(1);
                 qs('#hud-v').textContent = vVal;
                 let monV = qs('#mon-v'); if (monV) monV.textContent = vVal;
             }
@@ -1776,8 +2234,13 @@ ping <host>
             let monPc = qs('#mon-pc'), monProcs = qs('#mon-procs');
             if (monPc || monProcs) {
                 let live = wm.wins.filter(w => w.classList.contains('active') && !w.classList.contains('min'));
-                if (monPc) monPc.textContent = live.length;
-                if (monProcs) monProcs.innerHTML = live.map(w => `${w.dataset.pid.padEnd(6)} ${w.dataset.app}`).join('<br>') || '(none)';
+                let lines = live.map(w => `${w.dataset.pid.padEnd(6)} ${w.dataset.app}`);
+                Object.keys(ghostState).forEach(pid => {
+                    let g = ghostState[pid];
+                    if (g.active) lines.push(`${pid.padEnd(6)} ${g.name}`);
+                });
+                if (monPc) monPc.textContent = lines.length;
+                if (monProcs) monProcs.innerHTML = lines.join('<br>') || '(none)';
             }
         }, 1000);
     </script>

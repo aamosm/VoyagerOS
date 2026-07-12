@@ -168,6 +168,28 @@
         #term { width: 680px; height: 460px; left: 50px; top: 50px; }
         #settings { width: 550px; height: 500px; left: 150px; top: 100px; }
         #monitor { width: 480px; height: 420px; left: 250px; top: 130px; }
+        #alien-registry { width: 520px; height: 460px; left: 320px; top: 160px; }
+
+        .viewer-img-wrap {
+            flex-shrink: 0;
+            height: 55%;
+            min-height: 120px;
+            background:
+                linear-gradient(45deg, #151515 25%, transparent 25%) -8px 0/16px 16px,
+                linear-gradient(-45deg, #151515 25%, transparent 25%) -8px 0/16px 16px,
+                linear-gradient(45deg, transparent 75%, #151515 75%) -8px 0/16px 16px,
+                linear-gradient(-45deg, transparent 75%, #151515 75%) -8px 0/16px 16px,
+                #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .viewer-img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
 
         .term-out {
             flex-grow: 1;
@@ -453,6 +475,36 @@
         </div>
     </div>
 
+    <div id="alien-registry" class="win" data-pid="13" data-app="alien_registry">
+        <div class="win-bar">
+            <span>[13] alien_registry</span>
+            <div class="win-ctrls">
+                <span class="w-btn min">_</span>
+                <span class="w-btn close">x</span>
+            </div>
+        </div>
+        <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
+            <div style="padding: calc(10px * var(--spacing-mod)) calc(12px * var(--spacing-mod)) 0;">
+                <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:6px; font-size:0.75rem;">
+                    <span style="color:#ccc;">Tally: <span style="color:var(--acc);">4,294,967,296</span></span>
+                    <span style="color:#666;">feed: thisaliendoesnotexist.app - unofficial, not ratified</span>
+                </div>
+                <div style="display:flex; gap:6px; margin: 8px 0;">
+                    <input id="ar-seed-input" type="text" inputmode="numeric" placeholder="entity seed" style="flex-grow:1; width:auto;">
+                    <button id="ar-lookup-btn" type="button" style="width:auto; white-space:nowrap;">Look Up</button>
+                    <button id="ar-random-btn" type="button" style="width:auto; white-space:nowrap;">Random</button>
+                </div>
+            </div>
+            <div style="flex-grow:1; border-top:1px solid var(--border); min-height:0;">
+                <iframe id="ar-frame" src="https://thisaliendoesnotexist.app/4294967296" title="alien registry feed" style="width:100%; height:100%; border:0; background:#0a0a0a;"></iframe>
+            </div>
+            <div style="padding: 6px calc(12px * var(--spacing-mod)); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:0.7rem; color:#666;">Sol filed one entry: Sol. Everyone else already had it on file.</span>
+                <a id="ar-open-tab" href="https://thisaliendoesnotexist.app/4294967296" target="_blank" rel="noopener" style="font-size:0.7rem; color:var(--acc); white-space:nowrap;">open full feed ↗</a>
+            </div>
+        </div>
+    </div>
+
     <div class="start-menu" id="start-menu">
         <div class="sm-hdr">Installed Packages</div>
         <div class="sm-item" data-run="terminal">
@@ -471,6 +523,10 @@
             <span>Settings</span>
             <span class="sm-sub">System configuration</span>
         </div>
+        <div class="sm-item" data-run="alien_registry">
+            <span>Alien Registry</span>
+            <span class="sm-sub">Joint species catalog</span>
+        </div>
     </div>
 
     <div class="taskbar">
@@ -487,7 +543,8 @@
         const ICONS = {
             dir: `<svg class="icon-svg acc-tint" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>`,
             file: `<svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>`,
-            trash: `<svg class="icon-svg" style="color:var(--err)" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`
+            trash: `<svg class="icon-svg" style="color:var(--err)" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>`,
+            image: `<svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>`
         };
 
         const themes = [
@@ -506,7 +563,9 @@
             { id: 72057594037927936, name: 'KV-118', kind: 'encrypted-unknown', status: 'remote-dormant', founded: null, redacted: true, notes: '' }
         ];
 
-        // Background processes
+        // Background processes that aren't ours - propulsion/power daemons
+        // installed by Threnody Accord and Calyx Ministry. Not started or
+        // stopped by anything in this OS; the terminal just reports on them.
         const ghostState = {
             '000': { name: 'threnody_manifold_sync', killable: false, active: true },
             '001': { name: 'calyx_flux_gate', killable: true, active: true }
@@ -517,7 +576,8 @@
             { t: '1997', who: 'Threnody Accord', note: 'Founding signature recorded.' },
             { t: '1997', who: 'Calyx Ministry', note: 'Founding signature recorded.' },
             { t: '2003', who: 'Sol', note: 'VGR-9 keel laid. Joint propulsion program opened.' },
-            { t: '2008', who: 'Sol', note: 'VGR-9 launch. Administration handed to onboard systems.' }
+            { t: '2008', who: 'Sol', note: 'VGR-9 launch. Administration handed to onboard systems.' },
+            { t: '2025', who: 'Sol', note: 'Local avatar submission logged. Not entered.' }
         ];
 
         const SUBMISSIONS_SEED = [
@@ -549,7 +609,9 @@
             { t: '2021', who: 'Sol', msg: 'Accession granted. Species_id assigned. Article IV requires consent, not a dossier. Proceeding on that basis.' },
             { t: '2023', who: 'Sol', msg: 'Requesting sensor recalibration. Background readings off expected baseline.' },
             { t: '2024', who: 'Sol', msg: 'Recalibration complete. Attributed to noise. Closed.' },
-            { t: '2025', who: 'Sol', msg: "Flagging an unlisted long-range render, source unclear. Proposing a standing registry entry so this isn't handled ad hoc again. No further action logged." }
+            { t: '2025', who: 'Sol', msg: "Flagging an unlisted long-range render, source unclear. Proposing a standing registry entry so this isn't handled ad hoc again. No further action logged." },
+            { t: '2025', who: 'Calyx Ministry', msg: "Confirming the long-range render tech behind the proposed registry is ours, on loan to the Compact. Flagging in advance: renders at this range aren't precise. Expect an approximate shape and a designation, not confirmed detail." },
+            { t: '2025', who: 'Sol', msg: 'Registry proposal still hasn\'t reached a vote. Wired a feed together locally in the meantime - not authoritative, not asking permission this time either.' }
         ];
 
         const loadAccess = () => {
@@ -608,7 +670,7 @@
             'Desktop': {
                 type: 'dir',
                 content: {
-                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.' },
+                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry added under Start Menu. Unofficial - see Compact/Registry/alien_registry.dat.' },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
 [ ] Confirm uplink handshake
@@ -709,7 +771,10 @@ Subject: rotating crew complement, VGR-9. Automated unless incident-triggered.
 [2024] Interval screening. Acoustic-baseline drift downward, sustained across three consecutive cycles. Reclassified from anomaly to expected - no correlating system fault found. Flagged for annual review only, not escalation.` }
                         } }
                     } },
-                    'Media': { type: 'dir', content: {} }
+                    'Media': { type: 'dir', content: Object.fromEntries(themes.map(t => {
+                        let urlMatch = t.bg.match(/url\('([^']+)'\)/);
+                        return [`wallpaper_${t.id}.img`, { type: 'file', image: urlMatch ? urlMatch[1] : '', body: `Wallpaper preview - ${t.name}.\n\nRendered locally from a stored asset, not the long-range array. Nothing to do with the Registry render tech. Apply with 'theme ${t.id}' or Settings > System Wallpaper.` }];
+                    })) }
                 }
             },
             'manual.txt': { type: 'file', body: `VGR-9 MANUAL
@@ -796,10 +861,11 @@ APPS & PROCESSES
 
 open <target>
   Opens a file or directory in Explorer, or launches an app by
-  name: terminal, explorer, settings, monitor.
+  name: terminal, explorer, settings, monitor, alien_registry.
     ex: open manual.txt
     ex: open Desktop
     ex: open monitor
+    ex: open alien_registry
 
 ps
   List currently running processes (pid + app name).
@@ -867,7 +933,13 @@ access
 submit <message>
   Record an entry in /Compact/Registry/submissions.log under your
   delegate id.
-    ex: submit requesting propulsion schema exchange` },
+    ex: submit requesting propulsion schema exchange
+
+registry [seed]
+  Opens the alien_registry app. With a numeric seed, loads that
+  entry directly instead of the default.
+    ex: registry
+    ex: registry 4294967296` },
             'Compact': {
                 type: 'dir',
                 content: {
@@ -915,7 +987,40 @@ Signed,
                         'submissions.log': { type: 'file', body: '' },
                         'amendments.log': { type: 'file', body: `[2011] Article II amended - maintenance refusal must be logged within 30 days, not "reasonable time." Unanimous.
 [2019] Proposal for a fourth founding seat, retroactive, withdrawn before it reached a vote.
-[2022] Article IV clarified - accession requires consent, not a complete dossier. Passed unanimously following KV-118's admission.` }
+[2022] Article IV clarified - accession requires consent, not a complete dossier. Passed unanimously following KV-118's admission.` },
+                        'alien_registry.dat': { type: 'file', body: `PROPOSED: JOINT SPECIES REGISTRY
+STATUS: NOT RATIFIED - no vote held, see submissions.log 2025
+
+A standing catalog of species known to date, compiled from entries
+filed by every signatory. Not the same thing as the Compact roster
+above - that's who signed the treaty. This is who's been sighted,
+by anyone, since.
+
+Running on long-range render tech loaned by Calyx Ministry. Long
+range means approximate - a shape and a designation, not confirmed
+detail. Treat entries accordingly.
+
+Current tally: 4,294,967,296.
+
+Filed by signatory (visible portion only):
+  Sol                1
+  Threnody Accord    212
+  Calyx Ministry     89
+  KV-118             [REDACTED] - largest filer on record, value withheld
+
+Visible entries don't come close to summing to the tally above.
+Difference presumed filed under KV-118. Not confirmed - they don't
+confirm much.
+
+Sol filed one entry: Sol. Everyone else already had it on file
+anyway. Render's not ours either - same source as usual.
+
+Species_id (see 'whoami') happens to match the tally above, digit
+for digit. Make of that what you will.
+
+Local interface: Start Menu > Alien Registry. Not authoritative,
+built ahead of ratification. Replace or remove if the real thing
+ever passes a vote.` }
                     } },
                     'Archive': { type: 'dir', content: {
                         'contact_event.log': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 002
@@ -1016,27 +1121,53 @@ mode=passthrough
 phase_variance=locked
 sync=quorum-relative
 maintained_by=threnody_accord` }
-                        } }
+                        } },
+                        'render_notes.dat': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 003
+CLASS: TECHNICAL NOTE - AVATAR / IMAGING
+SUBMITTING PARTY: SOL
+RETENTION: PERMANENT, COMPACT ARCHIVE
+
+Moved here from Trash and rewritten for clarity. Old copy said the
+same things badly.
+
+What this file is: a source copy of the image used as this
+delegate's default login avatar. Not the copy the login screen
+actually boots with - that one's been cleaned up. This is the raw
+capture, artifacts and all.
+
+Long-range renders are never delivered clean. At range, resolution
+artifacts are normal and expected, and they get stripped before a
+render goes anywhere near a display. This copy was never stripped.
+It still carries its original capture tags, which the display
+version doesn't.
+
+Those tags point to a Calyx-side platform. The same long-range
+render tech is what's on loan for the proposed species registry
+(see Compact/Registry/alien_registry.dat) - it's long range, and
+Calyx has said outright that renders at that distance aren't
+precise. Expect an approximate shape and a designation, not
+confirmed detail. Worth remembering before reading too much into
+any single render, this one included.
+
+Converted, the capture timestamp on this file lands roughly six
+years before the first decoded reply logged in
+Archive/contact_event.log. Before, not after. Nobody's explained
+why a render exists that far back.
+
+Per Article II, this render is the only image on file that
+qualifies as this delegate's registry avatar - true for any
+signatory, not just Sol.` }
                     } }
                 }
             },
             'Trash': { type: 'dir', content: {
-                'render_sol_local_09_src.img': { type: 'file', body: `[LONG-RANGE RENDER - SOURCE FILE]
-Same subject as the login default. Not the same file.
+                'sol_profile_submission.img': { type: 'file', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adi_Stick_Fig.svg', body: `[LOCAL SUBMISSION - DECLINED]
+Held for review. Not approved.
 
-Long-range renders are never clean - resolution artifacts at that
-distance are normal, expected, usually the first thing stripped
-before a render goes anywhere near a display. This copy still has
-its capture tags. The one every session boots with doesn't.
+Per Article II, only sanctioned render-tech output qualifies as a
+signatory's registry avatar. This didn't clear that bar.
 
-Origin tags to a Calyx-side platform. Capture timestamp, once
-converted, lands roughly six years before the first decoded reply
-in Compact/Archive/contact_event.log. Before, not after.
-
-No entry filed against it. Proposal for a standing registry (see
-Compact/Registry/submissions.log, 2025) never reached a vote.
-
-Moved here. Not restored. Not deleted either.` }
+Filed by hand, not by array. Not restored. Not deleted either.` }
             } }
         };
 
@@ -1361,7 +1492,7 @@ Moved here. Not restored. Not deleted either.` }
                 let full = `/Desktop/${k}`;
                 let el = ce('div');
                 el.className = 'desk-icon' + (deskSel === k ? ' sel' : '');
-                el.innerHTML = `${n.type === 'dir' ? ICONS.dir : ICONS.file}<div class="label">${k}</div>`;
+                el.innerHTML = `${n.type === 'dir' ? ICONS.dir : (n.image ? ICONS.image : ICONS.file)}<div class="label">${k}</div>`;
                 el.onclick = e => {
                     e.stopPropagation();
                     deskSel = k;
@@ -1370,7 +1501,7 @@ Moved here. Not restored. Not deleted either.` }
                 };
                 el.ondblclick = () => {
                     if (n.type === 'dir') openExplorer(full);
-                    else openViewer(k, getFileBody(full, n), full);
+                    else openViewer(k, getFileBody(full, n), full, n.image);
                 };
                 el.oncontextmenu = e => {
                     e.stopPropagation();
@@ -1378,7 +1509,7 @@ Moved here. Not restored. Not deleted either.` }
                     d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
                     el.classList.add('sel');
                     ctxMenu([
-                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full) },
+                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full, n.image) },
                         { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
                         { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
                         { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
@@ -1540,7 +1671,7 @@ Moved here. Not restored. Not deleted either.` }
 
         const VIRTUAL_PATHS = ['/Compact/Registry/access.log', '/Compact/Registry/submissions.log', '/Compact/Registry/roster.dat'];
 
-        const openViewer = (title, content, path = null) => {
+        const openViewer = (title, content, path = null, imgSrc = null) => {
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
             w.className = 'win active';
@@ -1553,11 +1684,12 @@ Moved here. Not restored. Not deleted either.` }
             let off = (wm.wins.length * 25) % 200;
             w.style.left = (250 + off) + 'px';
             w.style.top = (150 + off) + 'px';
-            w.style.width = '550px'; w.style.height = '400px';
+            w.style.width = '550px'; w.style.height = imgSrc ? '480px' : '400px';
 
             w.innerHTML = `
                 <div class="win-bar"><span>[${id}] ${title}</span><div class="win-ctrls"><span class="w-btn min">_</span><span class="w-btn max">□</span><span class="w-btn close">x</span></div></div>
                 <div class="win-content" style="padding:0; display:flex; flex-direction:column;">
+                    ${imgSrc ? `<div class="viewer-img-wrap"><img class="viewer-img" src="${imgSrc}" alt="${title}"></div>` : ''}
                     <textarea class="viewer-text" spellcheck="false" ${readOnly ? 'readonly' : ''}>${content}</textarea>
                     <div style="padding:4px; background:#111; border-top:1px solid var(--border); text-align:right;">
                         <span class="w-btn save-btn" style="color:var(--acc); font-size:0.75rem; padding-right:10px;">${readOnly ? '[Read-only]' : '[Save]'}</span>
@@ -1657,7 +1789,7 @@ Moved here. Not restored. Not deleted either.` }
                     let fPath = curPath === '/' ? `/${k}` : `${curPath}/${k}`;
                     let el = ce('div');
                     el.className = 'exp-item';
-                    el.innerHTML = `${item.type === 'dir' ? ICONS.dir : ICONS.file}<div class="label">${k}</div>`;
+                    el.innerHTML = `${item.type === 'dir' ? ICONS.dir : (item.image ? ICONS.image : ICONS.file)}<div class="label">${k}</div>`;
                     
                     el.onclick = e => {
                         e.stopPropagation();
@@ -1672,7 +1804,7 @@ Moved here. Not restored. Not deleted either.` }
                         el.classList.add('sel');
                         selItem = k;
                         ctxMenu([
-                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath); } },
+                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath, item.image); } },
                             { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
                             { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
                             { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
@@ -1687,7 +1819,7 @@ Moved here. Not restored. Not deleted either.` }
                     
                     el.ondblclick = () => {
                         if(item.type === 'dir') { curPath = fPath; w.expRender(); }
-                        else openViewer(k, getFileBody(fPath, item), fPath);
+                        else openViewer(k, getFileBody(fPath, item), fPath, item.image);
                     };
                     
                     attachDragDrop(el, fPath, item.type === 'dir');
@@ -1917,6 +2049,7 @@ Moved here. Not restored. Not deleted either.` }
             let n = getNode(path);
             if (!n) { print(`read: ${escapeHtml(path)}: File not found`); return; }
             if (n.type === 'dir') { print(`read: ${escapeHtml(path)}: Is a directory`); return; }
+            if (n.image) print(`[image file - terminal can't render it, open in Explorer or 'open ${escapeHtml(path)}' for the viewer]\n`);
             print(escapeHtml(getFileBody(path, n)));
         };
 
@@ -1935,7 +2068,7 @@ Moved here. Not restored. Not deleted either.` }
 
             switch(cmd) {
                 case 'help':
-                    print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear, whois, delegates, charter, access, submit\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
+                    print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear, whois, delegates, charter, access, submit, registry\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
                     break;
                 case 'man': {
                     if (!args[1]) { print("usage: man <cmd>"); break; }
@@ -1991,6 +2124,16 @@ Moved here. Not restored. Not deleted either.` }
                 }
                 case 'charter': doRead('/Compact/Registry/charter.txt'); break;
                 case 'access': doRead('/Compact/Registry/access.log'); break;
+                case 'registry': {
+                    let p = wm.spawn('alien_registry');
+                    if (args[1]) {
+                        let digits = args[1].replace(/\D/g, '');
+                        if (digits) { setAlienSeed(digits); print(`registry: entity ${digits} loaded`); }
+                        else print("registry: seed must be numeric");
+                    }
+                    if (p) print(`Launched app [${p}]`);
+                    break;
+                }
                 case 'whois': {
                     if (!args[1]) {
                         let header = 'DESIGNATION'.padEnd(20) + 'SPECIES_ID'.padEnd(24) + 'STATUS';
@@ -2057,7 +2200,7 @@ Moved here. Not restored. Not deleted either.` }
                 case 'open': {
                     if (!args[1]) { print("open: missing target"); break; }
                     let tgt = args[1].toLowerCase();
-                    if (['terminal', 'settings', 'explorer', 'monitor'].includes(tgt)) {
+                    if (['terminal', 'settings', 'explorer', 'monitor', 'alien_registry'].includes(tgt)) {
                         let p = wm.spawn(tgt);
                         if (p) print(`Launched app [${p}]`);
                     } else {
@@ -2066,7 +2209,7 @@ Moved here. Not restored. Not deleted either.` }
                         if (!n) print(`open: ${escapeHtml(args[1])}: Not found`);
                         else if (n.type === 'dir') openExplorer(path);
                         else {
-                            let p = openViewer(path.split('/').pop(), getFileBody(path, n), path);
+                            let p = openViewer(path.split('/').pop(), getFileBody(path, n), path, n.image);
                             print(`Opened file in viewer [${p}]`);
                         }
                     }
@@ -2201,7 +2344,26 @@ Moved here. Not restored. Not deleted either.` }
             };
         });
 
-       
+        const ARFRAME = qs('#ar-frame');
+        const ARTAB = qs('#ar-open-tab');
+        const ARINPUT = qs('#ar-seed-input');
+        const setAlienSeed = seed => {
+            let url = `https://thisaliendoesnotexist.app/${seed}`;
+            ARFRAME.src = url;
+            ARTAB.href = url;
+            ARINPUT.value = seed;
+        };
+        qs('#ar-lookup-btn').onclick = () => {
+            let digits = ARINPUT.value.replace(/\D/g, '');
+            if (digits) setAlienSeed(digits);
+        };
+        ARINPUT.onkeydown = e => { if (e.key === 'Enter') qs('#ar-lookup-btn').click(); };
+        qs('#ar-random-btn').onclick = () => {
+            ARFRAME.src = 'https://thisaliendoesnotexist.app/';
+            ARTAB.href = 'https://thisaliendoesnotexist.app/';
+            ARINPUT.value = '';
+        };
+
         loadSys();
         buildSettings();
         renderDesktop();

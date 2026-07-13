@@ -15,9 +15,9 @@ A browser-based operating system for the fictional Voyager-9 deep-space probe.
 
 VoyagerOS is a browser-based operating system built for the fictional Voyager-9 deep-space probe.
 
-The goal is to make it feel like real software instead of another website. From the boot sequence to the desktop, terminal, windows, virtual filesystem and applications, everything happens inside the operating system.
+The goal is to make it feel like real software instead of just another website. From the boot sequence to the desktop, terminal, applications and virtual filesystem, everything happens inside the operating system.
 
-VoyagerOS is part of a larger world built around **[This Alien Does Not Exist](http://thisaliendoesnotexist.app/)**. It serves as the in-universe operating system used aboard Voyager-9 for documenting, browsing and managing extraterrestrial life through the Alien Registry.
+VoyagerOS is also part of a larger project alongside **[This Alien Does Not Exist](http://thisaliendoesnotexist.app/)**. The long-term goal is to make VoyagerOS the in-universe operating system used aboard Voyager-9 for discovering, documenting and cataloguing procedurally generated alien species through the Alien Registry.
 
 ---
 
@@ -27,55 +27,48 @@ VoyagerOS is part of a larger world built around **[This Alien Does Not Exist](h
 - Desktop environment
 - Draggable and resizable windows
 - Virtual filesystem
-- File Explorer
 - Terminal with command history
-- Text Viewer
-- Settings
-- Process Manager
+- File Explorer
+- Paint
+- Alien Registry
+- ALR (Alien Registration) package support
 - Archive Viewer
 - Internet Archive integration
 - Dynamic data mounting
-- Alien Registry
-- Paint application
-- ALR (Alien Observation Package) support
-- Local Observation storage
-- Official Registry integration
-- Procedural observation archive
 
 ---
 
 ## Applications
 
-VoyagerOS currently includes:
+The operating system currently includes:
 
-- Terminal
+- Alien Registry
+- Archive Viewer
 - File Explorer
 - Paint
-- Alien Registry
-- Text Viewer
-- Settings
 - Process Manager
-- Archive Viewer
+- Settings
+- Terminal
+- Text Viewer
 
 ---
 
 ## Alien Registry
 
-The Alien Registry is used to browse and document extraterrestrial observations.
+The Alien Registry is VoyagerOS' primary scientific database for browsing and documenting procedurally generated alien species.
 
 It supports:
 
-- Procedural observation archive
-- Official observations from the ALR repository
-- Local observations
-- Observation validation
+- Procedural alien archive
+- Official ALR repository integration
+- Local registrations
 - Registry search
-- Random observation browsing
-- Observation packages (`.alr`)
+- Random browsing
+- Alien Registration (`.alr`) packages
 
-Interested in contributing?
+Interested in contributing your own discoveries?
 
-See the **[ALR Repository README](https://github.com/aamosm/VoyagerOS/tree/main/alr#readme)** for instructions on creating and submitting Observation Packages.
+See the **[ALR Repository Guide](./alr/README.md)** for instructions on creating and submitting Alien Registration packages.
 
 ---
 
@@ -84,14 +77,12 @@ See the **[ALR Repository README](https://github.com/aamosm/VoyagerOS/tree/main/
 - JavaScript
 - HTML
 - CSS
-- Flexbox
-- Fetch API
 - HTML5 Canvas
-- HTML5 Drag and Drop API
-- LocalStorage
-- SessionStorage
+- Fetch API
 - JSZip
 - Web Crypto API
+- LocalStorage
+- SessionStorage
 - Internet Archive Metadata API
 
 ---
@@ -121,14 +112,13 @@ http://localhost:8000
 
 ## Roadmap
 
-- Additional desktop applications
-- Expanded terminal command set
-- Improved virtual filesystem
+- More desktop applications
+- More terminal commands
+- Expand the virtual filesystem
 - Better window management
 - More ship logs and mission files
+- Reverse alien search
 - Expanded Alien Registry
-- Additional observation tools
-- More ALR repository integration
 - Saveable desktop sessions
 
 ---

@@ -176,7 +176,7 @@
         #term { width: 680px; height: 460px; left: 50px; top: 50px; }
         #settings { width: 550px; height: 500px; left: 150px; top: 100px; }
         #monitor { width: 480px; height: 420px; left: 250px; top: 130px; }
-        #alien-registry { width: 520px; height: 460px; left: 320px; top: 160px; }
+        #alien-registry { width: 760px; height: 620px; left: 260px; top: 90px; }
         #paint { width: 760px; height: 580px; left: 180px; top: 70px; }
 
         .viewer-img-wrap {
@@ -364,6 +364,8 @@
         }
         .opt-btn:hover { border-color: #666; color: #fff; }
         .opt-btn.sel { border-color: var(--acc); background: rgba(255,255,255,0.05); color: #fff; }
+        .theme-btn { display: flex; align-items: center; gap: 8px; text-align: left; }
+        .theme-swatch { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
 
         .exp-bar { display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 8px; align-items: center; }
         .exp-path-disp { flex-basis: 100%; display: flex; align-items: center; gap: 4px; color: var(--term-fg); font-size: 0.8rem; border: 1px solid #222; padding: 6px 8px; background: #080808; overflow-x: auto; white-space: nowrap; }
@@ -414,6 +416,62 @@
         .paint-action-btn { border: 1px solid var(--border); padding: 5px 12px; color: var(--acc); cursor: pointer; font-size: 0.72rem; transition: 0.15s; }
         .paint-action-btn:hover { border-color: var(--acc); background: rgba(255,255,255,0.05); }
         .alr-lbl { font-size: 0.68rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .reg-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .reg-toolbar input[type=text] { background: #050505; border: 1px solid var(--border); color: #fff; padding: 6px 8px; font-family: inherit; font-size: 0.75rem; width: 170px; }
+        .reg-toolbar select { background: #050505; border: 1px solid var(--border); color: #ccc; padding: 6px; font-family: inherit; font-size: 0.72rem; height: 28px; }
+        .reg-tab { border: 1px solid var(--border); color: #888; padding: 5px 11px; cursor: pointer; font-size: 0.72rem; transition: 0.15s; background: transparent; }
+        .reg-tab:hover { color: #fff; border-color: #666; }
+        .reg-tab.sel { color: #fff; border-color: var(--acc); background: rgba(255,255,255,0.06); }
+        .reg-spacer { flex-grow: 1; }
+        .reg-body { flex-grow: 1; overflow-y: auto; }
+        .reg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; align-content: start; }
+        .reg-card { border: 1px solid var(--border); padding: 8px; cursor: pointer; transition: 0.15s; }
+        .reg-card:hover { border-color: var(--acc); background: rgba(255,255,255,0.04); }
+        .reg-card-id { font-size: 0.62rem; color: #666; letter-spacing: 0.5px; }
+        .reg-card-name { color: #fff; font-size: 0.85rem; margin: 3px 0 5px; }
+        .reg-card-thumb { width: 100%; height: 90px; background: #0a0a0a repeating-conic-gradient(#111 0% 25%, #0a0a0a 0% 50%) 0 0/12px 12px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .reg-card-thumb img, .reg-card-thumb canvas { max-width: 100%; max-height: 100%; image-rendering: pixelated; }
+        .reg-card-thumb.none { color: #444; font-size: 0.62rem; text-align: center; padding: 4px; }
+        .reg-card-meta { font-size: 0.66rem; color: #777; line-height: 1.5; }
+        .reg-badge { display: inline-block; font-size: 0.6rem; padding: 1px 6px; border: 1px solid var(--border); color: #999; letter-spacing: 0.4px; }
+        .reg-badge.conf { color: var(--acc); border-color: var(--acc); }
+        .reg-badge.logged { color: #fff; border-color: #fff; }
+        .reg-card.human { border-color: #555; }
+        .reg-card.human:hover { border-color: #fff; }
+        .reg-id-copy { cursor: pointer; }
+        .reg-id-copy:hover { color: var(--acc); text-decoration: underline; }
+        .reg-badge.prob { color: #b8a860; border-color: #6e6440; }
+        .reg-badge.disp { color: #b87070; border-color: #6e4040; }
+        .reg-empty { color: #555; font-size: 0.78rem; padding: 30px 10px; text-align: center; }
+        .reg-filters { display: none; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 8px; margin-bottom: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+        .reg-filters.on { display: grid; }
+        .reg-filters label { font-size: 0.6rem; color: #777; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 2px; }
+        .reg-filters select, .reg-filters input { width: 100%; background: #050505; border: 1px solid var(--border); color: #ccc; padding: 5px; font-family: inherit; font-size: 0.72rem; }
+        .reg-back { color: var(--acc); cursor: pointer; font-size: 0.75rem; margin-bottom: 10px; display: inline-block; }
+        .reg-back:hover { text-decoration: underline; }
+        .reg-detail-head { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; }
+        .reg-detail-img { width: 340px; height: 340px; flex-shrink: 0; background: #0a0a0a repeating-conic-gradient(#111 0% 25%, #0a0a0a 0% 50%) 0 0/12px 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); }
+        .reg-detail-img img, .reg-detail-img canvas { max-width: 100%; max-height: 100%; }
+        .reg-detail-img.none { color: #444; font-size: 0.68rem; text-align: center; padding: 10px; }
+        .reg-row { font-size: 0.78rem; color: #ccc; padding: 3px 0; border-bottom: 1px dotted #1c1c1c; }
+        .reg-row .l { color: #777; display: inline-block; min-width: 140px; }
+        .reg-sec-h { color: var(--acc); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 4px; margin: 16px 0 6px; }
+        .reg-sec-h:first-child { margin-top: 0; }
+        .reg-log-line { font-size: 0.75rem; color: #bbb; padding: 3px 0; border-bottom: 1px dotted #1c1c1c; }
+        .reg-log-line .t { color: #666; margin-right: 8px; }
+        .reg-log-line .who { color: var(--acc); margin-right: 6px; }
+        .reg-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+        .reg-stat-box { border: 1px solid var(--border); padding: 10px; }
+        .reg-stat-box .v { color: var(--acc); font-size: 1.3rem; }
+        .reg-stat-box .l { color: #777; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .reg-drop { border: 1px dashed var(--border); padding: 22px; text-align: center; color: #777; font-size: 0.78rem; margin-bottom: 12px; transition: 0.15s; }
+        .reg-drop.drag-over { border-color: var(--acc); color: #ccc; background: rgba(106,138,132,0.08); }
+        .reg-drop-btn { border: 1px solid var(--border); color: var(--acc); padding: 6px 14px; cursor: pointer; font-size: 0.72rem; display: inline-block; margin-top: 8px; }
+        .reg-drop-btn:hover { border-color: var(--acc); background: rgba(255,255,255,0.05); }
+        .reg-val-ok { color: var(--acc); }
+        .reg-val-bad { color: var(--err); }
+        .reg-val-warn { color: #b8a860; }
 
         .sys-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 20000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
         .sys-modal-box { background: var(--win-bg); border: 1px solid var(--acc); padding: 20px; min-width: 320px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
@@ -480,30 +538,18 @@
         </div>
         <div class="win-content" style="overflow-y: auto;">
             <div class="settings-sec">
-                <h4>System Wallpaper</h4>
-                <div class="grid-opts" id="bg-grid"></div>
-            </div>
-            <div class="settings-sec">
-                <h4>Accent Color</h4>
-                <div class="grid-opts" id="acc-grid">
-                    <button class="opt-btn" data-val="#6a8a84" style="color:#6a8a84">Muted Teal</button>
-                    <button class="opt-btn" data-val="#4af626" style="color:#4af626">Matrix Green</button>
-                    <button class="opt-btn" data-val="#ffb000" style="color:#ffb000">Amber</button>
-                    <button class="opt-btn" data-val="#00f0ff" style="color:#00f0ff">Cyan Grid</button>
-                    <button class="opt-btn" data-val="#d8d4c8" style="color:#d8d4c8">Off-White</button>
-                    <button class="opt-btn" data-val="#d0d0d0" style="color:#d0d0d0">Monochrome</button>
+                <h4>Theme</h4>
+                <div class="grid-opts" id="theme-grid"></div>
+                <div style="font-size:0.68rem; color:#666; margin-top:8px; line-height:1.5;">
+                    A theme sets the wallpaper, accent, and interface colors together.
+                    To use your own image as the wallpaper instead, right-click it - on the Desktop, in Explorer, or in an image viewer - and choose Set as Wallpaper.
+                </div>
+                <div id="custom-wallpaper-note" style="display:none; font-size:0.7rem; color:var(--acc); margin-top:8px;">
+                    A custom wallpaper is active. <span id="clear-custom-wallpaper" style="text-decoration:underline; cursor:pointer;">Clear it</span> to use the theme's own wallpaper again.
                 </div>
             </div>
             <div class="settings-sec">
-                <h4>Terminal Foreground</h4>
-                <div class="grid-opts" id="fg-grid">
-                    <button class="opt-btn" data-val="#d0d0d0" style="color:#d0d0d0">Standard</button>
-                    <button class="opt-btn" data-val="#4af626" style="color:#4af626">Matrix</button>
-                    <button class="opt-btn" data-val="#ffb000" style="color:#ffb000">Amber</button>
-                    <button class="opt-btn" data-val="#00f0ff" style="color:#00f0ff">Cyan</button>
-                </div>
-            </div>
-            <div class="settings-sec">
+
                 <h4>Display Preferences</h4>
                 <div class="grid-opts" id="pref-grid">
                     <button class="opt-btn" data-setting="density" data-val="normal">Normal Density</button>
@@ -517,7 +563,7 @@
                 <div class="grid-opts" id="sys-grid">
                     <button class="opt-btn" id="sys-reset-layout">Reset Desktop Layout</button>
                     <button class="opt-btn" id="sys-empty-trash">Empty Trash</button>
-                    <button class="opt-btn" id="sys-factory-reset" style="color:var(--err)">Factory Reset</button>
+                    <button class="opt-btn" id="sys-factory-reset" style="color:var(--err)">Go to Original FileState</button>
                 </div>
             </div>
         </div>
@@ -553,20 +599,18 @@
             <span>[13] alien_registry</span>
             <div class="win-ctrls">
                 <span class="w-btn min">_</span>
+                <span class="w-btn max">□</span>
                 <span class="w-btn close">x</span>
             </div>
         </div>
-        <div class="win-content" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; color:#888;">
-            <div style="font-size:0.75rem; letter-spacing:1px; color:#555;">JOINT SPECIES REGISTRY</div>
-            <div style="font-size:0.8rem; color:#aaa; max-width:380px; line-height:1.6;">
-                Proposal has not reached a vote. No sanctioned interface exists yet.
+        <div class="win-content" style="padding:8px; display:flex; flex-direction:column;">
+            <div class="reg-toolbar">
+                <span class="reg-tab sel" data-rview="browse">Browse</span>
+                <span class="reg-tab" data-rview="contribute">Contribute</span>
+                <div class="reg-spacer"></div>
+                <span style="font-size:0.62rem; color:#555;">Compact-ratified &middot; joint species registry</span>
             </div>
-            <div style="font-size:0.7rem; color:#555; border:1px solid var(--border); padding:6px 14px;">
-                STATUS: NOT RATIFIED
-            </div>
-            <div style="font-size:0.7rem; color:#444; max-width:380px;">
-                See Compact/Registry/alien_registry.dat for filing notes.
-            </div>
+            <div class="reg-body" id="reg-body"></div>
         </div>
     </div>
 
@@ -647,7 +691,7 @@
         </div>
         <div class="sm-item" data-run="alien_registry">
             <span>Alien Registry</span>
-            <span class="sm-sub">Joint species catalog</span>
+            <span class="sm-sub">Filed specimen catalog</span>
         </div>
         <div class="sm-item" data-run="paint">
             <span>Paint</span>
@@ -661,6 +705,9 @@
         <div class="tb-clock" id="tb-clock">00:00:00</div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+    <script src="registry.js"></script>
     <script>
         const qs = s => document.querySelector(s);
         const ce = t => document.createElement(t);
@@ -679,14 +726,48 @@
             return ICONS.file;
         };
 
-        const themes = [
-            { id: 'deepspace', name: 'Deep Space', bg: "linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://cdn.pixabay.com/photo/2016/09/08/20/52/starry-sky-1655503_1280.jpg')" },
-            { id: 'nebula', name: 'Nebula', bg: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')" },
-            { id: 'planet', name: 'Exoplanet', bg: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1920&q=80')" },
-            { id: 'cyber', name: 'Terminal Net', bg: "linear-gradient(rgba(0,26,10,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')" },
-            { id: 'neon', name: 'Neon Grid', bg: "linear-gradient(rgba(10,0,20,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80')" },
-            { id: 'void', name: 'Absolute Void', bg: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80')" }
+        // Each theme bundles a wallpaper with a coordinated set of interface
+
+        const THEMES = [
+            {
+                id: 'deepspace', name: 'Deep Space',
+                bg: "linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.9)), url('https://cdn.pixabay.com/photo/2016/09/08/20/52/starry-sky-1655503_1280.jpg')",
+                acc: '#6a8a84', fg: '#d6dedc', termFg: '#cfe0dc', border: '#2c3a3a', winBg: 'rgba(8,12,12,0.95)', err: '#e0876a'
+            },
+            {
+                id: 'nebula', name: 'Nebula',
+                bg: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#b98af0', fg: '#e7def4', termFg: '#d9c2f7', border: '#3a2c4a', winBg: 'rgba(14,8,18,0.95)', err: '#ff6ea8'
+            },
+            {
+                id: 'planet', name: 'Exoplanet',
+                bg: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#e0a458', fg: '#f2e8d4', termFg: '#f2c988', border: '#4a3a22', winBg: 'rgba(16,11,5,0.95)', err: '#e0603a'
+            },
+            {
+                id: 'cyber', name: 'Terminal Net',
+                bg: "linear-gradient(rgba(0,26,10,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#4af626', fg: '#cdf2cd', termFg: '#4af626', border: '#1f3a1f', winBg: 'rgba(4,12,4,0.95)', err: '#ff4444'
+            },
+            {
+                id: 'neon', name: 'Neon Grid',
+                bg: "linear-gradient(rgba(10,0,20,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#00f0ff', fg: '#dfe6ff', termFg: '#00f0ff', border: '#262646', winBg: 'rgba(8,4,18,0.95)', err: '#ff2266'
+            },
+            {
+                id: 'void', name: 'Absolute Void',
+                bg: "linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#d0d0d0', fg: '#eaeaea', termFg: '#d0d0d0', border: '#3a3a3a', winBg: 'rgba(6,6,6,0.97)', err: '#ff5555'
+            },
+            {
+                id: 'amber', name: 'Amber CRT',
+                bg: "linear-gradient(rgba(20,12,0,0.82), rgba(0,0,0,0.92)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#ffb000', fg: '#ffdca0', termFg: '#ffb000', border: '#4a3510', winBg: 'rgba(14,9,0,0.95)', err: '#ff5533'
+            }
         ];
+     
+        const themes = THEMES;
+
 
         const registry = [
             { id: 4294967296, name: 'Sol', kind: 'biological', status: 'local-active', founded: null, redacted: false, notes: 'Origin point. Crew rotation and day-to-day admin run out of here.' },
@@ -695,9 +776,7 @@
             { id: 72057594037927936, name: 'KV-118', kind: 'encrypted-unknown', status: 'remote-dormant', founded: null, redacted: true, notes: '' }
         ];
 
-        // Background processes that aren't ours - propulsion/power daemons
-        // installed by Threnody Accord and Calyx Ministry. Not started or
-        // stopped by anything in this OS; the terminal just reports on them.
+        // Background processes that aren't ours
         const ghostState = {
             '000': { name: 'threnody_manifold_sync', killable: false, active: true },
             '001': { name: 'calyx_flux_gate', killable: true, active: true }
@@ -709,7 +788,9 @@
             { t: '1997', who: 'Calyx Ministry', note: 'Founding signature recorded.' },
             { t: '2003', who: 'Sol', note: 'VGR-9 keel laid. Joint propulsion program opened.' },
             { t: '2008', who: 'Sol', note: 'VGR-9 launch. Administration handed to onboard systems.' },
-            { t: '2025', who: 'Sol', note: 'Local avatar submission logged. Not entered.' }
+            { t: '2025', who: 'Sol', note: 'Local avatar submission logged. Not entered.' },
+            { t: '2026', who: 'Threnody Accord', note: 'Joint species registry ratified. Unanimous.' },
+            { t: '2026', who: 'Sol', note: 'Local avatar submission entered under the ratified registry. Species_id 4294967296.' }
         ];
 
         const SUBMISSIONS_DEFAULTS = [
@@ -744,7 +825,10 @@
             { t: '2024', who: 'Sol', msg: 'Recalibration complete. Attributed to noise. Closed.' },
             { t: '2025', who: 'Sol', msg: "Flagging an unlisted long-range render, source unclear. Proposing a standing registry entry so this isn't handled ad hoc again. No further action logged." },
             { t: '2025', who: 'Calyx Ministry', msg: "Confirming the long-range render tech behind the proposed registry is ours, on loan to the Compact. Flagging in advance: renders at this range aren't precise. Expect an approximate shape and a designation, not confirmed detail." },
-            { t: '2025', who: 'Sol', msg: 'Registry proposal still hasn\'t reached a vote. Wired a feed together locally in the meantime - not authoritative, not asking permission this time either.' }
+            { t: '2025', who: 'Sol', msg: 'Registry proposal still hasn\'t reached a vote. Wired a feed together locally in the meantime - not authoritative, not asking permission this time either.' },
+            { t: '2026', who: 'Threnody Accord', msg: 'Reviewing the standing local feed against the original registry proposal. Recommending we ratify the proposal as-is rather than rebuild it - the shape was already right.' },
+            { t: '2026', who: 'Calyx Ministry', msg: 'Concur. Long-range render caveat stands regardless of the vote.' },
+            { t: '2026', who: 'Sol', msg: 'Joint species registry ratified, unanimous. Local build promoted to the official interface - nothing to migrate, it already matched the proposal.' }
         ];
 
         const loadAccess = () => {
@@ -792,6 +876,95 @@
             return header + '\n' + rows.join('\n');
         };
 
+
+        const REG_BODY_PLANS = ['Quadruped','Biped','Serpentine','Insectoid','Arachnoid','Tripod','Cephalopod','Radial','Winged','Other'];
+
+        const regFieldTraits = alien => {
+            let g = (alien && alien.genome) || {};
+            return {
+                bodyPlan: g.bodyPlan || 'Other',
+                eyeCount: g.eyeCount != null ? String(g.eyeCount) : '',
+                tailPresent: (g.tailLength || 0) > 0.15 ? 'Yes' : 'No',
+                massKg: g.mass != null ? Number((g.mass / 1000).toFixed(1)) : null
+            };
+        };
+
+        const regFieldIdString = seed => String(seed).padStart(10, '0');
+
+        const regFieldEntry = (alien, seed) => {
+            let t = regFieldTraits(alien);
+            return {
+                kind: 'field', key: 'field-' + seed, seed, alien, id: regFieldIdString(seed),
+                commonName: null, bodyPlan: t.bodyPlan, eyeCount: t.eyeCount, tailPresent: t.tailPresent,
+                massKg: t.massKg, notableFeatures: '', notes: '', editable: false
+            };
+        };
+
+
+        const regHumanEntry = (alien, seed) => {
+            let t = regFieldTraits(alien);
+            return {
+                kind: 'field', key: 'field-' + seed, seed, alien, id: regFieldIdString(seed),
+                commonName: 'Human', bodyPlan: t.bodyPlan, eyeCount: t.eyeCount, tailPresent: t.tailPresent,
+                massKg: t.massKg, notableFeatures: 'Crew of VGR-9. The one entry on file filed by observing ourselves.',
+                notes: 'Peculiar mating habits and rituals',
+                editable: false, human: true
+            };
+        };
+
+        const regEntryForSeed = (alien, seed) => seed === HUMAN_SEED ? regHumanEntry(alien, seed) : regFieldEntry(alien, seed);
+
+        const regLocalEntry = e => {
+            let reg = (e.node.alrSignature && e.node.alrSignature.registration) || {};
+            let id = e.node.alrManifest.registryIdentifier;
+            let official = alrIsOfficial(id);
+            return {
+                kind: official ? 'official' : 'local', key: 'local-' + e.name, name: e.name, id,
+                commonName: reg.commonName, bodyPlan: reg.bodyPlan, eyeCount: reg.eyeCount, tailPresent: reg.tailPresent,
+                massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null, heightM: reg.heightM,
+                notableFeatures: reg.notableFeatures, notes: reg.notes, primaryColor: reg.primaryColor,
+                secondaryColor: reg.secondaryColor, behaviour: reg.behaviour, image: e.node.image,
+                drawingUrl: e.node.drawingUrl, editable: !official, node: e.node
+            };
+        };
+
+        const regOfficialEntry = e => ({
+            kind: 'official', key: 'official-' + e.registryIdentifier, id: e.registryIdentifier,
+            fileName: e.fileName, downloadUrl: e.downloadUrl, commonName: null, editable: false, remote: true
+        });
+
+        const regMatchesFilters = (e, f, q) => {
+            if (f.bodyPlan && e.bodyPlan !== f.bodyPlan) return false;
+            if (f.eyeCount && String(e.eyeCount) !== f.eyeCount) return false;
+            if (f.tailPresent && e.tailPresent !== f.tailPresent) return false;
+            let logged = e.kind !== 'field' || e.human;
+            if (f.logged === 'yes' && !logged) return false;
+            if (f.logged === 'no' && logged) return false;
+            if (q) {
+                let s = q.toLowerCase();
+                let hay = [e.commonName, e.notableFeatures, e.notes, e.bodyPlan, e.id].filter(Boolean).join(' ').toLowerCase();
+                if (!hay.includes(s)) return false;
+            }
+            return true;
+        };
+
+        const regParseNumericQuery = q => {
+            let digits = (q || '').trim();
+            if (!digits || !/^[0-9]+$/.test(digits)) return null;
+            return digits;
+        };
+
+        const regSortById = (list, dir) => {
+            if (!dir) return list;
+            let out = list.slice();
+            out.sort((a, b) => {
+                let av = a.id ? BigInt(a.id) : -1n, bv = b.id ? BigInt(b.id) : -1n;
+                let cmp = av < bv ? -1 : av > bv ? 1 : 0;
+                return dir === 'asc' ? cmp : -cmp;
+            });
+            return out;
+        };
+
         const getFileBody = (path, node) => {
             if (path === '/Compact/Registry/access.log') return renderAccessLog();
             if (path === '/Compact/Registry/submissions.log') return renderSubmissions();
@@ -805,6 +978,97 @@
             document.body.appendChild(a);
             a.click();
             a.remove();
+        };
+
+        const CRC_TABLE = (() => {
+            let t = new Uint32Array(256);
+            for (let n = 0; n < 256; n++) {
+                let c = n;
+                for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                t[n] = c >>> 0;
+            }
+            return t;
+        })();
+
+        const crc32 = bytes => {
+            let c = 0xFFFFFFFF;
+            for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+            return (c ^ 0xFFFFFFFF) >>> 0;
+        };
+
+        const dataUrlToBytes = dataUrl => {
+            let b64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+            let bin = atob(b64);
+            let bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return bytes;
+        };
+
+        const bytesToDataUrl = (bytes, mime) => {
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return `data:${mime};base64,${btoa(bin)}`;
+        };
+
+
+        const pngEmbedRecord = (dataUrl, keyword, payload) => {
+            let png = dataUrlToBytes(dataUrl);
+            let textBytes = new TextEncoder().encode(payload);
+            let kw = new TextEncoder().encode(keyword);
+            let body = new Uint8Array(kw.length + 5 + textBytes.length);
+            body.set(kw, 0);
+            body[kw.length] = 0;
+            body[kw.length + 1] = 0;
+            body[kw.length + 2] = 0;
+            body[kw.length + 3] = 0;
+            body[kw.length + 4] = 0;
+            body.set(textBytes, kw.length + 5);
+
+            let type = new TextEncoder().encode('iTXt');
+            let crcInput = new Uint8Array(type.length + body.length);
+            crcInput.set(type, 0);
+            crcInput.set(body, type.length);
+            let crc = crc32(crcInput);
+
+            let chunk = new Uint8Array(4 + 4 + body.length + 4);
+            let dv = new DataView(chunk.buffer);
+            dv.setUint32(0, body.length);
+            chunk.set(type, 4);
+            chunk.set(body, 8);
+            dv.setUint32(8 + body.length, crc);
+
+        
+            let out = new Uint8Array(png.length + chunk.length);
+            out.set(png.subarray(0, png.length - 12), 0);
+            out.set(chunk, png.length - 12);
+            out.set(png.subarray(png.length - 12), png.length - 12 + chunk.length);
+            return bytesToDataUrl(out, 'image/png');
+        };
+
+        const pngReadRecord = (bytes, keyword) => {
+            let pos = 8;
+            let dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            while (pos + 8 <= bytes.length) {
+                let len = dv.getUint32(pos);
+                let type = String.fromCharCode(bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]);
+                if (type === 'iTXt') {
+                    let data = bytes.subarray(pos + 8, pos + 8 + len);
+                    let nul = data.indexOf(0);
+                    let kw = new TextDecoder().decode(data.subarray(0, nul));
+                    if (kw === keyword) {
+                   
+                        let p = nul + 3;
+                        let l2 = data.subarray(p).indexOf(0);
+                        p += l2 + 1;
+                        let l3 = data.subarray(p).indexOf(0);
+                        p += l3 + 1;
+                        return new TextDecoder().decode(data.subarray(p));
+                    }
+                }
+                if (type === 'IEND') break;
+                pos += 12 + len;
+            }
+            return null;
         };
 
         const downloadNode = (path, node) => {
@@ -827,7 +1091,10 @@
             'Desktop': {
                 type: 'dir',
                 content: {
-                    'readme.txt': { type: 'file', body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDay-to-day crew business - checklists, logs, engineering - lives in Local_Ops. Compact business - the treaty, the Registry, the Archive - is kept off the Desktop entirely. Different filing cabinet, different key.\n\nAlien Registry under Start Menu is a placeholder - proposal never reached a vote. See Compact/Registry/alien_registry.dat.\n\nThe Paint utility is real, though, and does support filing a specimen through the Alien Registration wizard. See manual.txt for the full walkthrough - tools, textures, saving, transferring files off the array, and how a filed .alr record is put together. It autosaves your canvas locally every 30 seconds and offers to recover it if you come back to a blank one.' },
+                    'readme.txt': { 
+                        type: 'file', 
+                        body: 'VGR-9 EXPEDITIONARY OS - CREW ORIENTATION (REV 1997.4)\n\nWelcome aboard the VGR-9. We are making history here—humanity and our interstellar counterparts, sharing a bulkhead and a mission into the deep black. \n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDAY-TO-DAY OPERATIONS:\nYour standard crew business—maintenance checklists, shift logs, engineering readouts—lives in Local_Ops. \n\nTHE COMPACT:\nThe heavy diplomatic payload—the Treaty, the Registry, the Archive—is kept in Compact.\n\n===============================\nALIEN REGISTRY\n===============================\nLocated under the Start Menu, this is the ratified joint species registry, a monumental achievement of our shared alliance. See Compact/Registry/alien_registry.dat for the architecture. \n\nUse it to browse, search, and filter filed specimens. You can pull up a full profile with its observation log and related entries, check registry statistics, or submit a filing prepared in the Paint utility. \n\nSubmitting never uploads anything to the comms array itself; it packages the file and walks you to the point of opening a branch on GitHub yourself for Earth-side and Council review. Nothing is official, and nothing counts toward the registry, until that branch is merged by Command. \n\nTerminal command: An optional argument runs a search on open.\n  ex: registry\n  ex: registry glass walker\n\n===============================\nPAINT UTILITY\n===============================\nTyping `open paint` launches the onboard Paint utility—a fixed-size digital canvas specifically calibrated for sketching whatever you or the alien crew members spot off the array. Everything drawn lives only in volatile memory until you explicitly save it to the ship\'s databanks.\n\nTOOLS:\n  Pencil        Hard 1px-ish line, follows the cursor exactly.\n  Brush         Textured stamp, size/opacity/texture all apply.\n  Spray         Scatters dots in a radius while held down.\n  Eraser        Same as Pencil but cuts through to transparent.\n  Bucket Fill   Fills the contiguous region under the cursor.\n  Picker        Samples a color off the canvas into the color well.\n\nTEXTURES (affects Brush and Spray):\n  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes, Veins, Mottled.\n\nOTHER CONTROLS:\n  Size / Opacity   Sliders, apply to Pencil/Brush/Spray/Eraser.\n  Color            The active color well.\n  Grid             Toggles an alignment overlay, doesn\'t paint.\n  Undo / Redo      Also bound to Ctrl+Z and Ctrl+Shift+Z while the Paint window is focused.\n  Clear            Wipes the canvas back to blank - confirm first so you don\'t lose a sighting.\n\nAUTOSAVE:\n  Power fluctuations happen in deep space. The canvas is autosaved locally every 30 seconds while Paint is open. If your terminal resets or reloads and you come back to a blank canvas, Paint will detect the autosave and offer to recover it quietly before you start drawing.\n\nSAVING AND TRANSFERRING:\n  `Save to Filesystem` writes the current canvas into the VGR-9\'s virtual filesystem as an image file, at a directory you choose. Once a file exists anywhere in the filesystem (Desktop, Explorer, anywhere), right-click it and choose "Transfer to another device" to actually pull it off the array and onto your local machine. There\'s no separate download button in Paint itself; saving to the ship and transferring off-board are deliberately two different protocols.\n\nALIEN REGISTRATION FILING:\n  `File Alien Registration`:\n    Step 1  Common Name                Whatever the crew calls it.\n    Step 2  Physical Characteristics   Height (m), mass (kg), body plan, symmetry, eye count, mouth, arm count, leg count, tail present, surface texture, observed behaviour, notable features (free text - "large crest", "glowing eyes", etc.).\n    Step 3  Colors                     Primary and secondary.\n    Step 4  Notes                      Anything else worth logging for the xenobiologists.\n\n  On save, a permanent Registry Identifier is generated for you. The result is packaged as an Observation Package and saved as a Local Observation in the `alr/` folder on this device—no destination prompt, no separate transfer step. A confirmation tells you where it landed. That\'s what the Alien Registry app\'s Contribute tab reads back when you go to validate or submit your discovery to the fleet.' 
+                        },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
 [ ] Confirm uplink handshake
@@ -1103,70 +1370,7 @@ submit <message>
     ex: submit requesting propulsion schema exchange
 
 registry
-  Opens the alien_registry app. Placeholder only - the proposal
-  hasn't reached a vote, so there's no lookup interface yet.
-    ex: registry
-
-===============================
-PAINT
-===============================
-
-open paint launches the Paint utility - a fixed-size canvas for
-sketching whatever the crew spots off the array. Everything drawn
-lives only in that canvas until you explicitly save it somewhere.
-
-Tools:
-  Pencil    hard 1px-ish line, follows the cursor exactly
-  Brush     textured stamp, size/opacity/texture all apply
-  Spray     scatters dots in a radius while held down
-  Eraser    same as Pencil but cuts through to transparent
-  Bucket Fill   fills the contiguous region under the cursor
-  Picker    samples a color off the canvas into the color well
-
-Texture (affects Brush and Spray):
-  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes,
-  Veins, Mottled
-
-Other controls:
-  Size / Opacity   sliders, apply to Pencil/Brush/Spray/Eraser
-  Color            the active color well
-  Grid             toggles an alignment overlay, doesn't paint
-  Undo / Redo      also bound to Ctrl+Z and Ctrl+Shift+Z while
-                   the Paint window is focused
-  Clear            wipes the canvas back to blank - confirm first
-
-Autosave:
-  The canvas is autosaved locally every 30 seconds while Paint is
-  open. If you come back to a blank canvas after a page reload
-  and an autosave exists, Paint will offer to recover it before
-  you start drawing.
-
-Saving and transferring:
-  Save to Filesystem writes the current canvas into the virtual
-  filesystem as an image file, at a directory you choose. Once a
-  file exists anywhere in the filesystem - Desktop, Explorer,
-  anywhere - right-click it and choose "Transfer to another
-  device" to actually pull it off the array and onto your local
-  machine. There's no separate download button in Paint itself;
-  saving and transferring are deliberately two different steps.
-
-Alien Registration filing:
-  File Alien Registration walks through a short wizard instead of
-  one long form:
-    Step 1  Common Name        whatever the crew calls it
-    Step 2  Physical Characteristics
-              height (m), mass (kg), body plan, symmetry,
-              eye count, mouth, arm count, leg count, tail
-              present, surface texture, observed behaviour,
-              notable features (free text - "large crest",
-              "glowing eyes", etc.)
-    Step 3  Colors              primary and secondary
-    Step 4  Notes                anything else worth logging
-  On save, an internal registry ID (VGR9-##### format) is
-  assigned automatically - you never have to make one up. The
-  result is written as a .alr file: a JSON record pairing your
-  answers with the drawing itself. Like any other saved file, get
-  it off the array with right-click - Transfer to another device.` },
+  Opens the alien_registry app.` },
             'Compact': {
                 type: 'dir',
                 content: {
@@ -1214,20 +1418,19 @@ Signed,
                         'submissions.log': { type: 'file', body: '' },
                         'amendments.log': { type: 'file', body: `[2011] Article II amended - maintenance refusal must be logged within 30 days, not "reasonable time." Unanimous.
 [2019] Proposal for a fourth founding seat, retroactive, withdrawn before it reached a vote.
-[2022] Article IV clarified - accession requires consent, not a complete dossier. Passed unanimously following KV-118's admission.` },
-                        'alien_registry.dat': { type: 'file', body: `PROPOSED: JOINT SPECIES REGISTRY
-STATUS: NOT RATIFIED - no vote held, see submissions.log 2025
+[2022] Article IV clarified - accession requires consent, not a complete dossier. Passed unanimously following KV-118's admission.
+[2026] Joint Species Registry ratified. Unanimous. Adopts the existing local build as the official interface per submissions.log 2026.` },
+                        'alien_registry.dat': { type: 'file', body: `JOINT SPECIES REGISTRY
+STATUS: RATIFIED 2026 - unanimous, see submissions.log 2026
 
 A standing catalog of species known to date, compiled from entries
-filed by every signatory. Not the same thing as the Compact roster
-above - that's who signed the treaty. This is who's been sighted,
-by anyone, since.
+filed by every signatory.
 
 Running on long-range render tech loaned by Calyx Ministry. Long
 range means approximate - a shape and a designation, not confirmed
 detail. Treat entries accordingly.
 
-Current tally: 4,294,967,296.
+Current tally: 4,294,967,297 and counting.
 
 Filed by signatory (visible portion only):
   Sol                1
@@ -1235,12 +1438,16 @@ Filed by signatory (visible portion only):
   Calyx Ministry     89
   KV-118             [REDACTED]
 
-Sol filed one entry: Sol. Everyone else already had it on file
-anyway. Render's not ours either - same source as usual.
+Sol filed one entry: Species_id 4,294,967,296. Everyone else
+already had it on file anyway. Render's not ours either - same
+source as usual.
 
-Local interface: Start Menu > Alien Registry. Not authoritative,
-built ahead of ratification. Replace or remove if the real thing
-ever passes a vote.` }
+Local interface: Start Menu > Alien Registry. Same catalog
+described above - ratification adopted this build directly as the
+official interface, nothing to replace or fold in. Individual
+specimens the crew has put eyes or a range reading on, filed one
+at a time through Paint, sit alongside whatever the Compact has
+on file, sorted by species_id like everything else here.` }
                     } },
                     'Archive': { type: 'dir', content: {
                         'contact_event.log': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 002
@@ -1251,37 +1458,35 @@ RETENTION: PERMANENT, COMPACT ARCHIVE
 ---
 
 TRANSMISSION LOG - VGR-5 - DEEP RANGE ARRAY
-DATE: 1992
+DATE: 1992-10-14
+NOTE: PERSONAL RECOLLECTION ATTACHED TO OFFICIAL TRANSCRIPT
 
-Thirteen years of silence. Then the return carrier locked, and the
-room went quiet in a way rooms don't usually go quiet.
+For thirteen years, Array 4 listened to static. At 0314 hours, the telemetry spiked.
 
-[SIGNAL ACQUIRED - DECODING, T+00:00]
+We caught a narrowband return carrier locking onto our exact coordinates. When the overhead speakers switched from white noise to the rhythmic pulse of a structured data stream, the control room went completely dead. Just the hum of the cooling fans and the sound of twenty technicians not breathing.
 
->> partial recovery, first block
->> repeating structure matches outbound Golden Record encoding
->> response confirms receipt of arithmetic sequence, plate
-   diagrams
->> [REDACTED - 4 LINES]
+[SIGNAL ACQUIRED - 1420 MHz - DECODING, T+00:00]
 
->> "[REDACTED] ... your vessel is noted. your intent is read
-   as exploratory, not territorial. [REDACTED] ... a path
-   exists for continued contact, if your signatories are
-   willing to commit to terms."
+parsing partial recovery... sync block established
+structural match: outbound Voyager Golden Record (1977)
+response confirms receipt: arithmetic sequence, pulsar map
+[DATA CORRUPTED / REDACTED - 4 LINES]
+
+translation matrix yielding high-confidence string: "[REDACTED] [REDACTED] ..."
 
 [CARRIER DROPPED, T+00:41:12]
 
-Nobody moved for a full minute after the carrier dropped. Someone
-finally said we should call the shift supervisor. Nobody had called
-anyone yet.
+The signal flatlined. The sudden blast of static coming back through the speakers made everyone flinch.
 
-Authentication run twice before a signature would go on it. Not a
-reflection artifact, not our own signal bounced back at us across
-thirteen years. Something answered.
+Nobody spoke for a full minute. Someone eventually muttered that we needed to wake the Director. Nobody picked up the phone. We just stared at the monitors, watching the empty noise scroll by.
 
-Escalated that same night. Someone asked what we should call it
-instead of signal designation 9821-B. Nobody had an answer ready.
-Some of us still don't.
+We ran the diagnostic and authentication loops three times before anyone would sign their name to the printout. We were desperate for it to be a reflection artifact. We wanted it to be a glitch, our own radio echo bouncing off a dead rock and coming home thirteen years late.
+
+It wasn't. Something had caught our probe, read the plaque, and answered.
+
+The Pentagon took over the feed by sunrise. A suit asked what we should designate the contact, since "Anomaly 9821-B" didn't exactly capture what we were dealing with.
+
+Nobody had an answer. Thirty years later, we still don't.
 
 - ground crew, VGR-5 downlink team` },
                         'historical_context.dat': { type: 'file', body: `TERRESTRIAL ARCHIVE SUBMISSION 001
@@ -1346,20 +1551,22 @@ maintained_by=threnody_accord` }
                     } }
                 }
             },
+            'alr': { type: 'dir', content: {} },
             'Trash': { type: 'dir', content: {
                 'sol_profile_submission.img': { type: 'file', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adi_Stick_Fig.svg', whiteBg: true, body: `[LOCAL SUBMISSION - DECLINED]
-Held for review. Not approved.
+Was held for review. Not approved.
 
-Per Article II, only sanctioned render-tech output qualifies as a
+Per Article II, only sanctioned render-tech renders qualify as a
 signatory's registry avatar. This didn't clear that bar.
 
-Filed by hand, not by array. Not restored. Not deleted either.` }
+Filed by hand.` }
             } }
         };
 
         const sysState = {
             t: 0, v: 28500.0, tmp: 2.7,
-            conf: { bg: 'deepspace', fg: '#d0d0d0', acc: '#6a8a84', dense: 'normal', hud: 'show' },
+
+            conf: { theme: 'deepspace', customWallpaper: null, dense: 'normal', hud: 'show' },
             fs: null,
             clipboard: null
         };
@@ -1426,7 +1633,15 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
         const loadSys = () => {
             try { 
                 const c = localStorage.getItem('vgr9_conf');
-                if (c) Object.assign(sysState.conf, JSON.parse(c));
+                if (c) {
+                    let parsed = JSON.parse(c);
+           
+                    if (parsed.theme == null && parsed.bg != null) {
+                        parsed.theme = THEMES.find(t => t.id === parsed.bg) ? parsed.bg : 'deepspace';
+                    }
+                    delete parsed.bg; delete parsed.fg; delete parsed.acc;
+                    Object.assign(sysState.conf, parsed);
+                }
                 const f = localStorage.getItem('vgr9_fs');
                 if (f) sysState.fs = JSON.parse(f);
                 else sysState.fs = JSON.parse(JSON.stringify(defaultFs));
@@ -1439,46 +1654,60 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
         };
 
         const applyConf = () => {
-            const t = themes.find(x => x.id === sysState.conf.bg) || themes[0];
-            document.body.style.background = t.bg + ' center/cover fixed';
-            document.documentElement.style.setProperty('--term-fg', sysState.conf.fg);
-            document.documentElement.style.setProperty('--acc', sysState.conf.acc);
-            
+            const t = THEMES.find(x => x.id === sysState.conf.theme) || THEMES[0];
+            const bg = sysState.conf.customWallpaper || t.bg;
+            document.body.style.background = bg + ' center/cover fixed';
+            document.documentElement.style.setProperty('--fg', t.fg);
+            document.documentElement.style.setProperty('--term-fg', t.termFg);
+            document.documentElement.style.setProperty('--acc', t.acc);
+            document.documentElement.style.setProperty('--border', t.border);
+            document.documentElement.style.setProperty('--win-bg', t.winBg);
+            document.documentElement.style.setProperty('--err', t.err);
+
             document.body.classList.toggle('dense-ui', sysState.conf.dense === 'compact');
             document.body.classList.toggle('hide-hud', sysState.conf.hud === 'hide');
-            
-            document.querySelectorAll('#bg-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.bg));
-            document.querySelectorAll('#fg-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.fg));
-            document.querySelectorAll('#acc-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.acc));
-            
+
+            document.querySelectorAll('#theme-grid .opt-btn').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.theme));
+            let customNote = qs('#custom-wallpaper-note');
+            if (customNote) customNote.style.display = sysState.conf.customWallpaper ? '' : 'none';
+
             document.querySelectorAll('#pref-grid .opt-btn[data-setting="density"]').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.dense));
             document.querySelectorAll('#pref-grid .opt-btn[data-setting="hud"]').forEach(b => b.classList.toggle('sel', b.dataset.val === sysState.conf.hud));
         };
 
+        const setWallpaperImage = url => {
+            if (!url) return;
+            sysState.conf.customWallpaper = `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('${url}')`;
+            saveSys(); applyConf();
+        };
+
+        const promptWallpaperFromUrl = () => {
+            sysModal('Set Wallpaper from Image', 'Paste an image URL to use as the desktop wallpaper:', val => {
+                if (val) setWallpaperImage(val);
+            }, true);
+        };
+
         const buildSettings = () => {
-            const bgGrid = qs('#bg-grid');
-            bgGrid.innerHTML = '';
-            themes.forEach(t => {
+            const themeGrid = qs('#theme-grid');
+            themeGrid.innerHTML = '';
+            THEMES.forEach(t => {
                 let btn = ce('button');
-                btn.className = 'opt-btn';
+                btn.className = 'opt-btn theme-btn';
                 btn.dataset.val = t.id;
-                btn.textContent = t.name;
-                bgGrid.appendChild(btn);
+                btn.innerHTML = `<span class="theme-swatch" style="background:${t.acc}; box-shadow: 0 0 0 2px ${t.border} inset;"></span>${escapeHtml(t.name)}`;
+                themeGrid.appendChild(btn);
             });
-            
-            qs('#bg-grid').onclick = e => {
-                if(!e.target.classList.contains('opt-btn')) return;
-                sysState.conf.bg = e.target.dataset.val;
+
+            qs('#theme-grid').onclick = e => {
+                let btn = e.target.closest('.opt-btn');
+                if(!btn) return;
+                sysState.conf.theme = btn.dataset.val;
+                sysState.conf.customWallpaper = null;
                 saveSys(); applyConf();
             };
-            qs('#fg-grid').onclick = e => {
-                if(!e.target.classList.contains('opt-btn')) return;
-                sysState.conf.fg = e.target.dataset.val;
-                saveSys(); applyConf();
-            };
-            qs('#acc-grid').onclick = e => {
-                if(!e.target.classList.contains('opt-btn')) return;
-                sysState.conf.acc = e.target.dataset.val;
+            let clearWpBtn = qs('#clear-custom-wallpaper');
+            if (clearWpBtn) clearWpBtn.onclick = () => {
+                sysState.conf.customWallpaper = null;
                 saveSys(); applyConf();
             };
             qs('#pref-grid').onclick = e => {
@@ -1502,7 +1731,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 });
             };
             qs('#sys-factory-reset').onclick = () => {
-                sysModal('Factory Reset', 'This will erase all files, folders, and preferences and restore vgr-9 to its default state. This cannot be undone.', () => {
+                sysModal('Original FileState', 'This will erase all files, folders, and preferences and restore vgr-9 to its default state. This cannot be undone.', () => {
                     localStorage.removeItem('vgr9_conf');
                     localStorage.removeItem('vgr9_fs');
                     location.reload();
@@ -1687,7 +1916,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 };
                 el.ondblclick = () => {
                     if (n.type === 'dir') openExplorer(full);
-                    else openViewer(k, getFileBody(full, n), full, n.image, n.whiteBg);
+                    else openLocalAlrOrViewer(k, n, full);
                 };
                 el.oncontextmenu = e => {
                     e.stopPropagation();
@@ -1695,11 +1924,12 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     d.querySelectorAll('.desk-icon').forEach(x=>x.classList.remove('sel'));
                     el.classList.add('sel');
                     ctxMenu([
-                        { label: n.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => n.type === 'dir' ? openExplorer(full) : openViewer(k, getFileBody(full, n), full, n.image, n.whiteBg) },
+                        { label: n.type === 'dir' ? 'Open' : (n.alrPackage ? 'Open in Alien Registry' : 'Open in Viewer'), action: () => n.type === 'dir' ? openExplorer(full) : openLocalAlrOrViewer(k, n, full) },
                         { label: 'Rename', action: () => sysModal('Rename', `Enter new name for '${k}':`, val => { if(val) renameNode(full, val); }, true) },
                         { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: full }; } },
                         { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: full }; } },
                         ...(n.type === 'file' ? [{ label: 'Transfer to another device', action: () => downloadNode(full, n) }] : []),
+                        ...(n.image ? [{ label: 'Set as Wallpaper', action: () => setWallpaperImage(n.image) }] : []),
                         '-',
                         { label: 'Properties', action: () => {
                             let size = JSON.stringify(n).length;
@@ -1726,6 +1956,8 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         moveNode(sysState.clipboard.path, '/Desktop', sysState.clipboard.op === 'copy');
                         if (sysState.clipboard.op === 'move') sysState.clipboard = null;
                     }},
+                    '-',
+                    { label: 'Set Wallpaper from Image URL...', action: () => promptWallpaperFromUrl() },
                     '-',
                     { label: 'Reset Icon Layout', action: () => { sysState.conf.iconPos = {}; saveSys(); renderDesktop(); } },
                     { label: 'Refresh', action: () => renderDesktop() }
@@ -1804,7 +2036,8 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 w.style.zIndex = ++this.z;
                 this.renderTb();
                 const inp = w.querySelector('input, textarea');
-                if (inp) inp.focus();
+      
+                if (inp) inp.focus({ preventScroll: true });
             },
 
             spawn(app) {
@@ -1987,6 +2220,16 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             return id;
         };
 
+        const openLocalAlrInRegistry = name => {
+            wm.spawn('alien_registry');
+            regHandleLocalAlr(name);
+        };
+
+        const openLocalAlrOrViewer = (name, node, path) => {
+            if (node && node.alrPackage) { openLocalAlrInRegistry(name); return; }
+            openViewer(name, getFileBody(path, node), path, node.image, node.whiteBg);
+        };
+
         const openExplorer = (initPath = '/') => {
             let id = Math.floor(Math.random() * 900) + 100;
             let w = ce('div');
@@ -2076,11 +2319,12 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         el.classList.add('sel');
                         selItem = k;
                         ctxMenu([
-                            { label: item.type === 'dir' ? 'Open' : 'Open in Viewer', action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openViewer(k, getFileBody(fPath, item), fPath, item.image, item.whiteBg); } },
+                            { label: item.type === 'dir' ? 'Open' : (item.alrPackage ? 'Open in Alien Registry' : 'Open in Viewer'), action: () => { if(item.type === 'dir') { curPath = fPath; w.expRender(); } else openLocalAlrOrViewer(k, item, fPath); } },
                             { label: 'Rename', action: () => sysModal("Rename Node", `Enter new name for '${k}':`, val => { if(val) renameNode(fPath, val); }, true) },
                             { label: 'Copy', action: () => { sysState.clipboard = { op: 'copy', path: fPath }; } },
                             { label: 'Cut', action: () => { sysState.clipboard = { op: 'move', path: fPath }; } },
                             ...(item.type === 'file' ? [{ label: 'Transfer to another device', action: () => downloadNode(fPath, item) }] : []),
+                            ...(item.image ? [{ label: 'Set as Wallpaper', action: () => setWallpaperImage(item.image) }] : []),
                             '-',
                             { label: 'Properties', action: () => {
                                 let size = JSON.stringify(item).length;
@@ -2092,7 +2336,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     
                     el.ondblclick = () => {
                         if(item.type === 'dir') { curPath = fPath; w.expRender(); }
-                        else openViewer(k, getFileBody(fPath, item), fPath, item.image, item.whiteBg);
+                        else openLocalAlrOrViewer(k, item, fPath);
                     };
                     
                     attachDragDrop(el, fPath, item.type === 'dir');
@@ -2112,10 +2356,13 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                             if (sysState.clipboard.op === 'move') sysState.clipboard = null;
                         }},
                         '-',
+                        { label: 'Set Wallpaper from Image URL...', action: () => promptWallpaperFromUrl() },
+                        '-',
                         { label: 'Refresh', action: () => w.expRender() }
                     ], e.clientX, e.clientY);
                 };
             };
+
 
             w.querySelector('.exp-up').onclick = () => {
                 if(curPath !== '/') {
@@ -2399,7 +2646,14 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                 case 'access': doRead('/Compact/Registry/access.log'); break;
                 case 'registry': {
                     let p = wm.spawn('alien_registry');
-                    if (args[1]) print("registry: no lookup interface yet - proposal isn't ratified");
+                    if (args[1]) {
+                        regState.query = args.slice(1).join(' ');
+                        regState.view = 'browse';
+                        regState.selected = null;
+                        regRenderTabs();
+                        regRenderBody();
+                        print(`Searching filed specimens for "${escapeHtml(regState.query)}"`);
+                    }
                     if (p) print(`Launched app [${p}]`);
                     break;
                 }
@@ -2788,10 +3042,597 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             [nameInp, dirInp].forEach(inp => inp.onkeydown = e => { if (e.key === 'Enter') doSave(); });
         };
 
-        const nextRegistryId = () => {
-            sysState.conf.regCounter = (sysState.conf.regCounter || 0) + 1;
-            saveSys();
-            return 'VGR9-' + String(sysState.conf.regCounter).padStart(5, '0');
+        const PROC_MAX_SEED = 4294967295; // 2^32 - 1
+        const HUMAN_SEED = PROC_MAX_SEED + 1; // 2^32
+        const REG_MAX_SEED = HUMAN_SEED; 
+        const PROC_SEED_LENGTH = 10;
+        const PROC_POOL_SIZE = 60;
+        let procPool = null; 
+
+        const procDetHash = (seed, salt) => {
+            let h = (seed >>> 0);
+            for (let i = 0; i < salt.length; i++) h = Math.imul(h ^ salt.charCodeAt(i), 2654435761) >>> 0;
+            return (h >>> 0) / 4294967296;
+        };
+        const procDisplaySeed = seed => String(seed).padStart(PROC_SEED_LENGTH, '0');
+        const procRandomSeed = () => {
+            if (window.crypto && window.crypto.getRandomValues) {
+                let arr = new Uint32Array(1);
+                crypto.getRandomValues(arr);
+                return arr[0] % (PROC_MAX_SEED + 1);
+            }
+            return Math.floor(Math.random() * (PROC_MAX_SEED + 1));
+        };
+        const procNormalizeSeed = seedLike => {
+            let digits = String(seedLike ?? '').replace(/\D/g, '');
+            if (!digits) return null;
+            return Math.min(parseInt(digits, 10) || 0, PROC_MAX_SEED);
+        };
+        const procPrepareEntity = (alien, numSeed) => {
+            alien.seed = numSeed;
+            if (!alien.physicalVector) {
+                alien.physicalVector = (alien.trace && alien.trace.derived && alien.trace.derived.physicalVector)
+                    ? Array.from(alien.trace.derived.physicalVector) : new Array(15).fill(0);
+            }
+            if (!alien.behaviourVector && typeof RegistryEngine !== 'undefined') {
+                try { alien.behaviourVector = RegistryEngine.buildBehaviourVector(alien); }
+                catch (e) { alien.behaviourVector = { keys: [], vector: [] }; }
+            }
+            return alien;
+        };
+
+        const procGetPool = () => {
+            if (procPool) return procPool;
+            procPool = [];
+            if (typeof AlienEngine === 'undefined') return procPool;
+            for (let i = 0; i < PROC_POOL_SIZE; i++) {
+                let s = Math.floor(procDetHash(0xA11E1, 'local-db-' + i) * (PROC_MAX_SEED + 1));
+                try { procPool.push(procPrepareEntity(AlienEngine.generate(s), s)); } catch (e) {}
+            }
+            return procPool;
+        };
+        const procSmartPadding = (alien, canvas) => {
+            let b = (alien && alien.geometry && alien.geometry.allBones) ? alien.geometry.allBones : [];
+            if (!b.length) return Math.round(Math.min(canvas.width, canvas.height) * 0.12);
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            for (const p of b) {
+                if (!p || typeof p.bounds !== 'function') continue;
+                let bb = p.bounds();
+                minX = Math.min(minX, bb.minX); minY = Math.min(minY, bb.minY);
+                maxX = Math.max(maxX, bb.maxX); maxY = Math.max(maxY, bb.maxY);
+            }
+            let w = Math.max(1, maxX - minX), h = Math.max(1, maxY - minY), aspect = h / w;
+            let base = Math.min(canvas.width, canvas.height), pct = 0.13;
+            if (aspect > 1.35) pct = 0.16; if (aspect < 0.75) pct = 0.14;
+            return Math.round(base * pct);
+        };
+        const procDrawEyes = (ctx, eyeGenome, positions, skinColorRGB, eyeColorRGB) => {
+            if (eyeGenome.eyeCount === 0 || !positions) return;
+            const [sR, sG, sB] = skinColorRGB;
+            const [eR, eG, eB] = eyeColorRGB;
+            for (const eye of positions) {
+                const { x, y, radius } = eye;
+                if (eyeGenome.socketDepth > 0.05) {
+                    ctx.save();
+                    ctx.globalAlpha = eyeGenome.socketDepth * 0.7;
+                    ctx.fillStyle = "rgb(0,0,0)";
+                    ctx.beginPath();
+                    ctx.ellipse(x, y + radius * 0.15, radius * 1.35, radius * 1.25, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+                ctx.save();
+                ctx.beginPath();
+                const topCtrlY = y - radius * (2 - eyeGenome.eyelidTop * 4);
+                const botCtrlY = y + radius * (2 - eyeGenome.eyelidBottom * 4);
+                ctx.moveTo(x - radius, y);
+                ctx.quadraticCurveTo(x, topCtrlY, x + radius, y);
+                ctx.quadraticCurveTo(x, botCtrlY, x - radius, y);
+                ctx.clip();
+                const irisR = eyeGenome.scleraVisible ? radius * eyeGenome.irisRadius : radius * 0.98;
+                ctx.fillStyle = eyeGenome.scleraVisible
+                    ? `rgb(${Math.min(255, sR + 70)}, ${Math.min(255, sG + 65)}, ${Math.min(255, sB + 60)})`
+                    : `rgb(${eR | 0}, ${eG | 0}, ${eB | 0})`;
+                ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+                if (eyeGenome.scleraVisible) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(x, y, irisR, 0, Math.PI * 2);
+                    ctx.clip();
+                    ctx.fillStyle = `rgb(${eR | 0}, ${eG | 0}, ${eB | 0})`;
+                    ctx.fillRect(x - irisR, y - irisR, irisR * 2, irisR * 2);
+                    const streakCount = Math.round(2 + eyeGenome.irisPattern * 10);
+                    ctx.globalAlpha = 0.25 + eyeGenome.irisPattern * 0.35;
+                    ctx.strokeStyle = `rgb(${Math.max(0, eR - 60)}, ${Math.max(0, eG - 60)}, ${Math.max(0, eB - 60)})`;
+                    ctx.lineWidth = Math.max(0.6, irisR * 0.12);
+                    for (let s = 0; s < streakCount; s++) {
+                        const a = (s / streakCount) * Math.PI * 2;
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + Math.cos(a) * irisR, y + Math.sin(a) * irisR);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+                const pupilR = irisR * eyeGenome.pupilRadius;
+                ctx.fillStyle = "rgb(8,8,10)";
+                ctx.beginPath();
+                if (eyeGenome.pupilType === "slit") ctx.ellipse(x, y, pupilR * 0.2, pupilR, 0, 0, Math.PI * 2);
+                else if (eyeGenome.pupilType === "horizontal") ctx.ellipse(x, y, pupilR, pupilR * 0.3, 0, 0, Math.PI * 2);
+                else ctx.arc(x, y, pupilR, 0, Math.PI * 2);
+                ctx.fill();
+                const shadowGrad = ctx.createLinearGradient(x - radius, y - radius, x + radius, y + radius);
+                shadowGrad.addColorStop(0, "rgba(255,255,255,0.4)");
+                shadowGrad.addColorStop(0.4, "rgba(0,0,0,0)");
+                shadowGrad.addColorStop(1, "rgba(0,0,0,0.85)");
+                ctx.fillStyle = shadowGrad;
+                ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+                ctx.globalAlpha = eyeGenome.highlightStrength;
+                ctx.fillStyle = "rgb(255,255,255)";
+                ctx.beginPath();
+                ctx.arc(x - pupilR * 0.4, y - pupilR * 0.4, Math.max(0.8, pupilR * 0.3), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.strokeStyle = `rgb(${Math.max(0, sR - 30)}, ${Math.max(0, sG - 30)}, ${Math.max(0, sB - 30)})`;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(x - radius, y);
+                ctx.quadraticCurveTo(x, topCtrlY, x + radius, y);
+                ctx.quadraticCurveTo(x, botCtrlY, x - radius, y);
+                ctx.stroke();
+            }
+        };
+        // Hehehe
+        const createHumanAlien = seed => {
+            const alien = {
+                seed: seed,
+                genome: {
+                    mass: 60000,
+                    bodyPlan: 'Biped',
+                    bodyLength: 1.5,
+                    bodyWidth: 0.5,
+                    limbPairsRaw: 0.5,
+                    legLengthRaw: 0.78,
+                    stanceRaw: 0.42,
+                    headSize: 1.0,
+                    headWidth: 1.0,
+                    snoutLengthRaw: 0.08,
+                    jawDepthRaw: 0.22,
+                    chinTaper: 0.45,
+                    headTilt: 0.0,
+                    neckLengthRaw: 0.34,
+                    eyeCount: 2,
+                    mouthType: 'Jaw',
+                    tailLength: 0.0,
+                    tailType: 'None',
+                    spineCurve: -0.15,
+                    skinHue: 0.05,
+                    skinBrightness: 0.8,
+                    skinPattern: 0.1,
+                    patternStyle: 0.5,
+                    patternContrast: 0.0,
+                    paletteScheme: 'monochrome',
+                    accentHueOffset: 0.0,
+                    asymmetry: 0.05,
+                    asymmetryBias: 1,
+                    pupilType: 'round',
+                    niche: 'Omnivore',
+                    eyePlacement: 'Forward',
+                    posture: 'upright',
+                    jawDepth: 0.38,
+                    snoutLength: 0.22,
+                    neckLength: 0.95,
+                    neckThickness: 0.92,
+                    legLength: 66,
+                    legThickness: 9.8,
+                    jointRadius: 5.2,
+                    socketOutward: 11,
+                    limbRootOffset: 4.8,
+                    shoulderWidthScale: 1.06,
+                    tailBaseThickness: 0,
+                    tailSegmentFactor: 0.8
+                },
+                eyeClusterStyle: "Horizontal",
+                registry: {
+                    curiosity: 2.65,
+                    watchfulness: 0.45,
+                    objectInterest: 2.35,
+                    physicalSignature: 0.4875
+                },
+                facts: {
+                    bodyPlan: "Biped",
+                    size: "Medium",
+                    diet: "Omnivore",
+                    vision: "Forward Vision",
+                    locomotion: "Walking",
+                    temperament: "Skittish"
+                },
+                geometry: { allBones: [], eyePositions: [], head: {} },
+                materials: {
+                    baseColorRGB: [224, 172, 148],
+                    accentColorRGB: [210, 160, 138],
+                    highlightColorRGB: [255, 220, 200],
+                    eyeColorRGB: [80, 120, 200],
+                    patternScaleMultiplier: 0.05
+                },
+                eyes: {
+                    eyeCount: 2, scleraVisible: true, irisRadius: 0.45, pupilRadius: 0.35,
+                    pupilType: "round", eyelidTop: 0.25, eyelidBottom: 0.25,
+                    socketDepth: 0.3, highlightStrength: 0.8, irisPattern: 0.3
+                },
+                trace: { derived: {
+                    physicalVector: [0.29, 0.26, 0.11, 0.50, 0.78, 0.42, 0.38, 0.37, 0.08, 0.22, 0.45, 0.50, 0.34, 0.00, 0.41],
+                    physicalKeys: [
+                        'genome.mass', 'genome.bodyLength', 'genome.bodyWidth', 'genome.limbPairsRaw',
+                        'genome.legLengthRaw', 'genome.stanceRaw', 'genome.headSize', 'genome.headWidth',
+                        'genome.snoutLengthRaw', 'genome.jawDepthRaw', 'genome.chinTaper', 'genome.headTilt',
+                        'genome.neckLengthRaw', 'genome.tailLength', 'genome.spineCurve'
+                    ]
+                } }
+            };
+
+            alien.physicalVector = Array.from(alien.trace.derived.physicalVector);
+            if (typeof RegistryEngine !== "undefined" && RegistryEngine.buildBehaviourVector) {
+                alien.behaviourVector = RegistryEngine.buildBehaviourVector(alien);
+            } else {
+                alien.behaviourVector = { keys: ['curiosity','watchfulness','objectInterest'], vector: [alien.registry.curiosity, alien.registry.watchfulness, alien.registry.objectInterest] };
+            }
+
+            const h = alien.geometry;
+
+            function mkCap(ax, ay, bx, by, r1, r2, op='smooth_add', k=4) {
+                return {
+                    op, k,
+                    evaluate(px, py) {
+                        const dx = bx - ax, dy = by - ay;
+                        const L = Math.sqrt(dx * dx + dy * dy);
+                        if (L === 0) return Math.hypot(px - ax, py - ay) - Math.max(r1, r2);
+                        if (L <= Math.abs(r1 - r2)) return r1 > r2 ? Math.hypot(px - ax, py - ay) - r1 : Math.hypot(px - bx, py - by) - r2;
+                        const dirX = dx / L, dirY = dy / L;
+                        const tx = px - ax, ty = py - ay;
+                        const y = tx * dirX + ty * dirY; const x = Math.abs(tx * -dirY + ty * dirX);
+                        const sinT = (r1 - r2) / L; const cosT = Math.sqrt(Math.max(0.0, 1.0 - sinT * sinT));
+                        const proj = y * cosT - x * sinT;
+                        if (proj <= 0.0) return Math.hypot(x, y) - r1;
+                        if (proj >= L * cosT) return Math.hypot(x, y - L) - r2;
+                        return x * cosT + y * sinT - r1;
+                    },
+                    bounds() { const r = Math.max(r1, r2); return { minX: Math.min(ax - r, bx - r), minY: Math.min(ay - r, by - r), maxX: Math.max(ax + r, bx + r), maxY: Math.max(ay + r, by + r) }; },
+                    translate(dx, dy) { ax += dx; ay += dy; bx += dx; by += dy; },
+                    scale(s) { ax *= s; ay *= s; bx *= s; by *= s; r1 *= s; r2 *= s; k *= s; },
+                    squeezeAxis(axis, factor, center) {
+                        if (axis === 'x') { ax = center + (ax - center) * factor; bx = center + (bx - center) * factor; }
+                        else { ay = center + (ay - center) * factor; by = center + (by - center) * factor; }
+                    }
+                };
+            }
+
+            function mkSph(x, y, r, op='smooth_add', k=4) {
+                return {
+                    op, k,
+                    evaluate(px, py) { return Math.hypot(px - x, py - y) - r; },
+                    bounds() { return { minX: x - r, minY: y - r, maxX: x + r, maxY: y + r }; },
+                    translate(dx, dy) { x += dx; y += dy; },
+                    scale(s) { x *= s; y *= s; r *= s; k *= s; },
+                    squeezeAxis(axis, factor, center) {
+                        if (axis === 'x') x = center + (x - center) * factor;
+                        else y = center + (y - center) * factor;
+                    }
+                };
+            }
+
+            // Spine / Torso
+            h.allBones.push(mkCap(0, 10, 0, 35, 14, 11, 'smooth_add', 8)); // Chest to waist
+            h.allBones.push(mkCap(0, 35, 0, 45, 11, 13, 'smooth_add', 6));
+
+            // Head & Neck
+            h.allBones.push(mkCap(0, 10, 0, -5, 5, 5, 'smooth_add', 4)); // Neck
+            h.allBones.push(mkSph(0, -15, 11, 'smooth_add', 4));
+            h.allBones.push(mkCap(0, -15, 0, -5, 11, 7, 'smooth_add', 4));
+
+            h.head.headCenter = { x: 0, y: -12 };
+            h.head.headR = 11;
+
+            // Eyes
+            const eyeR = 2.2;
+            h.eyePositions.push({ x: -4, y: -13, radius: eyeR });
+            h.eyePositions.push({ x: 4, y: -13, radius: eyeR });
+            h.allBones.push(mkSph(-4, -13, eyeR * 1.3, 'subtract', 0));
+            h.allBones.push(mkSph(4, -13, eyeR * 1.3, 'subtract', 0));
+
+            // Arms
+            h.allBones.push(mkCap(-14, 12, -22, 30, 4.5, 3.5, 'smooth_add', 3));
+            h.allBones.push(mkCap(14, 12, 22, 30, 4.5, 3.5, 'smooth_add', 3));
+            h.allBones.push(mkCap(-22, 30, -26, 50, 3.5, 2.5, 'smooth_add', 3));
+            h.allBones.push(mkCap(22, 30, 26, 50, 3.5, 2.5, 'smooth_add', 3));
+
+            // Legs
+            h.allBones.push(mkCap(-6, 42, -9, 75, 6, 4.5, 'smooth_add', 4));
+            h.allBones.push(mkCap(6, 42, 9, 75, 6, 4.5, 'smooth_add', 4));
+            h.allBones.push(mkCap(-9, 75, -9, 110, 4.5, 3, 'smooth_add', 4));
+            h.allBones.push(mkCap(9, 75, 9, 110, 4.5, 3, 'smooth_add', 4));
+
+            // Feet
+            h.allBones.push(mkCap(-9, 110, -14, 113, 3, 2, 'smooth_add', 2));
+            h.allBones.push(mkCap(9, 110, 14, 113, 3, 2, 'smooth_add', 2));
+
+            return alien;
+        };
+
+      
+        const procGenerateAlien = numSeed => numSeed === HUMAN_SEED ? createHumanAlien(numSeed) : AlienEngine.generate(numSeed);
+        const procGenerateEntity = numSeed => procPrepareEntity(procGenerateAlien(numSeed), numSeed);
+
+        const procRenderAlien = (canvas, seed) => {
+            if (typeof AlienEngine === 'undefined') return null;
+            let ctx = canvas.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let numSeed = parseInt(seed, 10);
+            let alien = procGenerateEntity(numSeed);
+            AlienEngine.fitToBounds(alien, canvas.width, canvas.height, procSmartPadding(alien, canvas));
+            const allBones = alien.geometry.allBones;
+            const head = alien.geometry.head;
+            const eyePositions = alien.geometry.eyePositions;
+            const [baseR, baseG, baseB] = alien.materials.baseColorRGB;
+            const [accR, accG, accB] = alien.materials.accentColorRGB;
+            const [hiR, hiG, hiB] = alien.materials.highlightColorRGB;
+            const eyeColorRGB = alien.materials.eyeColorRGB;
+            const imgData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imgData.data;
+            const eps = 1.0;
+            const patType = alien.genome.skinPattern, patStyle = alien.genome.patternStyle, patContrast = alien.genome.patternContrast;
+            const patScale = alien.materials.patternScaleMultiplier * (1 + patType * 2);
+            const lx = -0.5, ly = -0.5, lz = 0.8;
+            const flx = 0.65, fly = 0.45, flz = 0.35;
+            const fbm2D = (x, y, octaves) => {
+                let amp = 0.5, freq = 1, sum = 0, norm = 0;
+                for (let i = 0; i < octaves; i++) { sum += amp * AlienEngine.noise2D(x * freq, y * freq); norm += amp; amp *= 0.5; freq *= 2.15; }
+                return sum / norm;
+            };
+            const computePatternMod = (px, py) => {
+                if (patType < 0.25) { const n = fbm2D(px * patScale, py * patScale, 3); const thresh = 0.55 + patStyle * 0.15; return n > thresh ? Math.min(1, (n - thresh) * 5) : 0; }
+                if (patType < 0.5) { const warp = fbm2D(px * patScale * 0.4, py * patScale * 0.4, 2) * 6; const s = Math.sin(px * patScale * (2 + patStyle * 4) + warp); return s > 0.25 ? Math.min(1, (s - 0.25) * 2) : 0; }
+                if (patType < 0.75) {
+                    const freq = patScale * (2.2 + patStyle * 1.5);
+                    const row = Math.floor(py * freq), rowOffset = (row % 2) * 0.5, col = Math.floor(px * freq + rowOffset);
+                    const fx = (px * freq + rowOffset) - col - 0.5, fy = (py * freq) - row - 0.5;
+                    let cellHash = Math.sin(col * 12.9898 + row * 78.233) * 43758.5453; cellHash -= Math.floor(cellHash);
+                    const edge = 1 - Math.min(1, Math.hypot(fx, fy) * 1.8);
+                    return cellHash > 0.4 ? Math.max(0, edge) : 0;
+                }
+                return fbm2D(px * patScale, py * patScale, 4);
+            };
+            for (let py = 0; py < canvas.height; py++) {
+                for (let px = 0; px < canvas.width; px++) {
+                    const d = AlienEngine.evaluateField(px, py, allBones);
+                    if (d < 1.0) {
+                        const idx = (py * canvas.width + px) * 4;
+                        const alpha = Math.max(0, Math.min(1, 1.0 - d));
+                        const dx = AlienEngine.evaluateField(px + eps, py, allBones) - d;
+                        const dy = AlienEngine.evaluateField(px, py + eps, allBones) - d;
+                        const nz = 1.5, nLen = Math.hypot(dx, dy, nz);
+                        const nx = dx / nLen, ny = dy / nLen, normZ = nz / nLen;
+                        const dot = Math.max(0, nx * lx + ny * ly + normZ * lz);
+                        let intensity = 0.25 + dot * 0.75;
+                        const fillDot = Math.max(0, nx * flx + ny * fly + normZ * flz);
+                        const fill = fillDot * 0.16;
+                        if (head.headCenter && head.headR) {
+                            const distToHead = Math.hypot(px - head.headCenter.x, py - head.headCenter.y);
+                            intensity += Math.max(0, 1.0 - distToHead / (head.headR * 3.5)) * 0.15;
+                        }
+                        const patternMod = computePatternMod(px, py) * patContrast;
+                        const pR = baseR * (1 - patternMod) + accR * patternMod;
+                        const pG = baseG * (1 - patternMod) + accG * patternMod;
+                        const pB = baseB * (1 - patternMod) + accB * patternMod;
+                        data[idx] = Math.min(255, pR * intensity + hiR * fill);
+                        data[idx + 1] = Math.min(255, pG * intensity + hiG * fill);
+                        data[idx + 2] = Math.min(255, pB * intensity + hiB * fill);
+                        data[idx + 3] = alpha * 255;
+                    }
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            procDrawEyes(ctx, alien.eyes, eyePositions, [baseR, baseG, baseB], eyeColorRGB);
+            return alien;
+        };
+       
+        const HUMAN_SIMILARITY = 0.01; 
+       
+        const HUMAN_RARITY = 0.999;
+
+        const procBuildSummary = (alien, numSeed) => {
+            if (typeof RegistryEngine === 'undefined') return null;
+          
+            let pool = procGetPool();
+            let db = pool.concat([alien]);
+            let out = { closestSeed: null, similarity: 0, sharedTraits: [], uniqueTraits: [], rarity: null };
+            try {
+                out.closestSeed = RegistryEngine.findClosestOverall(numSeed, db);
+                let closest = db.find(a => a.seed === out.closestSeed);
+                if (closest) {
+                    out.similarity = RegistryEngine.computeSimilarity(alien, closest).overall;
+                    out.sharedTraits = RegistryEngine.computeSharedTraits(alien, closest);
+                }
+                out.uniqueTraits = RegistryEngine.computeUniqueTraits(alien, db);
+                out.rarity = RegistryEngine.computeRarity(alien, db);
+            } catch (e) {}
+            if (numSeed === HUMAN_SEED) {
+       
+                out.rarity = HUMAN_RARITY;
+                if (out.closestSeed != null) out.similarity = HUMAN_SIMILARITY;
+            }
+            return out;
+        };
+
+    
+        // Packages are plain ZIP files (via JSZip) with a fixed structure
+   
+        const GITHUB_OWNER_REPO = 'aamosm/VoyagerOS';
+        const GITHUB_ALR_CONTENTS_API = `https://api.github.com/repos/${GITHUB_OWNER_REPO}/contents/alr`;
+        const OFFICIAL_INDEX_SESSION_KEY = 'vgr9_official_alr_index';
+        const ALR_SUPPORTED_VERSIONS = [1];
+        const ALR_GENERATOR_NAME = 'vgr-9 paint utility';
+        const ALR_GENERATOR_VERSION = '1.0';
+        const ALR_REQUIRED_FILES = ['manifest.json', 'drawing.png', 'preview.png', 'signature.json'];
+
+        const loadOfficialIndexCache = () => {
+            try { let raw = sessionStorage.getItem(OFFICIAL_INDEX_SESSION_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+            return null;
+        };
+        const saveOfficialIndexCache = entries => {
+            try { sessionStorage.setItem(OFFICIAL_INDEX_SESSION_KEY, JSON.stringify({ fetchedAt: Date.now(), entries })); } catch (e) {}
+        };
+        const officialAlrEntries = () => { let c = loadOfficialIndexCache(); return c ? c.entries : []; };
+        const officialAlrIdSet = () => new Set(officialAlrEntries().map(e => e.registryIdentifier));
+        const alrIsOfficial = id => officialAlrIdSet().has(id);
+
+        const refreshOfficialAlrIndex = async () => {
+            let res = await fetch(GITHUB_ALR_CONTENTS_API, { headers: { 'Accept': 'application/vnd.github+json' } });
+            if (!res.ok) throw new Error('The official registry could not be reached (HTTP ' + res.status + ').');
+            let listing = await res.json();
+            if (!Array.isArray(listing)) throw new Error('Unexpected response from the official registry.');
+            let before = officialAlrIdSet();
+            let entries = listing
+                .filter(f => f.type === 'file' && /\.alr$/i.test(f.name))
+                .map(f => ({ registryIdentifier: f.name.replace(/\.alr$/i, ''), fileName: f.name, sha: f.sha, size: f.size, downloadUrl: f.download_url }));
+            let after = new Set(entries.map(e => e.registryIdentifier));
+            let added = entries.filter(e => !before.has(e.registryIdentifier));
+            let removed = [...before].filter(id => !after.has(id));
+            saveOfficialIndexCache(entries);
+            return { entries, added, removed };
+        };
+
+        const genCandidateAlrIdentifier = () => {
+            let arr = new Uint32Array(3);
+            crypto.getRandomValues(arr);
+            let big = (BigInt(arr[0]) << 64n) | (BigInt(arr[1]) << 32n) | BigInt(arr[2]);
+            return big.toString(10);
+        };
+        const localAlrDirNode = () => { let n = getNode('/alr'); return (n && n.type === 'dir') ? n : null; };
+        const localAlrEntries = () => {
+            let dir = localAlrDirNode();
+            if (!dir) return [];
+            return Object.entries(dir.content).filter(([n, node]) => node && node.alrPackage).map(([name, node]) => ({ name, node }));
+        };
+        const findLocalAlrByIdentifier = id => localAlrEntries().find(e => e.node.alrManifest && e.node.alrManifest.registryIdentifier === id);
+        const alrIdentifierTaken = id => !!findLocalAlrByIdentifier(id) || alrIsOfficial(id);
+        const generateAlrIdentifier = async () => {
+            if (navigator.onLine) { try { await refreshOfficialAlrIndex(); } catch (e) {} }
+            let id, guard = 0;
+            do { id = genCandidateAlrIdentifier(); guard++; } while (alrIdentifierTaken(id) && guard < 50);
+            return id;
+        };
+
+        const alrMakePreview = (drawingDataUrl, maxSize = 128) => new Promise(resolve => {
+            let img = new Image();
+            img.onload = () => {
+                let scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                let w = Math.max(1, Math.round(img.width * scale)), h = Math.max(1, Math.round(img.height * scale));
+                let c = ce('canvas'); c.width = w; c.height = h;
+                c.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(c.toDataURL('image/png'));
+            };
+            img.onerror = () => resolve(drawingDataUrl);
+            img.src = drawingDataUrl;
+        });
+        const alrDecodable = url => new Promise(resolve => {
+            let img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+
+        const buildAlrPackage = async (drawingDataUrl, registration, registryIdentifier) => {
+            let preview = await alrMakePreview(drawingDataUrl);
+            let manifest = { registryIdentifier, packageVersion: 1, generator: ALR_GENERATOR_NAME, generatorVersion: ALR_GENERATOR_VERSION };
+            let signature = { createdAt: new Date().toISOString(), registration: registration || {} };
+            let zip = new JSZip();
+            zip.file('manifest.json', JSON.stringify(manifest, null, 2));
+            zip.file('drawing.png', dataUrlToBytes(drawingDataUrl));
+            zip.file('preview.png', dataUrlToBytes(preview));
+            zip.file('signature.json', JSON.stringify(signature, null, 2));
+            let blob = await zip.generateAsync({ type: 'blob' });
+            return { blob, manifest, signature, drawingUrl: drawingDataUrl, previewUrl: preview };
+        };
+
+        const parseAlrPackage = async (source, filename) => {
+            let issues = [], zip;
+            try { zip = await JSZip.loadAsync(source); }
+            catch (e) { return { valid: false, issues: ['This file is not a recognized Observation Package.'] }; }
+            for (let f of ALR_REQUIRED_FILES) {
+                if (!zip.file(f)) issues.push(`The package is missing a required part (${f === 'drawing.png' ? 'the observation drawing' : f === 'preview.png' ? 'the preview thumbnail' : 'package metadata'}).`);
+            }
+            if (issues.length) return { valid: false, issues };
+            let manifest = null, signature = null;
+            try { manifest = JSON.parse(await zip.file('manifest.json').async('string')); } catch (e) { issues.push('Package metadata could not be read.'); }
+            try { signature = JSON.parse(await zip.file('signature.json').async('string')); } catch (e) { issues.push('Package signature could not be read.'); }
+            if (issues.length) return { valid: false, issues };
+            if (!manifest.registryIdentifier || !/^[0-9]+$/.test(String(manifest.registryIdentifier))) issues.push('The Registry Identifier is missing or invalid.');
+            let base = String(filename || '').replace(/\.alr$/i, '');
+            if (manifest.registryIdentifier && base && String(manifest.registryIdentifier) !== base) issues.push('The package filename does not match its Registry Identifier.');
+            if (!ALR_SUPPORTED_VERSIONS.includes(manifest.packageVersion)) issues.push('This package uses an unsupported package version.');
+            if (!signature || typeof signature !== 'object' || !signature.registration) issues.push('Package signature is incomplete.');
+            let drawingUrl = null, previewUrl = null;
+            try {
+                let db = await zip.file('drawing.png').async('base64');
+                drawingUrl = 'data:image/png;base64,' + db;
+                if (!(await alrDecodable(drawingUrl))) issues.push('The observation drawing could not be decoded.');
+            } catch (e) { issues.push('The observation drawing could not be read.'); }
+            try {
+                let pb = await zip.file('preview.png').async('base64');
+                previewUrl = 'data:image/png;base64,' + pb;
+                if (!(await alrDecodable(previewUrl))) issues.push('The preview thumbnail could not be decoded.');
+            } catch (e) { issues.push('The preview thumbnail could not be read.'); }
+            return { valid: issues.length === 0, issues, manifest, signature, drawingUrl, previewUrl };
+        };
+
+        const alrZipBlobToBase64 = blob => new Promise((resolve, reject) => {
+            let fr = new FileReader();
+            fr.onload = () => resolve(fr.result.split(',')[1]);
+            fr.onerror = reject;
+            fr.readAsDataURL(blob);
+        });
+        const alrDescriptionFor = pkg => {
+            let reg = (pkg.signature && pkg.signature.registration) || {};
+            return `Observation Package\nRegistry Identifier: ${pkg.manifest.registryIdentifier}\n\n${reg.commonName || 'Unregistered specimen'}\n${[reg.bodyPlan, reg.heightM ? reg.heightM + 'm' : '', reg.massKg ? reg.massKg + 'kg' : ''].filter(Boolean).join(' \u00b7 ')}\n\nThis is a Local Observation until it is merged into the official registry on GitHub. Open the Alien Registry app to validate or submit it.`;
+        };
+
+        const saveLocalAlrPackage = async pkg => {
+            let dir = localAlrDirNode();
+            if (!dir) return null;
+            let id = pkg.manifest.registryIdentifier;
+            let base64 = await alrZipBlobToBase64(pkg.blob);
+            let existing = findLocalAlrByIdentifier(id);
+            if (existing) {
+                let same = JSON.stringify(existing.node.alrManifest) === JSON.stringify(pkg.manifest)
+                    && JSON.stringify(existing.node.alrSignature) === JSON.stringify(pkg.signature);
+                if (same) return { fileName: existing.name, unchanged: true };
+                existing.node.alrManifest = pkg.manifest;
+                existing.node.alrSignature = pkg.signature;
+                existing.node.alrZipB64 = base64;
+                existing.node.image = pkg.previewUrl;
+                existing.node.drawingUrl = pkg.drawingUrl;
+                existing.node.whiteBg = true;
+                existing.node.body = alrDescriptionFor(pkg);
+                fsUpdated();
+                return { fileName: existing.name, updated: true };
+            }
+            let finalName = id + '.alr', c = 1;
+            while (dir.content[finalName]) finalName = `${id}_${c++}.alr`;
+            dir.content[finalName] = {
+                type: 'file', alrPackage: true, alrManifest: pkg.manifest, alrSignature: pkg.signature,
+                alrZipB64: base64, image: pkg.previewUrl, drawingUrl: pkg.drawingUrl, whiteBg: true,
+                body: alrDescriptionFor(pkg)
+            };
+            fsUpdated();
+            return { fileName: finalName, created: true };
+        };
+        const alrBlobFromNode = node => {
+            let bin = atob(node.alrZipB64);
+            let bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new Blob([bytes], { type: 'application/zip' });
         };
 
         const ALR_STEP_TITLES = ['Common Name', 'Physical Characteristics', 'Colors', 'Notes'];
@@ -2869,7 +3710,7 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                         <div style="text-align:right; margin-top:16px; display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap;">
                             <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Cancel</button>
                             ${step > 0 ? `<button class="sys-modal-btn" id="alr-back">Back</button>` : ''}
-                            ${step < lastStep ? `<button class="sys-modal-btn sys-ok" id="alr-next">Next</button>` : `<button class="sys-modal-btn sys-ok" id="alr-save">Save to Filesystem</button>`}
+                            ${step < lastStep ? `<button class="sys-modal-btn sys-ok" id="alr-next">Next</button>` : `<button class="sys-modal-btn sys-ok" id="alr-save">Create Observation Package</button>`}
                         </div>
                     </div>
                 `;
@@ -2883,21 +3724,25 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
                     f.onkeydown = e => { if (e.key === 'Enter') (nextBtn || m.querySelector('#alr-save'))?.click(); };
                 });
                 let saveBtn = m.querySelector('#alr-save');
-                if (saveBtn) saveBtn.onclick = () => {
+                if (saveBtn) saveBtn.onclick = async () => {
                     collect();
-                    let registryId = nextRegistryId();
-                    let record = {
-                        vgr9_format: 'alien_registration',
-                        format_version: 2,
-                        metadata: { created: new Date().toISOString(), tool: 'vgr-9 paint utility', canvas: { width: PAINT_W, height: PAINT_H }, registryId },
-                        registration: reg,
-                        drawing: dataUrl
-                    };
-                    let name = (reg.commonName || 'unregistered').replace(/[^a-z0-9_\-]/gi, '_').toLowerCase() + '.alr';
-                    close();
-                    paintSaveModal(dataUrl, name, JSON.stringify(record, null, 2), () => {
-                        sysModal('Filed', `'${escapeHtml(reg.commonName || 'Unregistered specimen')}' has been recorded.<br><br>Internal registry ID assigned: <span style="color:var(--acc);">${registryId}</span>`);
-                    });
+                    saveBtn.textContent = 'Assigning Registry Identifier...';
+                    saveBtn.style.pointerEvents = 'none';
+                    if (backBtn) backBtn.style.pointerEvents = 'none';
+                    try {
+                        let registryId = await generateAlrIdentifier();
+                        saveBtn.textContent = 'Building Observation Package...';
+                        let pkg = await buildAlrPackage(dataUrl, reg, registryId);
+                        let result = await saveLocalAlrPackage(pkg);
+                        close();
+                        let name = reg.commonName || 'Unregistered specimen';
+                        sysModal('Observation Recorded', `'${escapeHtml(name)}' has been recorded as a Local Observation.<br><br>Registry Identifier assigned: <span style="color:var(--acc);">${escapeHtml(registryId)}</span><br><br>It's saved to <span style="color:var(--acc);">alr/${escapeHtml(result.fileName)}</span> on this device. Open the Alien Registry app to validate it and, when you're ready, prepare it for submission to the shared registry.`);
+                    } catch (e) {
+                        saveBtn.textContent = 'Create Observation Package';
+                        saveBtn.style.pointerEvents = '';
+                        if (backBtn) backBtn.style.pointerEvents = '';
+                        sysModal('Could Not Record Observation', 'Something went wrong while creating the Observation Package. Please try again.');
+                    }
                 };
             };
             render();
@@ -3124,12 +3969,17 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             try {
                 let saved = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null');
                 if (saved && saved.data) {
-                    let when = new Date(saved.t).toLocaleTimeString();
-                    sysModal('Recover Unsaved Work', `An autosaved drawing from ${when} was found. Recover it into the canvas?`, () => {
-                        let img = new Image();
-                        img.onload = () => { ctx.clearRect(0, 0, PAINT_W, PAINT_H); ctx.drawImage(img, 0, 0); commitHistory(); };
-                        img.src = saved.data;
-                    });
+                    let img = new Image();
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, PAINT_W, PAINT_H);
+                        ctx.drawImage(img, 0, 0);
+                        commitHistory();
+                        if (autosaveEl) {
+                            let when = new Date(saved.t).toLocaleTimeString();
+                            autosaveEl.textContent = `Recovered previous session (${when})`;
+                        }
+                    };
+                    img.src = saved.data;
                 }
             } catch (e) { /* ignore corrupt autosave */ }
 
@@ -3151,11 +4001,577 @@ Filed by hand, not by array. Not restored. Not deleted either.` }
             });
         };
 
+        const GITHUB_REGISTRY_REPO = 'https://github.com/' + GITHUB_OWNER_REPO;
+
+
+        const REG_FIELD_CAP = 1000;
+
+        const REG_SCAN_BUDGET_FILTERED = 8000;
+        const regState = {
+            view: 'browse', query: '', sort: '', filters: {}, filtersOpen: false, selected: null,
+            fieldBatch: [], seqNext: null, seqStart: null, seqDone: false, seqExhausted: false
+        };
+
+        let regRenderedCards = new Map();
+
+        const regOpt = (val, cur, label) => `<option value="${val}"${val===cur?' selected':''}>${label||val}</option>`;
+
+        const regTraitsMatch = (t, f) => {
+            if (f.bodyPlan && t.bodyPlan !== f.bodyPlan) return false;
+            if (f.eyeCount && t.eyeCount !== f.eyeCount) return false;
+            if (f.tailPresent && t.tailPresent !== f.tailPresent) return false;
+            return true;
+        };
+
+
+        const regResetFieldScan = () => {
+            regState.fieldBatch = [];
+            regState.seqNext = null;
+            regState.seqStart = null;
+            regState.seqDone = false;
+            regState.seqExhausted = false;
+            regRenderedCards.clear();
+        };
+
+
+        const regExpandFieldBatch = count => {
+            if (typeof AlienEngine === 'undefined') return;
+            let f = regState.filters;
+            let have = new Set(regState.fieldBatch.map(x => x.seed));
+
+            let filtering = !!(f.bodyPlan || f.eyeCount || f.tailPresent);
+            let sequential = regState.sort === 'asc' || regState.sort === 'desc' || filtering;
+
+            const tryAddHuman = () => {
+                if (have.has(HUMAN_SEED) || f.logged === 'no') return;
+                try {
+                    let alien = procGenerateEntity(HUMAN_SEED);
+                    let t = regFieldTraits(alien);
+                    if (regTraitsMatch(t, f)) {
+                        regState.fieldBatch.push({ alien, seed: HUMAN_SEED });
+                        have.add(HUMAN_SEED);
+                    }
+                } catch (e) {}
+            };
+
+
+            if (f.logged === 'yes' || regState.sort === 'desc' || (regState.sort === '' && filtering)) {
+                tryAddHuman();
+            }
+
+            if (f.logged === 'yes') {
+                regState.seqExhausted = true;
+                return;
+            }
+
+            let scanLimit = filtering ? REG_SCAN_BUDGET_FILTERED : (sequential ? count : count * 4);
+            let added = 0, tries = 0;
+
+            const nextSeed = () => {
+                if (!sequential) return procRandomSeed();
+                if (regState.seqDone) return null;
+                if (regState.seqNext == null) {
+                    if (regState.sort === 'desc') regState.seqNext = PROC_MAX_SEED;
+                    else if (regState.sort === 'asc') regState.seqNext = 0;
+                    else { regState.seqNext = procRandomSeed(); regState.seqStart = regState.seqNext; }
+                }
+                let s = regState.seqNext;
+                let step = regState.sort === 'desc' ? -1 : 1;
+                let next = s + step;
+                if (regState.seqStart != null) {
+                    if (next > PROC_MAX_SEED) next = 0;
+                    if (next < 0) next = PROC_MAX_SEED;
+                    regState.seqDone = next === regState.seqStart;
+                } else {
+                    regState.seqDone = next < 0 || next > PROC_MAX_SEED;
+                }
+                regState.seqNext = next;
+                return s;
+            };
+
+            while (added < count && tries < scanLimit && regState.fieldBatch.length < REG_FIELD_CAP) {
+                tries++;
+                let s = nextSeed();
+                if (s == null) {
+
+                    if (regState.sort === 'asc') tryAddHuman();
+                    regState.seqExhausted = true;
+                    break;
+                }
+                if (have.has(s)) continue;
+                try {
+                    let alien = procGenerateAlien(s);
+                    if (filtering) {
+                        let t = regFieldTraits(alien);
+                        if (!regTraitsMatch(t, f)) continue;
+                    }
+                    regState.fieldBatch.push({ alien: procPrepareEntity(alien, s), seed: s });
+                    have.add(s);
+                    added++;
+                } catch (e) {}
+            }
+        };
+
+        const regCurrentList = () => {
+            let locals = localAlrEntries().map(regLocalEntry);
+            let localIds = new Set(locals.map(l => l.id));
+            let officials = officialAlrEntries().filter(o => !localIds.has(o.registryIdentifier)).map(regOfficialEntry);
+            let fields = regState.fieldBatch.map(f => regEntryForSeed(f.alien, f.seed));
+            let all = locals.concat(officials, fields);
+            let filtered = all.filter(e => regMatchesFilters(e, regState.filters, regState.query));
+
+
+            let numQ = regParseNumericQuery(regState.query);
+            if (numQ != null && typeof AlienEngine !== 'undefined') {
+                let n = Math.min(parseInt(numQ, 10), REG_MAX_SEED);
+                if (!filtered.some(e => e.kind === 'field' && e.seed === n)) {
+                    try {
+                        let alien = procPrepareEntity(procGenerateAlien(n), n);
+                        filtered = [regEntryForSeed(alien, n)].concat(filtered);
+                    } catch (e) {}
+                }
+            }
+            return regSortById(filtered, regState.sort);
+        };
+
+        const regBadgeFor = e => e.human ? 'Logged sighting' : e.kind === 'local' ? 'Local Observation' : e.kind === 'official' ? 'Official Observation' : 'Unlogged sighting';
+
+        const regCardHtml = e => {
+            let title = e.commonName || (e.kind === 'field' ? 'Unlogged sighting' : e.kind === 'official' && e.remote ? 'Official record' : 'Unregistered specimen');
+            let meta = [e.bodyPlan, e.massKg != null ? e.massKg + 'kg' : null].filter(Boolean).join(' \u00b7 ');
+            let thumb = e.kind === 'field'
+                ? `<canvas class="reg-field-canvas" width="130" height="130" data-seed="${e.seed}"></canvas>`
+                : (e.image ? `<img src="${e.image}">` : null);
+            return `
+                <div class="reg-card${e.human ? ' human' : ''}" data-key="${escapeHtml(e.key)}">
+                    <div class="reg-card-thumb${thumb ? '' : ' none'}">${thumb || 'no drawing on file'}</div>
+                    <div class="reg-card-id reg-id-copy" data-id="${escapeHtml(e.id||'')}">${escapeHtml(e.id || '')}</div>
+                    <div class="reg-card-name">${escapeHtml(title)}</div>
+                    ${meta ? `<div class="reg-card-meta">${escapeHtml(meta)}</div>` : ''}
+                    <div style="margin-top:6px;"><span class="reg-badge${e.human ? ' logged' : ''}">${regBadgeFor(e)}</span></div>
+                </div>`;
+        };
+
+        const regFilterPanel = () => {
+            let f = regState.filters;
+            let active = !!(f.bodyPlan || f.eyeCount || f.tailPresent || f.logged);
+            return `
+                <div class="reg-filters${regState.filtersOpen?' on':''}">
+                    <div><label>Body plan</label><select class="rf" data-k="bodyPlan"><option value="">Any</option>${REG_BODY_PLANS.map(b=>regOpt(b,f.bodyPlan)).join('')}</select></div>
+                    <div><label>Eyes</label><select class="rf" data-k="eyeCount"><option value="">Any</option>${['0','1','2','3','4'].map(v=>regOpt(v,f.eyeCount)).join('')}</select></div>
+                    <div><label>Tail</label><select class="rf" data-k="tailPresent"><option value="">Any</option>${['Yes','No'].map(v=>regOpt(v,f.tailPresent)).join('')}</select></div>
+                    <div><label>Specimen</label><select class="rf" data-k="logged"><option value="">Any</option>${regOpt('yes',f.logged,'Logged only')}${regOpt('no',f.logged,'Unlogged sightings only')}</select></div>
+                    ${active ? `<div style="align-self:flex-end;"><span class="reg-drop-btn" id="reg-clear-filters" style="padding:5px 10px;">Clear filters</span></div>` : ''}
+                </div>`;
+        };
+
+
+        const regBrowseShellHtml = () => `
+            <div class="reg-toolbar" style="border-bottom:none; margin-bottom:4px;">
+                <input type="text" id="reg-search" placeholder="search, or paste a Registry ID..." value="${escapeHtml(regState.query)}">
+                <span class="reg-tab${regState.filtersOpen?' sel':''}" id="reg-filter-toggle">Filters</span>
+                <select id="reg-sort">
+                    <option value="">Random</option>
+                    ${regOpt('desc', regState.sort, 'Registry ID: High to Low')}
+                    ${regOpt('asc', regState.sort, 'Registry ID: Low to High')}
+                </select>
+                ${!regState.sort ? '<span class="reg-drop-btn" id="reg-reroll" style="margin-top:0; padding:6px 12px;" title="Pull a fresh random sample">Reroll</span>' : ''}
+                <div class="reg-spacer"></div>
+                <span style="font-size:0.68rem; color:#666;" id="reg-count"></span>
+            </div>
+            ${regFilterPanel()}
+            <div id="reg-results"></div>
+            <div id="reg-show-more-wrap" style="text-align:center; margin-top:10px;"></div>
+            <div style="font-size:0.65rem; color:#555; margin-top:14px; text-align:right;">
+                <span id="reg-official-status">${loadOfficialIndexCache() ? 'official registry checked this session' : 'official registry not checked this session'}</span> &middot;
+                <span id="reg-check-official" style="color:#777; cursor:pointer; text-decoration:underline;">check now</span>
+            </div>
+        `;
+
+        const regBindIdCopyButtons = root => {
+            root.querySelectorAll('.reg-id-jump').forEach(el => {
+                el.onclick = ev => {
+                    ev.stopPropagation();
+                    let seed = parseInt(el.dataset.jumpSeed, 10);
+                    if (typeof AlienEngine === 'undefined') return;
+                    try { regOpenEntry(regEntryForSeed(procGenerateEntity(seed), seed)); } catch (e) {}
+                };
+            });
+            root.querySelectorAll('.reg-id-copy:not(.reg-id-jump)').forEach(el => {
+                el.onclick = ev => {
+                    ev.stopPropagation();
+                    let id = el.dataset.id;
+                    if (!id || !navigator.clipboard || !navigator.clipboard.writeText) return;
+                    navigator.clipboard.writeText(id).then(() => {
+                        let orig = el.textContent;
+                        el.textContent = 'copied';
+                        setTimeout(() => { el.textContent = orig; }, 900);
+                    }).catch(() => {});
+                };
+            });
+        };
+
+        const regHtmlToEl = html => {
+            let t = document.createElement('template');
+            t.innerHTML = html.trim();
+            return t.content.firstElementChild;
+        };
+        const regRefreshResults = () => {
+            let list = regCurrentList();
+            let results = qs('#reg-results');
+            if (!results) return;
+            let doneScanning = regState.seqExhausted || regState.filters.logged === 'yes';
+
+            if (!list.length) {
+                regRenderedCards.clear();
+                results.innerHTML = doneScanning
+                    ? `<div class="reg-empty">No matches found in the registry - try loosening the filters.</div>`
+                    : `<div class="reg-empty">Nothing matches yet - try Show More, or loosen the filters.</div>`;
+            } else {
+                let grid = results.querySelector('.reg-grid');
+                if (!grid) {
+                    regRenderedCards.clear();
+                    results.innerHTML = '<div class="reg-grid"></div>';
+                    grid = results.querySelector('.reg-grid');
+                }
+                let seen = new Set();
+                let cursor = grid.firstElementChild;
+                list.forEach(e => {
+                    seen.add(e.key);
+                    let card = regRenderedCards.get(e.key);
+                    let isNew = !card;
+                    if (isNew) {
+                        card = regHtmlToEl(regCardHtml(e));
+                        regRenderedCards.set(e.key, card);
+                    }
+                    if (cursor !== card) grid.insertBefore(card, cursor);
+                    else cursor = cursor.nextElementSibling;
+                    if (isNew) {
+                        card.onclick = () => regOpenEntry(e);
+                        if (e.kind === 'field') {
+                            let cv = card.querySelector('.reg-field-canvas');
+                            if (cv) procRenderAlien(cv, e.seed);
+                        }
+                        regBindIdCopyButtons(card);
+                    }
+                });
+                Array.from(grid.children).forEach(child => {
+                    if (!seen.has(child.dataset.key)) {
+                        regRenderedCards.delete(child.dataset.key);
+                        child.remove();
+                    }
+                });
+            }
+
+            let countEl = qs('#reg-count');
+            if (countEl) countEl.textContent = list.length + ' shown';
+            let moreBtn = qs('#reg-show-more');
+            if (moreBtn) {
+                let atCap = regState.fieldBatch.length >= REG_FIELD_CAP;
+                let nothingLeft = regState.filters.logged === 'yes' || regState.seqExhausted;
+                moreBtn.style.display = (typeof AlienEngine === 'undefined' || atCap || nothingLeft) ? 'none' : '';
+            }
+        };
+
+        const regBindShell = () => {
+            let win = qs('#alien-registry');
+            let body = win.querySelector('#reg-body');
+            let search = body.querySelector('#reg-search');
+            let searchTimer = null;
+            search.oninput = () => {
+                regState.query = search.value;
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(regRefreshResults, 150);
+            };
+            body.querySelector('#reg-filter-toggle').onclick = () => {
+                regState.filtersOpen = !regState.filtersOpen;
+                body.innerHTML = regBrowseShellHtml();
+                regBindShell();
+                regRefreshResults();
+            };
+            body.querySelector('#reg-sort').onchange = ev => {
+                regState.sort = ev.target.value;
+                regResetFieldScan();
+                regExpandFieldBatch(9);
+                body.innerHTML = regBrowseShellHtml();
+                regBindShell();
+                regRefreshResults();
+            };
+            let moreWrap = body.querySelector('#reg-show-more-wrap');
+            if (moreWrap) {
+                let moreBtn = ce('span');
+                moreBtn.className = 'reg-drop-btn';
+                moreBtn.id = 'reg-show-more';
+                moreBtn.textContent = 'Show More';
+                moreBtn.onclick = () => { regExpandFieldBatch(9); regRefreshResults(); };
+                moreWrap.appendChild(moreBtn);
+            }
+            let rerollBtn = body.querySelector('#reg-reroll');
+            if (rerollBtn) rerollBtn.onclick = () => {
+                regResetFieldScan();
+                regExpandFieldBatch(9);
+                regRefreshResults();
+            };
+            body.querySelector('#reg-check-official').onclick = async () => {
+                let el = body.querySelector('#reg-check-official');
+                el.textContent = 'checking...';
+                try { await refreshOfficialAlrIndex(); } catch (e) {}
+                let status = body.querySelector('#reg-official-status');
+                if (status) status.textContent = loadOfficialIndexCache() ? 'official registry checked this session' : 'official registry not checked this session';
+                el.textContent = 'check now';
+                regRefreshResults();
+            };
+            let clearBtn = body.querySelector('#reg-clear-filters');
+            if (clearBtn) clearBtn.onclick = () => {
+                regState.filters = {};
+                regResetFieldScan();
+                regExpandFieldBatch(9);
+                body.innerHTML = regBrowseShellHtml();
+                regBindShell();
+                regRefreshResults();
+            };
+            body.querySelectorAll('.rf').forEach(f => {
+                let handler = () => {
+                    regState.filters[f.dataset.k] = f.value;
+                    regResetFieldScan();
+                    regExpandFieldBatch(9);
+                    body.innerHTML = regBrowseShellHtml();
+                    regBindShell();
+                    regRefreshResults();
+                };
+                if (f.tagName === 'SELECT') f.onchange = handler;
+                else f.onblur = handler;
+            });
+        };
+
+        const regOpenEntry = async e => {
+            if (e.kind === 'official' && e.remote) {
+                regState.selected = { kind: 'official', id: e.id, loading: true };
+                regState.view = 'detail';
+                regRenderTabs();
+                regRenderBody();
+                try {
+                    let res = await fetch(e.downloadUrl);
+                    if (!res.ok) throw new Error('fetch failed');
+                    let blob = await res.blob();
+                    let parsed = await parseAlrPackage(blob, e.fileName);
+                    let reg = (parsed.signature && parsed.signature.registration) || {};
+                    regState.selected = {
+                        kind: 'official', id: e.id, commonName: reg.commonName, bodyPlan: reg.bodyPlan,
+                        eyeCount: reg.eyeCount, tailPresent: reg.tailPresent,
+                        massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null, heightM: reg.heightM,
+                        notableFeatures: reg.notableFeatures, notes: reg.notes, primaryColor: reg.primaryColor,
+                        secondaryColor: reg.secondaryColor, behaviour: reg.behaviour,
+                        image: parsed.previewUrl, drawingUrl: parsed.drawingUrl, editable: false
+                    };
+                } catch (err) {
+                    regState.selected = { kind: 'official', id: e.id, loadError: true };
+                }
+                regRenderBody();
+                return;
+            }
+            regState.selected = e;
+            regState.view = 'detail';
+            regRenderTabs();
+            regRenderBody();
+        };
+
+        const regFieldAnalysisHtml = summary => {
+            if (!summary) return '';
+            let closest = summary.closestSeed != null
+                ? `<span class="reg-id-copy reg-id-jump" data-jump-seed="${summary.closestSeed}" data-id="${regFieldIdString(summary.closestSeed)}" title="View this specimen">${regFieldIdString(summary.closestSeed)}</span> (${(summary.similarity*100).toFixed(1)}%)`
+                : 'none on file';
+            return `
+                <div class="reg-sec-h">Field analysis</div>
+                <div class="reg-row"><span class="l">Rarity index</span>${summary.rarity!=null?summary.rarity:'?'}</div>
+                <div class="reg-row"><span class="l">Closest known match</span>${closest}</div>
+                ${summary.sharedTraits && summary.sharedTraits.length ? `<div class="reg-sec-h">Shared with closest match</div>${summary.sharedTraits.slice(0,5).map(t=>`<div class="reg-row">${escapeHtml(String(t))}</div>`).join('')}` : ''}
+                ${summary.uniqueTraits && summary.uniqueTraits.length ? `<div class="reg-sec-h">Distinguishing traits</div>${summary.uniqueTraits.slice(0,5).map(t=>`<div class="reg-row">${escapeHtml(String(t))}</div>`).join('')}` : ''}
+            `;
+        };
+
+        const regDetailHtml = e => {
+            if (!e) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Nothing selected.</div>`;
+            if (e.loading) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Loading...</div>`;
+            if (e.loadError) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Could not load this observation. Check your connection and try again.</div>`;
+            let title = e.commonName || (e.kind === 'field' ? 'Unlogged sighting' : 'Unregistered specimen');
+            let img = e.kind === 'field' ? `<canvas id="reg-detail-canvas" width="440" height="440"></canvas>`
+                : (e.drawingUrl || e.image) ? `<img src="${e.drawingUrl || e.image}">`
+                : `<div class="reg-detail-img none">no drawing on file</div>`;
+            let bodyRows = e.kind === 'field' ? `
+                <div class="reg-row"><span class="l">Body plan</span>${escapeHtml(e.bodyPlan||'?')}</div>
+                <div class="reg-row"><span class="l">Eyes</span>${escapeHtml(String(e.eyeCount||'?'))}</div>
+                <div class="reg-row"><span class="l">Tail</span>${escapeHtml(e.tailPresent||'?')}</div>
+                <div class="reg-row"><span class="l">Approx. mass</span>${e.massKg!=null?e.massKg+'kg':'?'}</div>
+                ${e.notableFeatures ? `<div class="reg-sec-h">Notable features</div><div class="reg-row">${escapeHtml(e.notableFeatures)}</div>` : ''}
+                ${e.notes ? `<div class="reg-sec-h">Notes</div><div class="reg-row">${escapeHtml(e.notes)}</div>` : ''}
+                <div id="reg-field-analysis"></div>
+            ` : `
+                <div class="reg-row"><span class="l">Body plan</span>${escapeHtml(e.bodyPlan||'?')}</div>
+                <div class="reg-row"><span class="l">Height</span>${e.heightM?e.heightM+'m':'?'}</div>
+                <div class="reg-row"><span class="l">Mass</span>${e.massKg!=null?e.massKg+'kg':'?'}</div>
+                <div class="reg-row"><span class="l">Eyes</span>${escapeHtml(String(e.eyeCount||'?'))}</div>
+                <div class="reg-row"><span class="l">Tail</span>${escapeHtml(e.tailPresent||'?')}</div>
+                <div class="reg-row"><span class="l">Behaviour</span>${escapeHtml(e.behaviour||'?')}</div>
+                <div class="reg-row"><span class="l">Colours</span>${escapeHtml([e.primaryColor,e.secondaryColor].filter(Boolean).join(' / ')||'?')}</div>
+                ${e.notableFeatures ? `<div class="reg-sec-h">Notable features</div><div class="reg-row">${escapeHtml(e.notableFeatures)}</div>` : ''}
+                ${e.notes ? `<div class="reg-sec-h">Notes</div><div class="reg-row">${escapeHtml(e.notes)}</div>` : ''}
+            `;
+            return `
+                <span class="reg-back" id="reg-back">&larr; back to browse</span>
+                <div class="reg-detail-head">
+                    <div class="reg-detail-img">${img}</div>
+                    <div style="flex-grow:1; min-width:220px;">
+                        <div style="font-size:0.65rem; color:#666;">${e.id ? `<span class="reg-id-copy" data-id="${escapeHtml(e.id)}" title="Click to copy">Registry ID ${escapeHtml(e.id)}</span>` : ''}</div>
+                        <div style="font-size:1.1rem; color:#fff; margin:2px 0 8px;">${escapeHtml(title)}</div>
+                        <span class="reg-badge${e.human ? ' logged' : ''}">${regBadgeFor(e)}</span>
+                    </div>
+                </div>
+                ${bodyRows}
+                ${e.editable ? `<div class="reg-sec-h">Contribute</div><span class="reg-drop-btn" id="reg-goto-contribute">Prepare for submission</span>` : ''}
+            `;
+        };
+
+        const regContributeHtml = () => {
+            let locals = localAlrEntries().map(regLocalEntry).filter(e => e.kind === 'local');
+            return `
+                <div style="font-size:0.8rem; color:#ccc; line-height:1.7; margin-bottom:14px;">
+                    Observations recorded in Paint stay on this device. Getting one into the shared registry
+                    happens on GitHub, not in this app:
+                    <ol style="margin:10px 0 4px; padding-left:20px; color:#aaa;">
+                        <li>Pick an observation below and prepare it - this checks it over and saves the exact file you'll hand off.</li>
+                        <li>Fork the registry repository and add that file to its <span style="color:var(--acc);">alr/</span> folder, unchanged.</li>
+                        <li>Open a pull request. Once it's reviewed and merged, it shows up here as an Official Observation.</li>
+                    </ol>
+                </div>
+                <span class="reg-drop-btn" id="reg-open-github">Open registry repository</span>
+                <div class="reg-sec-h">Your Local Observations</div>
+                ${locals.length ? locals.map(e => `
+                    <div class="reg-log-line" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                        <span><span class="t reg-id-copy" data-id="${escapeHtml(e.id)}">${escapeHtml(e.id)}</span>${escapeHtml(e.commonName || 'Unregistered specimen')}</span>
+                        <span class="reg-drop-btn" style="margin:0; padding:3px 10px;" data-contribute="${escapeHtml(e.name)}">Prepare</span>
+                    </div>`).join('') : `<div class="reg-empty" style="padding:10px 0;">Nothing recorded yet. Draw a specimen in Paint and save it as an observation.</div>`}
+            `;
+        };
+
+        const regPrepareSubmission = async name => {
+            let entry = localAlrEntries().find(e => e.name === name);
+            if (!entry) return;
+            let manifest = entry.node.alrManifest;
+            let regId = manifest.registryIdentifier;
+            let fileName = regId + '.alr';
+            let branchName = 'observation/' + regId;
+            let blob = alrBlobFromNode(entry.node);
+            let parsed = await parseAlrPackage(blob, fileName);
+            if (!parsed.valid) {
+                sysModal('Cannot Prepare This Observation', 'This Observation Package failed validation:<br><br>' + parsed.issues.map(i => '&middot; ' + escapeHtml(i)).join('<br>'));
+                return;
+            }
+            let url = URL.createObjectURL(blob);
+            triggerDownload(url, fileName);
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+            let m = ce('div');
+            m.className = 'sys-modal';
+            m.innerHTML = `
+                <div class="sys-modal-box" style="min-width:420px; max-width:480px;">
+                    <div style="color:var(--acc); margin-bottom:10px; font-weight:bold;">Prepared for submission</div>
+                    <div style="font-size:0.8rem; color:#ccc; line-height:1.6;">
+                        <b>${escapeHtml(fileName)}</b> has been saved to your device. Merging into the registry
+                        happens on GitHub, not here:
+                        <ol style="margin:10px 0; padding-left:18px; color:#aaa;">
+                            <li>Open the registry repository below.</li>
+                            <li>Create a new branch (a suggested name is filled in already: <span style="color:var(--acc);">${escapeHtml(branchName)}</span>).</li>
+                            <li>Add ${escapeHtml(fileName)} to the <span style="color:var(--acc);">alr/</span> directory on that branch, unchanged, and open it for review.</li>
+                        </ol>
+                    </div>
+                    <div style="text-align:right; margin-top:15px;">
+                        <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Close</button>
+                        <button class="sys-modal-btn sys-ok">Open GitHub</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(m);
+            m.querySelector('.sys-cancel').onclick = () => m.remove();
+            m.querySelector('.sys-ok').onclick = () => {
+                window.open(GITHUB_REGISTRY_REPO + '/tree/main?branch_name=' + encodeURIComponent(branchName), '_blank');
+                m.remove();
+            };
+        };
+
+        const regBindBody = () => {
+            let win = qs('#alien-registry');
+            let body = win.querySelector('#reg-body');
+
+            if (regState.view === 'browse') {
+                regBindShell();
+                regRefreshResults();
+            } else if (regState.view === 'detail') {
+                body.querySelector('#reg-back').onclick = () => { regState.view = 'browse'; regRenderTabs(); regRenderBody(); };
+                let gotoContribute = body.querySelector('#reg-goto-contribute');
+                if (gotoContribute) gotoContribute.onclick = () => { regState.view = 'contribute'; regRenderTabs(); regRenderBody(); };
+                regBindIdCopyButtons(body);
+                let e = regState.selected;
+                if (e && e.kind === 'field') {
+                    let canvas = body.querySelector('#reg-detail-canvas');
+                    if (canvas) {
+                        procRenderAlien(canvas, e.seed);
+                        let info = body.querySelector('#reg-field-analysis');
+                        if (info) {
+                            let summary = procBuildSummary(e.alien, e.seed);
+                            info.innerHTML = regFieldAnalysisHtml(summary);
+                            regBindIdCopyButtons(info);
+                        }
+                    }
+                }
+            } else if (regState.view === 'contribute') {
+                let openBtn = body.querySelector('#reg-open-github');
+                if (openBtn) openBtn.onclick = () => window.open(GITHUB_REGISTRY_REPO, '_blank');
+                body.querySelectorAll('[data-contribute]').forEach(btn => {
+                    btn.onclick = () => regPrepareSubmission(btn.dataset.contribute);
+                });
+                regBindIdCopyButtons(body);
+            }
+
+            win.querySelectorAll('.reg-tab[data-rview]').forEach(t => {
+                t.onclick = () => {
+                    regState.view = t.dataset.rview;
+                    if (regState.view === 'browse') regState.selected = null;
+                    regRenderTabs();
+                    regRenderBody();
+                };
+            });
+        };
+
+        const regRenderTabs = () => {
+            qs('#alien-registry').querySelectorAll('.reg-tab[data-rview]').forEach(t => {
+                t.classList.toggle('sel', t.dataset.rview === regState.view || (regState.view === 'detail' && t.dataset.rview === 'browse'));
+            });
+        };
+
+        const regRenderBody = () => {
+            let body = qs('#reg-body');
+            if (regState.view === 'browse') body.innerHTML = regBrowseShellHtml();
+            else if (regState.view === 'detail') body.innerHTML = regDetailHtml(regState.selected);
+            else if (regState.view === 'contribute') body.innerHTML = regContributeHtml();
+            regBindBody();
+        };
+        const regHandleLocalAlr = name => {
+            let entry = localAlrEntries().find(e => e.name === name);
+            if (!entry) return;
+            regOpenEntry(regLocalEntry(entry));
+        };
+
+        const initAlienRegistry = () => {
+            regExpandFieldBatch(9);
+            regRenderTabs();
+            regRenderBody();
+        };
+
         loadSys();
         buildSettings();
         renderDesktop();
         wm.init();
         initPaint();
+        initAlienRegistry();
         print("vgr-9 terminal active. type 'help'.\n");
         wm.focus(qs('#term'));
 

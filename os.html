@@ -906,7 +906,7 @@
             return {
                 kind: 'field', key: 'field-' + seed, seed, alien, id: regFieldIdString(seed),
                 commonName: 'Human', bodyPlan: t.bodyPlan, eyeCount: t.eyeCount, tailPresent: t.tailPresent,
-                massKg: t.massKg, notableFeatures: 'Crew of VGR-9. The one entry on file filed by observing ourselves.',
+                massKg: t.massKg, notableFeatures: '(Note from Engineering: Who let the Calyx guys write to our file? I do not have admin rights to delete this.)',
                 notes: 'Peculiar mating habits and rituals',
                 editable: false, human: true
             };
@@ -1093,7 +1093,7 @@
                 content: {
                     'readme.txt': { 
                         type: 'file', 
-                        body: 'VGR-9 EXPEDITIONARY OS - CREW ORIENTATION (REV 1997.4)\n\nWelcome aboard the VGR-9. We are making history here—humanity and our interstellar counterparts, sharing a bulkhead and a mission into the deep black. \n\nTerminal provides core access. Use `read manual.txt` for the full reference, or open the Explorer to look around.\n\nDAY-TO-DAY OPERATIONS:\nYour standard crew business—maintenance checklists, shift logs, engineering readouts—lives in Local_Ops. \n\nTHE COMPACT:\nThe heavy diplomatic payload—the Treaty, the Registry, the Archive—is kept in Compact.\n\n===============================\nALIEN REGISTRY\n===============================\nLocated under the Start Menu, this is the ratified joint species registry, a monumental achievement of our shared alliance. See Compact/Registry/alien_registry.dat for the architecture. \n\nUse it to browse, search, and filter filed specimens. You can pull up a full profile with its observation log and related entries, check registry statistics, or submit a filing prepared in the Paint utility. \n\nSubmitting never uploads anything to the comms array itself; it packages the file and walks you to the point of opening a branch on GitHub yourself for Earth-side and Council review. Nothing is official, and nothing counts toward the registry, until that branch is merged by Command. \n\nTerminal command: An optional argument runs a search on open.\n  ex: registry\n  ex: registry glass walker\n\n===============================\nPAINT UTILITY\n===============================\nTyping `open paint` launches the onboard Paint utility—a fixed-size digital canvas specifically calibrated for sketching whatever you or the alien crew members spot off the array. Everything drawn lives only in volatile memory until you explicitly save it to the ship\'s databanks.\n\nTOOLS:\n  Pencil        Hard 1px-ish line, follows the cursor exactly.\n  Brush         Textured stamp, size/opacity/texture all apply.\n  Spray         Scatters dots in a radius while held down.\n  Eraser        Same as Pencil but cuts through to transparent.\n  Bucket Fill   Fills the contiguous region under the cursor.\n  Picker        Samples a color off the canvas into the color well.\n\nTEXTURES (affects Brush and Spray):\n  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes, Veins, Mottled.\n\nOTHER CONTROLS:\n  Size / Opacity   Sliders, apply to Pencil/Brush/Spray/Eraser.\n  Color            The active color well.\n  Grid             Toggles an alignment overlay, doesn\'t paint.\n  Undo / Redo      Also bound to Ctrl+Z and Ctrl+Shift+Z while the Paint window is focused.\n  Clear            Wipes the canvas back to blank - confirm first so you don\'t lose a sighting.\n\nAUTOSAVE:\n  Power fluctuations happen in deep space. The canvas is autosaved locally every 30 seconds while Paint is open. If your terminal resets or reloads and you come back to a blank canvas, Paint will detect the autosave and offer to recover it quietly before you start drawing.\n\nSAVING AND TRANSFERRING:\n  `Save to Filesystem` writes the current canvas into the VGR-9\'s virtual filesystem as an image file, at a directory you choose. Once a file exists anywhere in the filesystem (Desktop, Explorer, anywhere), right-click it and choose "Transfer to another device" to actually pull it off the array and onto your local machine. There\'s no separate download button in Paint itself; saving to the ship and transferring off-board are deliberately two different protocols.\n\nALIEN REGISTRATION FILING:\n  `File Alien Registration`:\n    Step 1  Common Name                Whatever the crew calls it.\n    Step 2  Physical Characteristics   Height (m), mass (kg), body plan, symmetry, eye count, mouth, arm count, leg count, tail present, surface texture, observed behaviour, notable features (free text - "large crest", "glowing eyes", etc.).\n    Step 3  Colors                     Primary and secondary.\n    Step 4  Notes                      Anything else worth logging for the xenobiologists.\n\n  On save, a permanent Registry Identifier is generated for you. The result is packaged as an Observation Package and saved as a Local Observation in the `alr/` folder on this device—no destination prompt, no separate transfer step. A confirmation tells you where it landed. That\'s what the Alien Registry app\'s Contribute tab reads back when you go to validate or submit your discovery to the fleet.' 
+                        body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access to the vessel\'s primary systems. Use `read manual.txt` for the full technical reference, or open the Explorer to look around visually.\n\nFILESYSTEM NAVIGATION\nYour day-to-day crew business—maintenance checklists, shift logs, and engineering readouts—lives in Local_Ops.\n\nCompact business, which includes the diplomatic treaty, the Registry, and the Archive, is kept off the Desktop entirely in the Compact directory. Different filing cabinet, different key.\n\nALIEN REGISTRY\nLocated under the Start Menu, this is the formally ratified joint species registry. Running on long-range render tech loaned by the Calyx Ministry, it serves as the official catalog for all signatory species and new encounters. See Compact/Registry/alien_registry.dat for the architecture.\n\nPAINT UTILITY & REGISTRATION\nThe Paint utility is fully operational and supports filing a specimen through the Alien Registration wizard. Typing `open paint` launches the onboard Paint utility—a fixed-size digital canvas specifically calibrated for sketching whatever you or the alien crew members spot off the array. Everything drawn lives only in volatile memory until you explicitly save it to the ship\'s databanks.\n\nTOOLS:\n  Pencil        Hard 1px-ish line, follows the cursor exactly.\n  Brush         Textured stamp, size/opacity/texture all apply.\n  Spray         Scatters dots in a radius while held down.\n  Eraser        Same as Pencil but cuts through to transparent.\n  Bucket Fill   Fills the contiguous region under the cursor.\n  Picker        Samples a color off the canvas into the color well.\n\nTEXTURES (affects Brush and Spray):\n  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes, Veins, Mottled.\n\nOTHER CONTROLS:\n  Size / Opacity   Sliders, apply to Pencil/Brush/Spray/Eraser.\n  Color            The active color well.\n  Grid             Toggles an alignment overlay, doesn\'t paint.\n  Undo / Redo      Also bound to Ctrl+Z and Ctrl+Shift+Z while the Paint window is focused.\n  Clear            Wipes the canvas back to blank - confirm first so you don\'t lose a sighting.\n\nAUTOSAVE:\n  Power fluctuations happen in deep space. The canvas is autosaved locally every 30 seconds while Paint is open. If your terminal resets or reloads and you come back to a blank canvas, Paint will detect the autosave and offer to recover it quietly before you start drawing.\n\nSAVING AND TRANSFERRING:\n  `Save to Filesystem` writes the current canvas into the VGR-9\'s virtual filesystem as an image file, at a directory you choose. Once a file exists anywhere in the filesystem (Desktop, Explorer, anywhere), right-click it and choose "Transfer to another device" to actually pull it off the array and onto your local machine. There\'s no separate download button in Paint itself; saving to the ship and transferring off-board are deliberately two different protocols.\n\nALIEN REGISTRATION FILING:\n  `File Alien Registration`:\n    Step 1  Common Name                Whatever the crew calls it.\n    Step 2  Physical Characteristics   Height (m), mass (kg), body plan, symmetry, eye count, mouth, arm count, leg count, tail present, surface texture, observed behaviour, notable features (free text - "large crest", "glowing eyes", etc.).\n    Step 3  Colors                     Primary and secondary.\n    Step 4  Notes                      Anything else worth logging for the xenobiologists.\n\n  On save, a permanent Registry Identifier is generated for you. The result is packaged as an Observation Package and saved as a Local Observation in the `alr/` folder on this device—no destination prompt, no separate transfer step. A confirmation tells you where it landed. That\'s what the Alien Registry app\'s Contribute tab reads back when you go to validate or submit your discovery to the fleet.' 
                         },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
@@ -1116,7 +1116,9 @@ Spare fabric seal   6 units
 O2 candles          12 units, unused
 Medical kit         sealed, unopened
 
-Count is manual. Update on physical check, not on a timer.` },
+Count is manual. Update on physical check, not on a timer.
+
+## Note: The Threnody Accord think our need for replenishment of energy is redundant. They asked to "fix" us.` },
                         'roster.txt': { type: 'file', body: `CREW ROSTER - CURRENT ROTATION
 
 Engineering    1 active
@@ -1126,9 +1128,14 @@ Medical        1 active, cross-trained comms
 Rotation length unspecified. Interval screening records: Logs/psych_audit.log.` },
                         'nav_plan.txt': { type: 'file', body: `VGR-9 FLIGHT PLAN - SUMMARY
 
+VGR-9 FLIGHT PLAN - SUMMARY
 Cruise velocity: 0.19c
 Transit elapsed: 18y
 Distance covered: 3.42 ly
+
+## Note from Nav: We got the base star map from the Calyx Ministry. I was checking the Earth coordinates.
+The Calyx map has Earth marked with a warning tag. The timestamp on their tag translates to 1947.
+## Note: Threnody keeps checking our speed. Their old star maps show dead zones growing in their space. Their translators change spaceship to boat. We are not a science ship, at least not for them.
 
 Course held within tolerance since launch. One correction
 burn logged, 2019 - see Logs/eng.log.
@@ -1155,7 +1162,9 @@ Reserve floor 15%. Below that, comms array sheds load first.` },
 - Occasional double entry in Compact/Registry/access.log after a hard reset. Harmless, just noisy.
 - Desktop icon positions reset if Trash is emptied mid-drag. Rare, not reproduced since 2015.
 - ps will list two processes nobody on this crew wrote. Leave them. See proc_rules.txt.
-- Someone on rotation tried to swap the default login avatar again. Didn't take, same as every other time. Article II, not a bug. Stop filing this one.` },
+- Someone on rotation tried to upload the stick figure avatar again. I know the login profile pic is bad but we cannot do this. It got blocked by the treaty. Article II says only renders work. Stop putting it in the system.
+- Don't know if this is an actal issue but do not use the terminal to ping KV-118. The ping command will just say timeout, but the ship feels colder afterwards.` },
+
                             'proc_rules.txt': { type: 'file', body: `VGR-9 PROCESS HANDLING - STANDING RULES
 Compiled by Engineering. Binding on all rotations.
 
@@ -1165,14 +1174,8 @@ RULE 03: threnody_manifold_sync and calyx_flux_gate are not ours. Neither was in
 
 RULE 04: Do not attempt to kill process PID 000 [threnody_manifold_sync].
 We do not know what it is calculating.
-In 2014, Nav-Officer [REDACTED] paused it to free up RAM.
-The ship dropped 0.02% velocity in three seconds. Patched that same
-year so it won't accept a termination signal again - see
-System/backup.log, 2014. Just leave it.
-
-RULE 05: PID 001 [calyx_flux_gate] doesn't have PID 000's lockout.
-Nobody's written down what closing it does. Engineering's policy is
-not to find out on a whim.` },
+In 2014, Nav-Officer [REDACTED] paused it to free up RAM to play a game. The ship dropped 0.02% velocity in three seconds. 
+We patched it so you cannot kill it. Do not touch it. We are not fixing this again.` },
                             'avatar_src.txt': { type: 'file', body: `Pulled this out of Trash instead of deleting it - didn't feel right losing the only unstripped copy.
 
 Raw source for the login avatar, capture tags and all. The version the login screen actually uses has had those tags stripped; this one hasn't.
@@ -1205,7 +1208,7 @@ Subject: rotating crew complement, VGR-9. Automated unless incident-triggered.
                     } },
                     'Media': { type: 'dir', content: Object.fromEntries(themes.map(t => {
                         let urlMatch = t.bg.match(/url\('([^']+)'\)/);
-                        return [`wallpaper_${t.id}.img`, { type: 'file', image: urlMatch ? urlMatch[1] : '', body: `${t.name} - local wallpaper asset.\n\nCached at launch. Not sourced from the long-range array, not related to the Registry render pipeline.` }];
+                        return [`wallpaper_${t.id}.img`, { type: 'file', image: urlMatch ? urlMatch[1] : '', body: `${t.name} - local wallpaper asset.\n\nDifferent Members have different tastes. That too on different days.` }];
                     })) }
                 }
             },
@@ -1538,7 +1541,11 @@ temporary biological custody." Filed. Unresolved.
 1997 entry, same problem, different party.
 [2025] Drift now measurable on abstract legal terms generally.
 Concrete/technical terms (schema, coordinates, quantities) still
-translate clean. Recommend keeping new Article language concrete
+translate clean. 
+
+Legal tried to explain the difference for three weeks. They gave up. Just let them call it biological custody.
+
+Recommend keeping new Article language concrete
 where possible.` },
                             'threnody_interface.cfg': { type: 'file', body: `[threnody_channel]
 # Do not touch the phase-variance settings. Threnody specs are not
@@ -1554,12 +1561,9 @@ maintained_by=threnody_accord` }
             'alr': { type: 'dir', content: {} },
             'Trash': { type: 'dir', content: {
                 'sol_profile_submission.img': { type: 'file', image: 'https://upload.wikimedia.org/wikipedia/commons/e/e7/Adi_Stick_Fig.svg', whiteBg: true, body: `[LOCAL SUBMISSION - DECLINED]
-Was held for review. Not approved.
+Look, I know the official render makes us look like a weird floating vase, but command says we cannot use this stick figure.
 
-Per Article II, only sanctioned render-tech renders qualify as a
-signatory's registry avatar. This didn't clear that bar.
-
-Filed by hand.` }
+Per Article II, only sanctioned render-tech qualifies for a registry avatar. Hand-drawn MS Paint stick figures do not pass. Stop trying to upload this.` }
             } }
         };
 
@@ -2587,6 +2591,9 @@ Filed by hand.` }
             let cmd = args[0].toLowerCase();
 
             switch(cmd) {
+                case 'sudo': 
+                    print("sudo: unauthorized. This incident will be reported to the [REDACTED]."); 
+                    break;
                 case 'help':
                     print(`VGR-9 QUICK COMMANDS\nls, scan, cd, pwd, read, mkdir, touch, mv, cp, rm, find, grep, stat, df, open, ps, close, theme, color, whoami, uptime, history, echo, ping, clear, whois, delegates, charter, access, submit, registry\n\nType 'man <cmd>' for detail, or 'read manual.txt' for the full reference.`);
                     break;
@@ -2836,7 +2843,26 @@ Filed by hand.` }
                     else print(`close: pid not found`);
                     break;
                 }
-                case 'ping': print(args[1] ? `PING ${escapeHtml(args[1])}: timeout` : "ping: missing host"); break;
+                case 'ping': {
+                    let target = args.slice(1).join(' '); 
+                    if (!target) { 
+                        print("ping: missing host"); 
+                        break; 
+                    }
+
+                   
+                    let normalizedTarget = target.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+                  
+                    if (normalizedTarget === 'kv118' || target === '72057594037927936') {
+                        sysState.tmp -= 0.5;
+                        print(`PING ${escapeHtml(target)}: timeout`);
+                    } else {
+                        print(`PING ${escapeHtml(target)}: timeout`);
+                    }
+                        
+                    break;
+                }
                 case 'history': hist.forEach((h,i) => print(`${i+1}  ${escapeHtml(h)}`)); break;
                 case 'whoami': print("USER: sys_admin\nAUTH: Level 9\nSPECIES_ID: 4294967296\nSTATUS: active\nAVATAR: render_sol_local_09.img (default since launch, unedited)"); break;
                 case 'clear': tOut.innerHTML = ''; break;
@@ -4591,6 +4617,13 @@ Filed by hand.` }
                 qs('#hud-v').textContent = vVal;
                 let monV = qs('#mon-v'); if (monV) monV.textContent = vVal;
             }
+
+            if (sysState.tmp < 2.7) {
+                sysState.tmp += 0.02; 
+                if (sysState.tmp > 2.7) sysState.tmp = 2.7; 
+            }
+
+            
             if (sysState.t % 6 === 0) {
                 let tVal = (sysState.tmp + (Math.random() * 0.2 - 0.1)).toFixed(2);
                 qs('#hud-t').textContent = tVal;

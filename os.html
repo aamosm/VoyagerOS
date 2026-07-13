@@ -382,6 +382,7 @@
 
         .archive-wrapper { flex-grow: 1; position: relative; width: 100%; height: calc(100% - 50px); overflow: hidden; border: 1px solid var(--border); background: #fff; }
         .archive-iframe { width: 100%; height: calc(100% + 55px); margin-top: -55px; border: none; filter: invert(1) grayscale(1) contrast(1.2) brightness(0.9); background: #fff; }
+        .archive-iframe.no-invert { filter: none; }
         .remote-link:hover { text-decoration: underline !important; color: #fff !important; }
 
         .paint-toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -726,7 +727,7 @@
             return ICONS.file;
         };
 
-        // Each theme bundles a wallpaper with a coordinated set of interface
+        
 
         const THEMES = [
             {
@@ -738,11 +739,6 @@
                 id: 'nebula', name: 'Nebula',
                 bg: "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')",
                 acc: '#b98af0', fg: '#e7def4', termFg: '#d9c2f7', border: '#3a2c4a', winBg: 'rgba(14,8,18,0.95)', err: '#ff6ea8'
-            },
-            {
-                id: 'planet', name: 'Exoplanet',
-                bg: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?auto=format&fit=crop&w=1920&q=80')",
-                acc: '#e0a458', fg: '#f2e8d4', termFg: '#f2c988', border: '#4a3a22', winBg: 'rgba(16,11,5,0.95)', err: '#e0603a'
             },
             {
                 id: 'cyber', name: 'Terminal Net',
@@ -761,8 +757,33 @@
             },
             {
                 id: 'amber', name: 'Amber CRT',
-                bg: "linear-gradient(rgba(20,12,0,0.82), rgba(0,0,0,0.92)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')",
+                bg: "radial-gradient(ellipse at center, rgba(60,36,0,0.4), rgba(0,0,0,0.95))",
                 acc: '#ffb000', fg: '#ffdca0', termFg: '#ffb000', border: '#4a3510', winBg: 'rgba(14,9,0,0.95)', err: '#ff5533'
+            },
+            {
+                id: 'solar', name: 'Solar Flare',
+                bg: "linear-gradient(rgba(40,10,0,0.6), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#ff7a33', fg: '#ffe0cc', termFg: '#ffa066', border: '#4a2410', winBg: 'rgba(16,6,0,0.95)', err: '#ff3333'
+            },
+            {
+                id: 'abyss', name: 'Deep Abyss',
+                bg: "linear-gradient(rgba(0,10,20,0.7), rgba(0,0,0,0.92)), url('https://images.unsplash.com/photo-1439405326854-014607f694d7?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#2fa8c4', fg: '#c8ecf4', termFg: '#4fd6f0', border: '#123a45', winBg: 'rgba(2,10,14,0.96)', err: '#ff6a6a'
+            },
+            {
+                id: 'blood', name: 'Blood Moon',
+                bg: "linear-gradient(rgba(20,0,0,0.7), rgba(0,0,0,0.92)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#c62828', fg: '#f0d6d6', termFg: '#ff5c5c', border: '#3a1414', winBg: 'rgba(14,4,4,0.96)', err: '#ff8844'
+            },
+            {
+                id: 'frost', name: 'Frostbound',
+                bg: "linear-gradient(rgba(10,20,30,0.55), rgba(0,0,0,0.85)), url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#8fd8ff', fg: '#e4f4ff', termFg: '#a8e6ff', border: '#2a3a45', winBg: 'rgba(6,12,16,0.95)', err: '#ff6f91'
+            },
+            {
+                id: 'moss', name: 'Overgrowth',
+                bg: "linear-gradient(rgba(6,16,6,0.65), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80')",
+                acc: '#7fbf5f', fg: '#dcecd4', termFg: '#9fe07a', border: '#243a1e', winBg: 'rgba(6,12,4,0.95)', err: '#e0a03a'
             }
         ];
      
@@ -1317,12 +1338,12 @@ SYSTEM
 ===============================
 
 theme <name>
-  Set the desktop wallpaper.
-  Options: deepspace, nebula, planet, cyber, neon, void.
+  Set the desktop theme (wallpaper, accent, and interface colors together).
+  Options: deepspace, nebula, cyber, neon, void, amber, solar, abyss, blood, frost, moss.
     ex: theme nebula
 
 color <#hex>
-  Set the accent color used across the interface.
+  Override the current theme's accent color used across the interface.
     ex: color #d8d4c8
 
 whoami
@@ -1663,7 +1684,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             document.body.style.background = bg + ' center/cover fixed';
             document.documentElement.style.setProperty('--fg', t.fg);
             document.documentElement.style.setProperty('--term-fg', t.termFg);
-            document.documentElement.style.setProperty('--acc', t.acc);
+            document.documentElement.style.setProperty('--acc', sysState.conf.customAccent || t.acc);
             document.documentElement.style.setProperty('--border', t.border);
             document.documentElement.style.setProperty('--win-bg', t.winBg);
             document.documentElement.style.setProperty('--err', t.err);
@@ -1707,6 +1728,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 if(!btn) return;
                 sysState.conf.theme = btn.dataset.val;
                 sysState.conf.customWallpaper = null;
+                sysState.conf.customAccent = null;
                 saveSys(); applyConf();
             };
             let clearWpBtn = qs('#clear-custom-wallpaper');
@@ -2443,9 +2465,9 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             return id;
         };
 
-        window.openArchiveViewer = function(id, title, query) {
+        window.openArchiveViewer = function(id, title, query, mediatype) {
             let safeTitle = title.replace(/"/g, '&quot;');
-            let qParam = query ? `?query=${encodeURIComponent(query)}` : '';
+            let noInvert = (mediatype === 'image' || mediatype === 'movies') ? ' no-invert' : '';
             
             let html = `
                 <div style="color:var(--acc); border-bottom: 1px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between;">
@@ -2453,7 +2475,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     <span style="text-align: right; color: #666; font-size: 0.7rem;">SRC: EXTERNAL ARCHIVE<br>UPLINK: SECURE</span>
                 </div>
                 <div class="archive-wrapper">
-                    <iframe src="https://archive.org/embed/${id}${qParam}" class="archive-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+                    <iframe src="https://archive.org/embed/${id}" class="archive-iframe${noInvert}" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-presentation" allowfullscreen></iframe>
                 </div>
             `;
             
@@ -2478,7 +2500,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         };
 
         window.fetchArchive = function(query, page, pid = null) {
-            let safeQ = encodeURIComponent(`title:("${query}") AND mediatype:texts`);
+            let safeQ = encodeURIComponent(`title:("${query}") AND mediatype:(texts OR image OR movies)`);
             let pageParam = page > 1 ? `&page=${page}` : '';
 
             if (pid) {
@@ -2486,12 +2508,13 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 if (w) w.querySelector('.win-content').innerHTML = '<div style="color:#aaa;">Querying external archive...</div>';
             }
 
-            fetch(`https://archive.org/advancedsearch.php?q=${safeQ}&fl[]=title,description,identifier&sort[]=downloads+desc&output=json&rows=1${pageParam}`)
+            fetch(`https://archive.org/advancedsearch.php?q=${safeQ}&fl[]=title,description,identifier,mediatype&sort[]=downloads+desc&output=json&rows=1${pageParam}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.response.docs.length > 0) {
                         let d = data.response.docs[0];
                         let title = d.title || "UNKNOWN";
+                        let mediatype = d.mediatype || "unknown";
                         let desc = d.description || "NO PREVIEW METADATA EXTRACTED.";
                         if (Array.isArray(desc)) desc = desc[0];
 
@@ -2501,14 +2524,20 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                         let fmt = rawText.replace(rx, '<span class="hl">$1</span>').replace(/\n/g, '<br>');
                         let safeQueryStr = query.replace(/'/g, "\\'");
                         let safeTitleStr = title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                        let prevBtn = page > 1
+                            ? `<span class="btn-prev" onclick="window.fetchArchive('${safeQueryStr}', ${page - 1}, '${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--term-fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ &lt; back ]</span>`
+                            : `<span style="color: #555; border: 1px solid var(--border); padding: 4px 12px;">[ &lt; back ]</span>`;
 
                         let html = `
-                            <div style="color:var(--term-fg); margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px;">RECORD // ${title} (PAGE ${page})</div>
+                            <div style="color:var(--term-fg); margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid var(--border); padding-bottom: 5px;">RECORD // ${title} (PAGE ${page}) <span style="color:#666; font-weight: normal; font-size: 0.75rem;">[${mediatype}]</span></div>
                             <div style="margin-bottom: 20px; line-height: 1.6; overflow-y: auto; flex-grow: 1;">${fmt}</div>
-                            <div><span class="remote-link" onclick="window.openArchiveViewer('${d.identifier}', '${safeTitleStr}', '${safeQueryStr}')" style="color: var(--acc); cursor: pointer;">[ OPEN ARCHIVE VIEWER ]</span></div>
+                            <div><span class="remote-link" onclick="window.openArchiveViewer('${d.identifier}', '${safeTitleStr}', '${safeQueryStr}', '${mediatype}')" style="color: var(--acc); cursor: pointer;">[ OPEN ARCHIVE VIEWER ]</span></div>
                             <div style="margin-top: 20px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
                                 <span class="btn-close" onclick="wm.kill('${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
-                                <span class="btn-next" onclick="window.fetchArchive('${safeQueryStr}', ${page + 1}, '${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--term-fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ next record &gt; ]</span>
+                                <div style="display: flex; gap: 8px;">
+                                    ${prevBtn}
+                                    <span class="btn-next" onclick="window.fetchArchive('${safeQueryStr}', ${page + 1}, '${pid || '{{PID}}'}')" style="cursor: pointer; color: var(--term-fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ next record &gt; ]</span>
+                                </div>
                             </div>
                         `;
 
@@ -2537,10 +2566,12 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     } else {
                         if (pid) {
                             let w = wm.wins.find(x => String(x.dataset.pid) === String(pid));
+                            let safeQueryStr = query.replace(/'/g, "\\'");
                             if (w) w.querySelector('.win-content').innerHTML = `
                                 <div style="color:var(--err); margin-bottom: 20px;">end of archive results for '${query}'.</div>
-                                <div style="border-top: 1px solid var(--border); padding-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px;">
                                     <span class="btn-close" onclick="wm.kill('${pid}')" style="cursor: pointer; color: var(--err); border: 1px solid var(--err); padding: 4px 12px;">[ close ]</span>
+                                    <span class="btn-prev" onclick="window.fetchArchive('${safeQueryStr}', ${page - 1}, '${pid}')" style="cursor: pointer; color: var(--term-fg); border: 1px solid var(--border); padding: 4px 12px; transition: 0.2s;">[ &lt; back ]</span>
                                 </div>
                             `;
                         } else {
@@ -2746,10 +2777,11 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     break;
                 }
                 case 'theme': {
-                    if (!args[1]) { print("usage: theme [deepspace|nebula|planet|cyber|neon|void]"); break; }
+                    if (!args[1]) { print(`usage: theme [${themes.map(x=>x.id).join('|')}]`); break; }
                     let t = args[1].toLowerCase();
                     if (themes.find(x=>x.id===t)) {
-                        sysState.conf.bg = t; saveSys(); applyConf(); print("Theme updated.");
+                        sysState.conf.theme = t; sysState.conf.customWallpaper = null; sysState.conf.customAccent = null;
+                        saveSys(); applyConf(); print("Theme updated.");
                     } else print(`theme: unknown theme '${escapeHtml(args[1])}'`);
                     break;
                 }
@@ -2757,7 +2789,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     if (!args[1]) { print("usage: color [hex]"); break; }
                     let c = args[1];
                     if (/^#([0-9A-F]{3}){1,2}$/i.test(c)) {
-                        sysState.conf.fg = c; saveSys(); applyConf(); print("Color updated.");
+                        sysState.conf.customAccent = c; saveSys(); applyConf(); print("Color updated.");
                     } else print("color: invalid hex code");
                     break;
                 }
@@ -2856,6 +2888,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                   
                     if (normalizedTarget === 'kv118' || target === '72057594037927936') {
                         sysState.tmp -= 0.5;
+                        if (sysState.tmp < 0) sysState.tmp = 0;
                         print(`PING ${escapeHtml(target)}: timeout`);
                     } else {
                         print(`PING ${escapeHtml(target)}: timeout`);
@@ -4156,6 +4189,14 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                         filtered = [regEntryForSeed(alien, n)].concat(filtered);
                     } catch (e) {}
                 }
+            }
+
+            let qh = (regState.query || '').trim().toLowerCase();
+            if (qh && 'human'.includes(qh) && typeof AlienEngine !== 'undefined' && !filtered.some(e => e.human)) {
+                try {
+                    let alien = procGenerateEntity(HUMAN_SEED);
+                    filtered = [regEntryForSeed(alien, HUMAN_SEED)].concat(filtered);
+                } catch (e) {}
             }
             return regSortById(filtered, regState.sort);
         };

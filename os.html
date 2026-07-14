@@ -949,10 +949,22 @@
             };
         };
 
-        const regOfficialEntry = e => ({
-            kind: 'official', key: 'official-' + e.registryIdentifier, id: e.registryIdentifier,
-            fileName: e.fileName, downloadUrl: e.downloadUrl, commonName: null, editable: false, remote: true
-        });
+        const regOfficialCardCache = new Map();
+        const regOfficialFetching = new Set();
+
+        const regOfficialEntry = e => {
+            let cached = regOfficialCardCache.get(e.registryIdentifier);
+            return {
+                kind: 'official', key: 'official-' + e.registryIdentifier, id: e.registryIdentifier,
+                fileName: e.fileName, downloadUrl: e.downloadUrl, editable: false, remote: true,
+                commonName: cached && !cached.error ? cached.commonName : null,
+                bodyPlan: cached && !cached.error ? cached.bodyPlan : null,
+                massKg: cached && !cached.error ? cached.massKg : null,
+                image: cached && !cached.error ? cached.image : null,
+                drawingUrl: cached && !cached.error ? cached.drawingUrl : null,
+                cardLoaded: !!cached
+            };
+        };
 
         const regMatchesFilters = (e, f, q) => {
             if (f.bodyPlan && e.bodyPlan !== f.bodyPlan) return false;
@@ -3536,6 +3548,8 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
    
         const GITHUB_OWNER_REPO = 'aamosm/VoyagerOS';
         const GITHUB_ALR_CONTENTS_API = `https://api.github.com/repos/${GITHUB_OWNER_REPO}/contents/alr`;
+        const [GITHUB_PAGES_OWNER, GITHUB_PAGES_REPO] = GITHUB_OWNER_REPO.split('/');
+        const GITHUB_PAGES_ALR_BASE = `https://${GITHUB_PAGES_OWNER}.github.io/${GITHUB_PAGES_REPO}/alr/`;
         const OFFICIAL_INDEX_SESSION_KEY = 'vgr9_official_alr_index';
         const ALR_SUPPORTED_VERSIONS = [1];
         const ALR_GENERATOR_NAME = 'vgr-9 paint utility';
@@ -3561,7 +3575,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             let before = officialAlrIdSet();
             let entries = listing
                 .filter(f => f.type === 'file' && /\.alr$/i.test(f.name))
-                .map(f => ({ registryIdentifier: f.name.replace(/\.alr$/i, ''), fileName: f.name, sha: f.sha, size: f.size, downloadUrl: f.download_url }));
+                .map(f => ({ registryIdentifier: f.name.replace(/\.alr$/i, ''), fileName: f.name, sha: f.sha, size: f.size, downloadUrl: GITHUB_PAGES_ALR_BASE + encodeURIComponent(f.name) }));
             let after = new Set(entries.map(e => e.registryIdentifier));
             let added = entries.filter(e => !before.has(e.registryIdentifier));
             let removed = [...before].filter(id => !after.has(id));
@@ -4200,37 +4214,56 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             }
         };
 
+        const REG_SEARCH_PREFETCH_BUDGET = 20;
+
         const regCurrentList = () => {
             let locals = localAlrEntries().map(regLocalEntry);
             let localIds = new Set(locals.map(l => l.id));
-            let officials = officialAlrEntries().filter(o => !localIds.has(o.registryIdentifier)).map(regOfficialEntry);
+            let officialsRaw = officialAlrEntries().filter(o => !localIds.has(o.registryIdentifier));
+            let officials = officialsRaw.map(regOfficialEntry);
             let fields = regState.fieldBatch.map(f => regEntryForSeed(f.alien, f.seed));
             let all = locals.concat(officials, fields);
             let filtered = all.filter(e => regMatchesFilters(e, regState.filters, regState.query));
 
+            let textQuery = (regState.query || '').trim();
+            if (textQuery && regParseNumericQuery(textQuery) == null) {
+
+                let toFetch = officialsRaw.filter(o => !regOfficialCardCache.has(o.registryIdentifier) && !regOfficialFetching.has(o.registryIdentifier)).slice(0, REG_SEARCH_PREFETCH_BUDGET);
+                toFetch.forEach(o => regFetchOfficialCard({ id: o.registryIdentifier, fileName: o.fileName, downloadUrl: o.downloadUrl }));
+            }
 
             let numQ = regParseNumericQuery(regState.query);
             if (numQ != null && typeof AlienEngine !== 'undefined') {
-                let n = Math.min(parseInt(numQ, 10), REG_MAX_SEED);
-                if (!filtered.some(e => e.kind === 'field' && e.seed === n)) {
-                    try {
-                        let alien = procPrepareEntity(procGenerateAlien(n), n);
-                        filtered = [regEntryForSeed(alien, n)].concat(filtered);
-                    } catch (e) {}
+                let nBig = BigInt(numQ);
+                if (nBig >= 0n && nBig <= BigInt(REG_MAX_SEED)) {
+                    let n = Number(nBig);
+                    if (!filtered.some(e => e.kind === 'field' && e.seed === n)) {
+                        try {
+                            let alien = procPrepareEntity(procGenerateAlien(n), n);
+                            let entry = regEntryForSeed(alien, n);
+                            if (regMatchesFilters(entry, regState.filters, '')) {
+                                filtered = [entry].concat(filtered);
+                            }
+                        } catch (e) {}
+                    }
                 }
+              
             }
 
             let qh = (regState.query || '').trim().toLowerCase();
             if (qh && 'human'.includes(qh) && typeof AlienEngine !== 'undefined' && !filtered.some(e => e.human)) {
                 try {
                     let alien = procGenerateEntity(HUMAN_SEED);
-                    filtered = [regEntryForSeed(alien, HUMAN_SEED)].concat(filtered);
+                    let entry = regEntryForSeed(alien, HUMAN_SEED);
+                    if (regMatchesFilters(entry, regState.filters, '')) {
+                        filtered = [entry].concat(filtered);
+                    }
                 } catch (e) {}
             }
             return regSortById(filtered, regState.sort);
         };
 
-        const regBadgeFor = e => e.human ? 'Logged sighting' : e.kind === 'local' ? 'Local Observation' : e.kind === 'official' ? 'Official Observation' : 'Unlogged sighting';
+        const regBadgeFor = e => (e.human || e.kind === 'official') ? 'Logged sighting' : e.kind === 'local' ? 'Local Observation' : 'Unlogged sighting';
 
         const regCardHtml = e => {
             let title = e.commonName || (e.kind === 'field' ? 'Unlogged sighting' : e.kind === 'official' && e.remote ? 'Official record' : 'Unregistered specimen');
@@ -4244,7 +4277,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     <div class="reg-card-id reg-id-copy" data-id="${escapeHtml(e.id||'')}">${escapeHtml(e.id || '')}</div>
                     <div class="reg-card-name">${escapeHtml(title)}</div>
                     ${meta ? `<div class="reg-card-meta">${escapeHtml(meta)}</div>` : ''}
-                    <div style="margin-top:6px;"><span class="reg-badge${e.human ? ' logged' : ''}">${regBadgeFor(e)}</span></div>
+                    <div style="margin-top:6px;"><span class="reg-badge${(e.human || e.kind === 'official') ? ' logged' : ''}">${regBadgeFor(e)}</span></div>
                 </div>`;
         };
 
@@ -4312,6 +4345,41 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             t.innerHTML = html.trim();
             return t.content.firstElementChild;
         };
+        const regFetchOfficialCard = async e => {
+            if (regOfficialCardCache.has(e.id) || regOfficialFetching.has(e.id)) return;
+            regOfficialFetching.add(e.id);
+            try {
+                let res = await fetch(e.downloadUrl);
+                if (!res.ok) throw new Error('fetch failed');
+                let blob = await res.blob();
+                let parsed = await parseAlrPackage(blob, e.fileName);
+                let reg = (parsed.signature && parsed.signature.registration) || {};
+                if (!parsed.valid) throw new Error('invalid package');
+                regOfficialCardCache.set(e.id, {
+                    commonName: reg.commonName, bodyPlan: reg.bodyPlan,
+                    massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null,
+                    image: parsed.previewUrl, drawingUrl: parsed.drawingUrl
+                });
+            } catch (err) {
+                regOfficialCardCache.set(e.id, { error: true });
+            } finally {
+                regOfficialFetching.delete(e.id);
+            }
+            let key = 'official-' + e.id;
+            let oldCard = regRenderedCards.get(key);
+            if (oldCard && oldCard.isConnected) {
+                let fresh = regOfficialEntry({ registryIdentifier: e.id, fileName: e.fileName, downloadUrl: e.downloadUrl });
+                let newCard = regHtmlToEl(regCardHtml(fresh));
+                newCard.onclick = () => regOpenEntry(fresh);
+                oldCard.replaceWith(newCard);
+                regRenderedCards.set(key, newCard);
+                regBindIdCopyButtons(newCard);
+            } else if (regState.query && regState.view === 'browse') {
+              
+                regRefreshResults();
+            }
+        };
+
         const regRefreshResults = () => {
             let list = regCurrentList();
             let results = qs('#reg-results');
@@ -4347,6 +4415,9 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                         if (e.kind === 'field') {
                             let cv = card.querySelector('.reg-field-canvas');
                             if (cv) procRenderAlien(cv, e.seed);
+                        }
+                        if (e.kind === 'official' && e.remote && !e.cardLoaded) {
+                            regFetchOfficialCard(e);
                         }
                         regBindIdCopyButtons(card);
                     }
@@ -4520,7 +4591,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     <div style="flex-grow:1; min-width:220px;">
                         <div style="font-size:0.65rem; color:#666;">${e.id ? `<span class="reg-id-copy" data-id="${escapeHtml(e.id)}" title="Click to copy">Registry ID ${escapeHtml(e.id)}</span>` : ''}</div>
                         <div style="font-size:1.1rem; color:#fff; margin:2px 0 8px;">${escapeHtml(title)}</div>
-                        <span class="reg-badge${e.human ? ' logged' : ''}">${regBadgeFor(e)}</span>
+                        <span class="reg-badge${(e.human || e.kind === 'official') ? ' logged' : ''}">${regBadgeFor(e)}</span>
                     </div>
                 </div>
                 ${bodyRows}

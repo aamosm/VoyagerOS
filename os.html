@@ -1094,6 +1094,13 @@
 
         const downloadNode = (path, node) => {
             let name = path.split('/').pop() || 'file';
+            if (node.alrPackage && node.alrZipB64) {
+                let blob = alrBlobFromNode(node);
+                let url = URL.createObjectURL(blob);
+                triggerDownload(url, name);
+                setTimeout(() => URL.revokeObjectURL(url), 4000);
+                return;
+            }
             if (node.image && node.image.startsWith('data:')) {
                 triggerDownload(node.image, name);
                 return;
@@ -3795,7 +3802,29 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                         let result = await saveLocalAlrPackage(pkg);
                         close();
                         let name = reg.commonName || 'Unregistered specimen';
-                        sysModal('Observation Recorded', `'${escapeHtml(name)}' has been recorded as a Local Observation.<br><br>Registry Identifier assigned: <span style="color:var(--acc);">${escapeHtml(registryId)}</span><br><br>It's saved to <span style="color:var(--acc);">alr/${escapeHtml(result.fileName)}</span> on this device. Open the Alien Registry app to validate it and, when you're ready, prepare it for submission to the shared registry.`);
+                        let rm = ce('div');
+                        rm.className = 'sys-modal';
+                        rm.innerHTML = `
+                            <div class="sys-modal-box" style="min-width:420px; max-width:480px;">
+                                <div style="color:var(--acc); margin-bottom:10px; font-weight:bold;">Observation Recorded</div>
+                                <div style="font-size:0.85rem; margin-bottom:10px; color:#ccc;">
+                                    '${escapeHtml(name)}' has been recorded as a Local Observation.<br><br>
+                                    Registry Identifier assigned: <span style="color:var(--acc);">${escapeHtml(registryId)}</span><br><br>
+                                    It's saved to <span style="color:var(--acc);">alr/${escapeHtml(result.fileName)}</span> on this device. You can transfer the Observation Package (.alr) to your local machine now, or later from the file's right-click menu.
+                                </div>
+                                <div style="text-align:right; margin-top:15px;">
+                                    <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Not now</button>
+                                    <button class="sys-modal-btn sys-ok" id="alr-transfer-now">Transfer to another device</button>
+                                </div>
+                            </div>`;
+                        document.body.appendChild(rm);
+                        rm.querySelector('.sys-cancel').onclick = () => rm.remove();
+                        rm.querySelector('#alr-transfer-now').onclick = () => {
+                            let url = URL.createObjectURL(pkg.blob);
+                            triggerDownload(url, result.fileName);
+                            setTimeout(() => URL.revokeObjectURL(url), 4000);
+                            rm.remove();
+                        };
                     } catch (e) {
                         saveBtn.textContent = 'Create Observation Package';
                         saveBtn.style.pointerEvents = '';
@@ -4516,7 +4545,10 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 ${locals.length ? locals.map(e => `
                     <div class="reg-log-line" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                         <span><span class="t reg-id-copy" data-id="${escapeHtml(e.id)}">${escapeHtml(e.id)}</span>${escapeHtml(e.commonName || 'Unregistered specimen')}</span>
-                        <span class="reg-drop-btn" style="margin:0; padding:3px 10px;" data-contribute="${escapeHtml(e.name)}">Prepare</span>
+                        <span style="display:flex; align-items:center; gap:8px;">
+                            <span class="reg-autocheck" data-check-for="${escapeHtml(e.name)}" style="font-size:0.7rem; color:#666;">checking&hellip;</span>
+                            <span class="reg-drop-btn" style="margin:0; padding:3px 10px;" data-contribute="${escapeHtml(e.name)}">Prepare</span>
+                        </span>
                     </div>`).join('') : `<div class="reg-empty" style="padding:10px 0;">Nothing recorded yet. Draw a specimen in Paint and save it as an observation.</div>`}
             `;
         };
@@ -4564,6 +4596,42 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             };
         };
 
+        let regLocalCheckCache = new Map();
+
+        const regAutoCheckLocals = async (scopeEl) => {
+            let entries = localAlrEntries();
+            for (let entry of entries) {
+                let badge = () => (scopeEl || document).querySelector(`.reg-autocheck[data-check-for="${CSS.escape(entry.name)}"]`);
+                let b = badge();
+                if (b) { b.textContent = 'checking…'; b.style.color = '#666'; }
+                let result;
+                try {
+                    let blob = entry.node.alrZipB64 ? alrBlobFromNode(entry.node) : null;
+                    result = blob ? await parseAlrPackage(blob, entry.name) : { valid: false, issues: ['No package data stored for this file.'] };
+                } catch (e) {
+                    result = { valid: false, issues: ['Unexpected error while validating this package.'] };
+                }
+                regLocalCheckCache.set(entry.name, result);
+                let liveBadge = badge();
+                if (liveBadge) {
+                    if (result.valid) {
+                        liveBadge.textContent = '✓ Valid';
+                        liveBadge.style.color = 'var(--acc)';
+                        liveBadge.title = '';
+                    } else {
+                        liveBadge.textContent = '✗ Invalid';
+                        liveBadge.style.color = 'var(--err)';
+                        liveBadge.title = (result.issues || []).join(' ');
+                    }
+                }
+            }
+            let invalid = entries.filter(e => {
+                let r = regLocalCheckCache.get(e.name);
+                return r && !r.valid;
+            });
+            return invalid;
+        };
+
         const regBindBody = () => {
             let win = qs('#alien-registry');
             let body = win.querySelector('#reg-body');
@@ -4596,6 +4664,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     btn.onclick = () => regPrepareSubmission(btn.dataset.contribute);
                 });
                 regBindIdCopyButtons(body);
+                regAutoCheckLocals(body);
             }
 
             win.querySelectorAll('.reg-tab[data-rview]').forEach(t => {
@@ -4631,6 +4700,14 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             regExpandFieldBatch(9);
             regRenderTabs();
             regRenderBody();
+            regAutoCheckLocals().then(invalid => {
+                if (invalid.length) {
+                    sysModal('Local Observation Check',
+                        `On startup, ${invalid.length} Local Observation${invalid.length > 1 ? 's' : ''} failed validation and will not submit correctly:<br><br>` +
+                        invalid.map(e => `&middot; <b>${escapeHtml(e.name)}</b>: ${escapeHtml((regLocalCheckCache.get(e.name).issues || []).join(' '))}`).join('<br>') +
+                        `<br><br>Open the Alien Registry app's Contribute tab for details.`);
+                }
+            });
         };
 
         loadSys();

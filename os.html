@@ -937,32 +937,29 @@
 
         const regLocalEntry = e => {
             let reg = (e.node.alrSignature && e.node.alrSignature.registration) || {};
-            let id = e.node.alrManifest.registryIdentifier;
+            let id = e.node.alrManifest?.registryIdentifier || e.name.replace(/\.alr$/i, '');
             let official = alrIsOfficial(id);
             return {
-                kind: official ? 'official' : 'local', key: 'local-' + e.name, name: e.name, id,
+                kind: official ? 'official' : 'local', key: 'local-' + e.path, name: e.name, path: e.path, id,
                 commonName: reg.commonName, bodyPlan: reg.bodyPlan, eyeCount: reg.eyeCount, tailPresent: reg.tailPresent,
                 massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null, heightM: reg.heightM,
                 notableFeatures: reg.notableFeatures, notes: reg.notes, primaryColor: reg.primaryColor,
-                secondaryColor: reg.secondaryColor, behaviour: reg.behaviour, image: e.node.image,
+                secondaryColor: reg.secondaryColor, behaviour: reg.behaviour, symmetry: reg.symmetry,
+                mouth: reg.mouth, armCount: reg.armCount, legCount: reg.legCount, surfaceTexture: reg.surfaceTexture, image: e.node.image,
                 drawingUrl: e.node.drawingUrl, editable: !official, node: e.node
             };
         };
 
         const regOfficialCardCache = new Map();
-        const regOfficialFetching = new Set();
+        const regOfficialFetching = new Map();
 
         const regOfficialEntry = e => {
             let cached = regOfficialCardCache.get(e.registryIdentifier);
             return {
+                ...(cached && !cached.error ? cached : {}),
                 kind: 'official', key: 'official-' + e.registryIdentifier, id: e.registryIdentifier,
-                fileName: e.fileName, downloadUrl: e.downloadUrl, editable: false, remote: true,
-                commonName: cached && !cached.error ? cached.commonName : null,
-                bodyPlan: cached && !cached.error ? cached.bodyPlan : null,
-                massKg: cached && !cached.error ? cached.massKg : null,
-                image: cached && !cached.error ? cached.image : null,
-                drawingUrl: cached && !cached.error ? cached.drawingUrl : null,
-                cardLoaded: !!cached
+                fileName: e.fileName, downloadUrl: e.downloadUrl, sha: e.sha, editable: false, remote: true,
+                cardLoaded: !!cached, loadError: !!cached?.error
             };
         };
 
@@ -991,7 +988,7 @@
             if (!dir) return list;
             let out = list.slice();
             out.sort((a, b) => {
-                let av = a.id ? BigInt(a.id) : -1n, bv = b.id ? BigInt(b.id) : -1n;
+                let av = /^[0-9]+$/.test(a.id) ? BigInt(a.id) : -1n, bv = /^[0-9]+$/.test(b.id) ? BigInt(b.id) : -1n;
                 let cmp = av < bv ? -1 : av > bv ? 1 : 0;
                 return dir === 'asc' ? cmp : -cmp;
             });
@@ -1133,7 +1130,7 @@
                 content: {
                     'readme.txt': { 
                         type: 'file', 
-                        body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access to the vessel\'s primary systems. Use `read manual.txt` for the full technical reference, or open the Explorer to look around visually.\n\nFILESYSTEM NAVIGATION\nYour day-to-day crew business—maintenance checklists, shift logs, and engineering readouts—lives in Local_Ops.\n\nCompact business, which includes the diplomatic treaty, the Registry, and the Archive, is kept off the Desktop entirely in the Compact directory. Different filing cabinet, different key.\n\nALIEN REGISTRY\nLocated under the Start Menu, this is the formally ratified joint species registry. Running on long-range render tech loaned by the Calyx Ministry, it serves as the official catalog for all signatory species and new encounters. See Compact/Registry/alien_registry.dat for the architecture.\n\nPAINT UTILITY & REGISTRATION\nThe Paint utility is fully operational and supports filing a specimen through the Alien Registration wizard. Typing `open paint` launches the onboard Paint utility—a fixed-size digital canvas specifically calibrated for sketching whatever you or the alien crew members spot off the array. Everything drawn lives only in volatile memory until you explicitly save it to the ship\'s databanks.\n\nTOOLS:\n  Pencil        Hard 1px-ish line, follows the cursor exactly.\n  Brush         Textured stamp, size/opacity/texture all apply.\n  Spray         Scatters dots in a radius while held down.\n  Eraser        Same as Pencil but cuts through to transparent.\n  Bucket Fill   Fills the contiguous region under the cursor.\n  Picker        Samples a color off the canvas into the color well.\n\nTEXTURES (affects Brush and Spray):\n  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes, Veins, Mottled.\n\nOTHER CONTROLS:\n  Size / Opacity   Sliders, apply to Pencil/Brush/Spray/Eraser.\n  Color            The active color well.\n  Grid             Toggles an alignment overlay, doesn\'t paint.\n  Undo / Redo      Also bound to Ctrl+Z and Ctrl+Shift+Z while the Paint window is focused.\n  Clear            Wipes the canvas back to blank - confirm first so you don\'t lose a sighting.\n\nAUTOSAVE:\n  Power fluctuations happen in deep space. The canvas is autosaved locally every 30 seconds while Paint is open. If your terminal resets or reloads and you come back to a blank canvas, Paint will detect the autosave and offer to recover it quietly before you start drawing.\n\nSAVING AND TRANSFERRING:\n  `Save to Filesystem` writes the current canvas into the VGR-9\'s virtual filesystem as an image file, at a directory you choose. Once a file exists anywhere in the filesystem (Desktop, Explorer, anywhere), right-click it and choose "Transfer to another device" to actually pull it off the array and onto your local machine. There\'s no separate download button in Paint itself; saving to the ship and transferring off-board are deliberately two different protocols.\n\nALIEN REGISTRATION FILING:\n  `File Alien Registration`:\n    Step 1  Common Name                Whatever the crew calls it.\n    Step 2  Physical Characteristics   Height (m), mass (kg), body plan, symmetry, eye count, mouth, arm count, leg count, tail present, surface texture, observed behaviour, notable features (free text - "large crest", "glowing eyes", etc.).\n    Step 3  Colors                     Primary and secondary.\n    Step 4  Notes                      Anything else worth logging for the xenobiologists.\n\n  On save, a permanent Registry Identifier is generated for you. The result is packaged as an Observation Package and saved as a Local Observation in the `alr/` folder on this device—no destination prompt, no separate transfer step. A confirmation tells you where it landed. That\'s what the Alien Registry app\'s Contribute tab reads back when you go to validate or submit your discovery to the fleet.' 
+                        body: 'VGR-9 ENVIRONMENT\n\nTerminal provides core access to the vessel\'s primary systems. Use `read manual.txt` for the full technical reference, or open the Explorer to look around visually.\n\nFILESYSTEM NAVIGATION\nYour day-to-day crew business—maintenance checklists, shift logs, and engineering readouts—lives in Local_Ops.\n\nCompact business, which includes the diplomatic treaty, the Registry, and the Archive, is kept off the Desktop entirely in the Compact directory. Different filing cabinet, different key.\n\nALIEN REGISTRY\nLocated under the Start Menu, this is the formally ratified joint species registry. Running on long-range render tech loaned by the Calyx Ministry, it serves as the official catalog for all signatory species and new encounters. See Compact/Registry/alien_registry.dat for the architecture.\n\nPAINT UTILITY & REGISTRATION\nThe Paint utility is fully operational and supports filing a specimen through the Alien Registration wizard. Typing `open paint` launches the onboard Paint utility—a fixed-size digital canvas specifically calibrated for sketching whatever you or the alien crew members spot off the array. Everything drawn lives only in volatile memory until you explicitly save it to the ship\'s databanks.\n\nTOOLS:\n  Pencil        Hard 1px-ish line, follows the cursor exactly.\n  Brush         Textured stamp, size/opacity/texture all apply.\n  Spray         Scatters dots in a radius while held down.\n  Eraser        Same as Pencil but cuts through to transparent.\n  Bucket Fill   Fills the contiguous region under the cursor.\n  Picker        Samples a color off the canvas into the color well.\n\nTEXTURES (affects Brush and Spray):\n  Smooth, Organic Grain, Porous, Scales, Speckles, Stripes, Veins, Mottled.\n\nOTHER CONTROLS:\n  Size / Opacity   Sliders, apply to Pencil/Brush/Spray/Eraser.\n  Color            The active color well.\n  Grid             Toggles an alignment overlay, doesn\'t paint.\n  Undo / Redo      Also bound to Ctrl+Z and Ctrl+Shift+Z while the Paint window is focused.\n  Clear            Wipes the canvas back to blank - confirm first so you don\'t lose a sighting.\n\nAUTOSAVE:\n  Power fluctuations happen in deep space. The canvas is autosaved locally every 30 seconds while Paint is open. If your terminal resets or reloads and you come back to a blank canvas, Paint will detect the autosave and offer to recover it quietly before you start drawing.\n\nSAVING AND TRANSFERRING:\n  `Save to Filesystem` writes the current canvas into the VGR-9\'s virtual filesystem as an image file, at a directory you choose. Once a file exists anywhere in the filesystem (Desktop, Explorer, anywhere), right-click it and choose "Transfer to another device" to actually pull it off the array and onto your local machine. There\'s no separate download button in Paint itself; saving to the ship and transferring off-board are deliberately two different protocols.\n\nALIEN REGISTRATION FILING:\n  `File Alien Registration`:\n    Step 1  Common Name                Whatever the crew calls it.\n    Step 2  Physical Characteristics   Height (m), mass (kg), body plan, symmetry, eye count, mouth, arm count, leg count, tail present, surface texture, observed behaviour, notable features (free text - "large crest", "glowing eyes", etc.).\n    Step 3  Colors                     Primary and secondary.\n    Step 4  Notes                      Anything else worth logging for the xenobiologists.\n\n  On save, a permanent Registry Identifier is generated for you. The result is packaged as an Observation Package and saved as a Local Observation in the virtual `alr/` folder in this browser. Use "Transfer to another device" to download a backup. A confirmation tells you where it landed. That\'s what the Alien Registry app\'s Contribute tab reads back when you go to validate or submit your discovery to the fleet.'
                         },
                     'Local_Ops': { type: 'dir', content: {
                         'checklist.txt': { type: 'file', body: `DAILY
@@ -1694,6 +1691,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             }
             if(!sysState.fs['Trash']) sysState.fs['Trash'] = {type:'dir', content:{}};
             if(!sysState.fs['Desktop']) sysState.fs['Desktop'] = {type:'dir', content:{}};
+            if(!sysState.fs['alr']) sysState.fs['alr'] = {type:'dir', content:{}};
             applyConf();
         };
 
@@ -1822,6 +1820,8 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             document.querySelectorAll('.win[data-app^="explorer_"]').forEach(w => {
                 if(w.expRender) w.expRender();
             });
+            regRenderedCards.clear();
+            regRenderBody();
         };
 
         const makeNode = (path, name, isDir, body = '') => {
@@ -1838,6 +1838,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             let pNode = getParentNode(path);
             let oldName = path.split('/').pop();
             if (!pNode || !pNode.content[oldName] || pNode.content[newName]) return false;
+            if (pNode.content[oldName].alrPackage && newName !== pNode.content[oldName].alrManifest?.registryIdentifier + '.alr') return false;
             pNode.content[newName] = pNode.content[oldName];
             delete pNode.content[oldName];
             if (getParentNode(path) === pNode && path.startsWith('/Desktop/') && sysState.conf.iconPos && sysState.conf.iconPos[oldName]) {
@@ -1860,6 +1861,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             let name = src.split('/').pop();
             let finalName = name;
             let c = 1;
+            if (sNode.alrPackage && dNode.content[finalName]) return false;
             while(dNode.content[finalName]) finalName = `${name}_${c++}`;
             
             dNode.content[finalName] = isCopy ? cloneNode(sNode) : sNode;
@@ -2265,13 +2267,13 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             return id;
         };
 
-        const openLocalAlrInRegistry = name => {
+        const openLocalAlrInRegistry = (name, node, path) => {
             wm.spawn('alien_registry');
-            regHandleLocalAlr(name);
+            regOpenEntry(regLocalEntry({ name, node, path }));
         };
 
         const openLocalAlrOrViewer = (name, node, path) => {
-            if (node && node.alrPackage) { openLocalAlrInRegistry(name); return; }
+            if (node && node.alrPackage) { openLocalAlrInRegistry(name, node, path); return; }
             openViewer(name, getFileBody(path, node), path, node.image, node.whiteBg);
         };
 
@@ -2616,7 +2618,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             let el = ce('div'); el.innerHTML = t;
             tOut.appendChild(el); tOut.scrollTop = tOut.scrollHeight;
         };
-        const escapeHtml = t => t.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const escapeHtml = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         const updatePmt = () => { tPmt.textContent = `sys@vgr9:${cwd}$`; };
 
         const doRead = path => {
@@ -3547,40 +3549,68 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         // Packages are plain ZIP files (via JSZip) with a fixed structure
    
         const GITHUB_OWNER_REPO = 'aamosm/VoyagerOS';
-        const GITHUB_ALR_CONTENTS_API = `https://api.github.com/repos/${GITHUB_OWNER_REPO}/contents/alr`;
-        const [GITHUB_PAGES_OWNER, GITHUB_PAGES_REPO] = GITHUB_OWNER_REPO.split('/');
-        const GITHUB_PAGES_ALR_BASE = `https://${GITHUB_PAGES_OWNER}.github.io/${GITHUB_PAGES_REPO}/alr/`;
+        const GITHUB_ALR_CONTENTS_API = `https://api.github.com/repos/${GITHUB_OWNER_REPO}/contents/alr?ref=main`;
         const OFFICIAL_INDEX_SESSION_KEY = 'vgr9_official_alr_index';
         const ALR_SUPPORTED_VERSIONS = [1];
         const ALR_GENERATOR_NAME = 'vgr-9 paint utility';
         const ALR_GENERATOR_VERSION = '1.0';
         const ALR_REQUIRED_FILES = ['manifest.json', 'drawing.png', 'preview.png', 'signature.json'];
+        const ALR_MAX_BYTES = 8 * 1024 * 1024;
+        const ALR_TEXT_FIELDS = ['commonName', 'bodyPlan', 'symmetry', 'eyeCount', 'mouth', 'armCount', 'legCount', 'tailPresent', 'notableFeatures', 'surfaceTexture', 'behaviour', 'primaryColor', 'secondaryColor', 'notes'];
 
         const loadOfficialIndexCache = () => {
-            try { let raw = sessionStorage.getItem(OFFICIAL_INDEX_SESSION_KEY); if (raw) return JSON.parse(raw); } catch (e) {}
+            try {
+                let cached = JSON.parse(sessionStorage.getItem(OFFICIAL_INDEX_SESSION_KEY));
+                if (cached && Array.isArray(cached.entries)) {
+                    cached.entries = cached.entries.filter(e => e && /^[1-9][0-9]{0,28}$/.test(e.registryIdentifier) && e.fileName === e.registryIdentifier + '.alr');
+                    return cached;
+                }
+            } catch (e) {}
             return null;
         };
+        let officialAlrCache = loadOfficialIndexCache();
+        let officialAlrRefresh = null;
+        let officialAlrStatus = officialAlrCache ? 'showing cached official registry' : 'official registry not checked this session';
         const saveOfficialIndexCache = entries => {
-            try { sessionStorage.setItem(OFFICIAL_INDEX_SESSION_KEY, JSON.stringify({ fetchedAt: Date.now(), entries })); } catch (e) {}
+            officialAlrCache = { fetchedAt: Date.now(), entries };
+            try { sessionStorage.setItem(OFFICIAL_INDEX_SESSION_KEY, JSON.stringify(officialAlrCache)); } catch (e) {}
         };
-        const officialAlrEntries = () => { let c = loadOfficialIndexCache(); return c ? c.entries : []; };
+        const officialAlrEntries = () => officialAlrCache?.entries || [];
         const officialAlrIdSet = () => new Set(officialAlrEntries().map(e => e.registryIdentifier));
         const alrIsOfficial = id => officialAlrIdSet().has(id);
 
-        const refreshOfficialAlrIndex = async () => {
-            let res = await fetch(GITHUB_ALR_CONTENTS_API, { headers: { 'Accept': 'application/vnd.github+json' } });
-            if (!res.ok) throw new Error('The official registry could not be reached (HTTP ' + res.status + ').');
-            let listing = await res.json();
-            if (!Array.isArray(listing)) throw new Error('Unexpected response from the official registry.');
-            let before = officialAlrIdSet();
-            let entries = listing
-                .filter(f => f.type === 'file' && /\.alr$/i.test(f.name))
-                .map(f => ({ registryIdentifier: f.name.replace(/\.alr$/i, ''), fileName: f.name, sha: f.sha, size: f.size, downloadUrl: GITHUB_PAGES_ALR_BASE + encodeURIComponent(f.name) }));
-            let after = new Set(entries.map(e => e.registryIdentifier));
-            let added = entries.filter(e => !before.has(e.registryIdentifier));
-            let removed = [...before].filter(id => !after.has(id));
-            saveOfficialIndexCache(entries);
-            return { entries, added, removed };
+        const refreshOfficialAlrIndex = () => {
+            if (officialAlrRefresh) return officialAlrRefresh;
+            officialAlrStatus = 'checking official registry...';
+            officialAlrRefresh = (async () => {
+                try {
+                    let res = await fetch(GITHUB_ALR_CONTENTS_API, { headers: { 'Accept': 'application/vnd.github+json' }, cache: 'no-cache', signal: AbortSignal.timeout(12000) });
+                    if (!res.ok) throw new Error('The official registry could not be reached (HTTP ' + res.status + ').');
+                    let listing = await res.json();
+                    if (!Array.isArray(listing)) throw new Error('Unexpected response from the official registry.');
+                    let before = new Map(officialAlrEntries().map(e => [e.registryIdentifier, e]));
+                    let entries = listing
+                        .filter(f => f.type === 'file' && /^[1-9][0-9]{0,28}\.alr$/.test(f.name))
+                        .map(f => ({ registryIdentifier: f.name.slice(0, -4), fileName: f.name, sha: f.sha, size: f.size, downloadUrl: f.download_url }));
+                    let after = new Set(entries.map(e => e.registryIdentifier));
+                    let added = entries.filter(e => !before.has(e.registryIdentifier));
+                    let removed = [...before.keys()].filter(id => !after.has(id));
+                    entries.forEach(e => {
+                        if (before.get(e.registryIdentifier)?.sha !== e.sha || regOfficialCardCache.get(e.registryIdentifier)?.error) regOfficialCardCache.delete(e.registryIdentifier);
+                    });
+                    removed.forEach(id => regOfficialCardCache.delete(id));
+                    saveOfficialIndexCache(entries);
+                    officialAlrStatus = entries.length + ' official observation' + (entries.length === 1 ? '' : 's') + ' · registry up to date';
+                    regRenderedCards.clear();
+                    return { entries, added, removed };
+                } catch (e) {
+                    officialAlrStatus = officialAlrCache ? 'registry unavailable; showing cached observations' : 'official registry unavailable; try again';
+                    throw e;
+                } finally {
+                    officialAlrRefresh = null;
+                }
+            })();
+            return officialAlrRefresh;
         };
 
         const genCandidateAlrIdentifier = () => {
@@ -3589,19 +3619,35 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             let big = (BigInt(arr[0]) << 64n) | (BigInt(arr[1]) << 32n) | BigInt(arr[2]);
             return big.toString(10);
         };
-        const localAlrDirNode = () => { let n = getNode('/alr'); return (n && n.type === 'dir') ? n : null; };
-        const localAlrEntries = () => {
-            let dir = localAlrDirNode();
-            if (!dir) return [];
-            return Object.entries(dir.content).filter(([n, node]) => node && node.alrPackage).map(([name, node]) => ({ name, node }));
+        const localAlrDirNode = () => {
+            if (!sysState.fs.alr) sysState.fs.alr = { type: 'dir', content: {} };
+            let n = getNode('/alr');
+            return n?.type === 'dir' ? n : null;
         };
-        const findLocalAlrByIdentifier = id => localAlrEntries().find(e => e.node.alrManifest && e.node.alrManifest.registryIdentifier === id);
-        const alrIdentifierTaken = id => !!findLocalAlrByIdentifier(id) || alrIsOfficial(id);
+        const localAlrEntries = () => {
+            let entries = [], seen = new Set();
+            const visit = (content, parent) => {
+                for (let [name, node] of Object.entries(content || {})) {
+                    let path = parent + '/' + name;
+                    if (!node || path === '/Trash') continue;
+                    if (node.type === 'dir') visit(node.content, path);
+                    else if (node.alrPackage) {
+                        let id = node.alrManifest?.registryIdentifier || path;
+                        if (!seen.has(id)) { entries.push({ name, node, path }); seen.add(id); }
+                    }
+                }
+            };
+            visit(sysState.fs, '');
+            return entries;
+        };
+        const findLocalAlrByIdentifier = id => localAlrEntries().find(e => e.node.alrManifest?.registryIdentifier === id);
+        const alrIdentifierTaken = id => BigInt(id) <= BigInt(REG_MAX_SEED) || registry.some(e => String(e.id) === id) || !!findLocalAlrByIdentifier(id) || alrIsOfficial(id);
         const generateAlrIdentifier = async () => {
-            if (navigator.onLine) { try { await refreshOfficialAlrIndex(); } catch (e) {} }
-            let id, guard = 0;
-            do { id = genCandidateAlrIdentifier(); guard++; } while (alrIdentifierTaken(id) && guard < 50);
-            return id;
+            for (let i = 0; i < 50; i++) {
+                let id = genCandidateAlrIdentifier();
+                if (!alrIdentifierTaken(id)) return id;
+            }
+            throw new Error('Could not assign an unused Registry Identifier. Please try again.');
         };
 
         const alrMakePreview = (drawingDataUrl, maxSize = 128) => new Promise(resolve => {
@@ -3632,39 +3678,57 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             zip.file('drawing.png', dataUrlToBytes(drawingDataUrl));
             zip.file('preview.png', dataUrlToBytes(preview));
             zip.file('signature.json', JSON.stringify(signature, null, 2));
-            let blob = await zip.generateAsync({ type: 'blob' });
+            let blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
             return { blob, manifest, signature, drawingUrl: drawingDataUrl, previewUrl: preview };
         };
 
         const parseAlrPackage = async (source, filename) => {
             let issues = [], zip;
-            try { zip = await JSZip.loadAsync(source); }
-            catch (e) { return { valid: false, issues: ['This file is not a recognized Observation Package.'] }; }
+            const record = value => value && typeof value === 'object' && !Array.isArray(value);
+            if (typeof JSZip === 'undefined') return { valid: false, issues: ['The package reader did not load. Reconnect and reload VoyagerOS.'] };
+            if ((source.size || source.byteLength || 0) > ALR_MAX_BYTES) return { valid: false, issues: ['Observation Packages must be smaller than 8 MB.'] };
+            try { zip = await JSZip.loadAsync(source, { checkCRC32: true }); }
+            catch (e) { return { valid: false, issues: ['This file is not a readable Observation Package, or its contents are damaged.'] }; }
             for (let f of ALR_REQUIRED_FILES) {
-                if (!zip.file(f)) issues.push(`The package is missing a required part (${f === 'drawing.png' ? 'the observation drawing' : f === 'preview.png' ? 'the preview thumbnail' : 'package metadata'}).`);
+                if (!zip.file(f)) issues.push('The package is missing ' + f + '.');
             }
             if (issues.length) return { valid: false, issues };
-            let manifest = null, signature = null;
-            try { manifest = JSON.parse(await zip.file('manifest.json').async('string')); } catch (e) { issues.push('Package metadata could not be read.'); }
-            try { signature = JSON.parse(await zip.file('signature.json').async('string')); } catch (e) { issues.push('Package signature could not be read.'); }
-            if (issues.length) return { valid: false, issues };
-            if (!manifest.registryIdentifier || !/^[0-9]+$/.test(String(manifest.registryIdentifier))) issues.push('The Registry Identifier is missing or invalid.');
-            let base = String(filename || '').replace(/\.alr$/i, '');
-            if (manifest.registryIdentifier && base && String(manifest.registryIdentifier) !== base) issues.push('The package filename does not match its Registry Identifier.');
+            let manifest, signature;
+            try {
+                manifest = JSON.parse(await zip.file('manifest.json').async('string'));
+                signature = JSON.parse(await zip.file('signature.json').async('string'));
+            } catch (e) { return { valid: false, issues: ['Package metadata could not be read.'] }; }
+            if (!record(manifest) || !record(signature) || !record(signature.registration)) {
+                return { valid: false, issues: ['Package metadata must contain a manifest and a registration record.'] };
+            }
+            if (typeof manifest.registryIdentifier !== 'string' || !/^[1-9][0-9]{0,28}$/.test(manifest.registryIdentifier)) issues.push('The Registry Identifier must be a decimal string, up to 29 digits.');
+            if (filename !== manifest.registryIdentifier + '.alr') issues.push('The package filename does not match its Registry Identifier.');
             if (!ALR_SUPPORTED_VERSIONS.includes(manifest.packageVersion)) issues.push('This package uses an unsupported package version.');
-            if (!signature || typeof signature !== 'object' || !signature.registration) issues.push('Package signature is incomplete.');
-            let drawingUrl = null, previewUrl = null;
-            try {
-                let db = await zip.file('drawing.png').async('base64');
-                drawingUrl = 'data:image/png;base64,' + db;
-                if (!(await alrDecodable(drawingUrl))) issues.push('The observation drawing could not be decoded.');
-            } catch (e) { issues.push('The observation drawing could not be read.'); }
-            try {
-                let pb = await zip.file('preview.png').async('base64');
-                previewUrl = 'data:image/png;base64,' + pb;
-                if (!(await alrDecodable(previewUrl))) issues.push('The preview thumbnail could not be decoded.');
-            } catch (e) { issues.push('The preview thumbnail could not be read.'); }
-            return { valid: issues.length === 0, issues, manifest, signature, drawingUrl, previewUrl };
+            if (typeof manifest.generator !== 'string' || !manifest.generator.trim() || typeof manifest.generatorVersion !== 'string' || !manifest.generatorVersion.trim()) issues.push('The package generator details are missing.');
+            if (typeof signature.createdAt !== 'string' || !Number.isFinite(Date.parse(signature.createdAt))) issues.push('The observation date is missing or invalid.');
+            let reg = signature.registration;
+            for (let key of ALR_TEXT_FIELDS) {
+                if (reg[key] != null && (typeof reg[key] !== 'string' || reg[key].length > 10000)) issues.push('Invalid registration field: ' + key + '.');
+            }
+            for (let key of ['heightM', 'massKg']) {
+                let value = reg[key];
+                if (value != null && value !== '' && (!['string', 'number'].includes(typeof value) || !String(value).trim() || !Number.isFinite(Number(value)) || Number(value) <= 0)) issues.push('Height and mass must be positive numbers, or left blank.');
+            }
+            let urls = {}, drawingHash = null;
+            for (let name of ['drawing.png', 'preview.png']) {
+                try {
+                    let bytes = await zip.file(name).async('uint8array');
+                    if (bytes.length > ALR_MAX_BYTES || ![137,80,78,71,13,10,26,10].every((b, i) => bytes[i] === b)) throw new Error();
+                    let url = bytesToDataUrl(bytes, 'image/png');
+                    if (!(await alrDecodable(url))) throw new Error();
+                    urls[name] = url;
+                    if (name === 'drawing.png') {
+                        let hash = await crypto.subtle.digest('SHA-256', bytes);
+                        drawingHash = Array.from(new Uint8Array(hash), b => b.toString(16).padStart(2, '0')).join('');
+                    }
+                } catch (e) { issues.push(name + ' is not a readable PNG image, or is too large.'); }
+            }
+            return { valid: issues.length === 0, issues, manifest, signature, drawingHash, drawingUrl: urls['drawing.png'], previewUrl: urls['preview.png'] };
         };
 
         const alrZipBlobToBase64 = blob => new Promise((resolve, reject) => {
@@ -3679,34 +3743,37 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         };
 
         const saveLocalAlrPackage = async pkg => {
-            let dir = localAlrDirNode();
-            if (!dir) return null;
             let id = pkg.manifest.registryIdentifier;
+            let fileName = id + '.alr';
+            let parsed = await parseAlrPackage(pkg.blob, fileName);
+            if (!parsed.valid) throw new Error(parsed.issues.join(' '));
             let base64 = await alrZipBlobToBase64(pkg.blob);
-            let existing = findLocalAlrByIdentifier(id);
-            if (existing) {
-                let same = JSON.stringify(existing.node.alrManifest) === JSON.stringify(pkg.manifest)
-                    && JSON.stringify(existing.node.alrSignature) === JSON.stringify(pkg.signature);
-                if (same) return { fileName: existing.name, unchanged: true };
-                existing.node.alrManifest = pkg.manifest;
-                existing.node.alrSignature = pkg.signature;
-                existing.node.alrZipB64 = base64;
-                existing.node.image = pkg.previewUrl;
-                existing.node.drawingUrl = pkg.drawingUrl;
-                existing.node.whiteBg = true;
-                existing.node.body = alrDescriptionFor(pkg);
-                fsUpdated();
-                return { fileName: existing.name, updated: true };
+            for (let entry of localAlrEntries()) {
+                if (entry.node.alrManifest?.registryIdentifier === id) {
+                    if (entry.node.alrZipB64 === base64) return { fileName: entry.name, path: entry.path, unchanged: true };
+                    throw new Error('A different package already uses this Registry Identifier. The saved observation has been kept.');
+                }
+                let drawing = entry.node.drawingUrl;
+                if (drawing === parsed.drawingUrl || entry.node.alrDrawingHash === parsed.drawingHash) throw new Error('This drawing is already filed as ' + entry.node.alrManifest.registryIdentifier + '. Open the existing observation in the Registry.');
             }
-            let finalName = id + '.alr', c = 1;
-            while (dir.content[finalName]) finalName = `${id}_${c++}.alr`;
-            dir.content[finalName] = {
-                type: 'file', alrPackage: true, alrManifest: pkg.manifest, alrSignature: pkg.signature,
-                alrZipB64: base64, image: pkg.previewUrl, drawingUrl: pkg.drawingUrl, whiteBg: true,
-                body: alrDescriptionFor(pkg)
+            let dir = localAlrDirNode();
+            if (!dir) throw new Error('The /alr path is occupied by a file. Move that file before saving an observation.');
+            if (dir.content[fileName]) throw new Error('A file with this Registry Identifier already exists in /alr.');
+            dir.content[fileName] = {
+                type: 'file', alrPackage: true, alrManifest: parsed.manifest, alrSignature: parsed.signature,
+                alrZipB64: base64, alrDrawingHash: parsed.drawingHash, image: parsed.previewUrl, drawingUrl: parsed.drawingUrl,
+                whiteBg: true, body: alrDescriptionFor(parsed)
             };
-            fsUpdated();
-            return { fileName: finalName, created: true };
+            try { saveSys(); }
+            catch (e) {
+                delete dir.content[fileName];
+                throw new Error('This device could not save the package. Free some browser storage and try again. Your drawing is still in Paint.');
+            }
+            renderDesktop();
+            document.querySelectorAll('.win[data-app^="explorer_"]').forEach(w => { if (w.expRender) w.expRender(); });
+            regRenderedCards.clear();
+            regRenderBody();
+            return { fileName, path: '/alr/' + fileName, created: true };
         };
         const alrBlobFromNode = node => {
             let bin = atob(node.alrZipB64);
@@ -3742,7 +3809,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     <option value="">${placeholder || '-'}</option>
                     ${opts.map(o => `<option${reg[field] === o ? ' selected' : ''}>${o}</option>`).join('')}
                 </select>`;
-            const txt = (field, placeholder, type) => `<input class="sys-modal-in alr-f" data-f="${field}" ${type ? `type="${type}"` : ''} placeholder="${placeholder || ''}" value="${reg[field] || ''}" style="margin:4px 0 0;">`;
+            const txt = (field, placeholder, type) => `<input class="sys-modal-in alr-f" data-f="${field}" ${type ? `type="${type}"` : ''} placeholder="${placeholder || ''}" value="${escapeHtml(reg[field])}" style="margin:4px 0 0;">`;
 
             const stepBody = () => {
                 if (step === 0) {
@@ -3754,9 +3821,9 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 if (step === 1) {
                     return `
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                            <div><div class="alr-lbl">Estimated height (m)</div><input class="sys-modal-in alr-f" data-f="heightM" type="number" step="0.1" list="alr-height-dl" placeholder="e.g. 0.5, 2.3, 14" value="${reg.heightM || ''}" style="margin:4px 0 0;"><datalist id="alr-height-dl"><option value="0.5"><option value="2.3"><option value="14"></datalist></div>
+                            <div><div class="alr-lbl">Estimated height (m)</div><input class="sys-modal-in alr-f" data-f="heightM" type="number" step="0.1" list="alr-height-dl" placeholder="e.g. 0.5, 2.3, 14" value="${escapeHtml(reg.heightM)}" style="margin:4px 0 0;"><datalist id="alr-height-dl"><option value="0.5"><option value="2.3"><option value="14"></datalist></div>
                             <div><div class="alr-lbl">Estimated mass (kg)</div>${txt('massKg', 'e.g. 60', 'number')}</div>
-                            <div><div class="alr-lbl">Body plan</div>${sel('bodyPlan', ['Biped','Quadruped','Serpentine','Winged','Radial','Cephalopod','Insectoid','Other'])}</div>
+                            <div><div class="alr-lbl">Body plan</div>${sel('bodyPlan', REG_BODY_PLANS)}</div>
                             <div><div class="alr-lbl">Symmetry</div>${sel('symmetry', ['Bilateral','Radial','Asymmetrical'])}</div>
                             <div><div class="alr-lbl">Eye count</div>${sel('eyeCount', ['0','1','2','3','4','5+'])}</div>
                             <div><div class="alr-lbl">Mouth</div>${sel('mouth', ['None','Mandibles','Beak','Jaw','Unknown','Other'])}</div>
@@ -3777,7 +3844,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 }
                 return `
                     <div class="alr-lbl">Notes</div>
-                    <textarea class="sys-modal-in alr-f" data-f="notes" rows="5" placeholder="Anything else worth logging - encounter context, behavior, uncertainty." style="margin:4px 0 0; resize:vertical;">${reg.notes || ''}</textarea>`;
+                    <textarea class="sys-modal-in alr-f" data-f="notes" rows="5" placeholder="Anything else worth logging - encounter context, behavior, uncertainty." style="margin:4px 0 0; resize:vertical;">${escapeHtml(reg.notes)}</textarea>`;
             };
 
             const render = () => {
@@ -3805,10 +3872,12 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 });
                 let saveBtn = m.querySelector('#alr-save');
                 if (saveBtn) saveBtn.onclick = async () => {
+                    if (saveBtn.disabled) return;
                     collect();
                     saveBtn.textContent = 'Assigning Registry Identifier...';
-                    saveBtn.style.pointerEvents = 'none';
-                    if (backBtn) backBtn.style.pointerEvents = 'none';
+                    saveBtn.disabled = true;
+                    if (backBtn) backBtn.disabled = true;
+                    m.querySelector('.sys-cancel').disabled = true;
                     try {
                         let registryId = await generateAlrIdentifier();
                         saveBtn.textContent = 'Building Observation Package...';
@@ -3841,9 +3910,10 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                         };
                     } catch (e) {
                         saveBtn.textContent = 'Create Observation Package';
-                        saveBtn.style.pointerEvents = '';
-                        if (backBtn) backBtn.style.pointerEvents = '';
-                        sysModal('Could Not Record Observation', 'Something went wrong while creating the Observation Package. Please try again.');
+                        saveBtn.disabled = false;
+                        if (backBtn) backBtn.disabled = false;
+                        m.querySelector('.sys-cancel').disabled = false;
+                        sysModal('Could Not Record Observation', escapeHtml(e.message || 'The package could not be saved. Please try again.'));
                     }
                 };
             };
@@ -4217,19 +4287,19 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         const REG_SEARCH_PREFETCH_BUDGET = 20;
 
         const regCurrentList = () => {
-            let locals = localAlrEntries().map(regLocalEntry);
-            let localIds = new Set(locals.map(l => l.id));
-            let officialsRaw = officialAlrEntries().filter(o => !localIds.has(o.registryIdentifier));
+            let locals = localAlrEntries().map(regLocalEntry).filter(e => e.kind === 'local');
+            let officialsRaw = officialAlrEntries();
             let officials = officialsRaw.map(regOfficialEntry);
             let fields = regState.fieldBatch.map(f => regEntryForSeed(f.alien, f.seed));
             let all = locals.concat(officials, fields);
             let filtered = all.filter(e => regMatchesFilters(e, regState.filters, regState.query));
 
             let textQuery = (regState.query || '').trim();
-            if (textQuery && regParseNumericQuery(textQuery) == null) {
+            if ((textQuery && regParseNumericQuery(textQuery) == null) || regState.filters.bodyPlan || regState.filters.eyeCount || regState.filters.tailPresent) {
 
-                let toFetch = officialsRaw.filter(o => !regOfficialCardCache.has(o.registryIdentifier) && !regOfficialFetching.has(o.registryIdentifier)).slice(0, REG_SEARCH_PREFETCH_BUDGET);
-                toFetch.forEach(o => regFetchOfficialCard({ id: o.registryIdentifier, fileName: o.fileName, downloadUrl: o.downloadUrl }));
+                let slots = Math.max(0, REG_SEARCH_PREFETCH_BUDGET - regOfficialFetching.size);
+                let toFetch = officialsRaw.filter(o => !regOfficialCardCache.has(o.registryIdentifier) && !regOfficialFetching.has(o.registryIdentifier)).slice(0, slots);
+                toFetch.forEach(o => regFetchOfficialCard(regOfficialEntry(o)));
             }
 
             let numQ = regParseNumericQuery(regState.query);
@@ -4263,7 +4333,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             return regSortById(filtered, regState.sort);
         };
 
-        const regBadgeFor = e => (e.human || e.kind === 'official') ? 'Logged sighting' : e.kind === 'local' ? 'Local Observation' : 'Unlogged sighting';
+        const regBadgeFor = e => e.human ? 'Logged sighting' : e.kind === 'official' ? 'Official Observation' : e.kind === 'local' ? 'Local Observation' : 'Unlogged sighting';
 
         const regCardHtml = e => {
             let title = e.commonName || (e.kind === 'field' ? 'Unlogged sighting' : e.kind === 'official' && e.remote ? 'Official record' : 'Unregistered specimen');
@@ -4287,7 +4357,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             return `
                 <div class="reg-filters${regState.filtersOpen?' on':''}">
                     <div><label>Body plan</label><select class="rf" data-k="bodyPlan"><option value="">Any</option>${REG_BODY_PLANS.map(b=>regOpt(b,f.bodyPlan)).join('')}</select></div>
-                    <div><label>Eyes</label><select class="rf" data-k="eyeCount"><option value="">Any</option>${['0','1','2','3','4'].map(v=>regOpt(v,f.eyeCount)).join('')}</select></div>
+                    <div><label>Eyes</label><select class="rf" data-k="eyeCount"><option value="">Any</option>${['0','1','2','3','4','5+'].map(v=>regOpt(v,f.eyeCount)).join('')}</select></div>
                     <div><label>Tail</label><select class="rf" data-k="tailPresent"><option value="">Any</option>${['Yes','No'].map(v=>regOpt(v,f.tailPresent)).join('')}</select></div>
                     <div><label>Specimen</label><select class="rf" data-k="logged"><option value="">Any</option>${regOpt('yes',f.logged,'Logged only')}${regOpt('no',f.logged,'Unlogged sightings only')}</select></div>
                     ${active ? `<div style="align-self:flex-end;"><span class="reg-drop-btn" id="reg-clear-filters" style="padding:5px 10px;">Clear filters</span></div>` : ''}
@@ -4312,7 +4382,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             <div id="reg-results"></div>
             <div id="reg-show-more-wrap" style="text-align:center; margin-top:10px;"></div>
             <div style="font-size:0.65rem; color:#555; margin-top:14px; text-align:right;">
-                <span id="reg-official-status">${loadOfficialIndexCache() ? 'official registry checked this session' : 'official registry not checked this session'}</span> &middot;
+                <span id="reg-official-status">${escapeHtml(officialAlrStatus)}</span> &middot;
                 <span id="reg-check-official" style="color:#777; cursor:pointer; text-decoration:underline;">check now</span>
             </div>
         `;
@@ -4345,39 +4415,34 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             t.innerHTML = html.trim();
             return t.content.firstElementChild;
         };
-        const regFetchOfficialCard = async e => {
-            if (regOfficialCardCache.has(e.id) || regOfficialFetching.has(e.id)) return;
-            regOfficialFetching.add(e.id);
-            try {
-                let res = await fetch(e.downloadUrl);
-                if (!res.ok) throw new Error('fetch failed');
-                let blob = await res.blob();
-                let parsed = await parseAlrPackage(blob, e.fileName);
-                let reg = (parsed.signature && parsed.signature.registration) || {};
-                if (!parsed.valid) throw new Error('invalid package');
-                regOfficialCardCache.set(e.id, {
-                    commonName: reg.commonName, bodyPlan: reg.bodyPlan,
-                    massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null,
-                    image: parsed.previewUrl, drawingUrl: parsed.drawingUrl
-                });
-            } catch (err) {
-                regOfficialCardCache.set(e.id, { error: true });
-            } finally {
+        const regFetchOfficialCard = e => {
+            if (regOfficialCardCache.has(e.id)) return Promise.resolve(regOfficialCardCache.get(e.id));
+            if (regOfficialFetching.has(e.id)) return regOfficialFetching.get(e.id);
+            let task = (async () => {
+                let result;
+                try {
+                    let url = e.downloadUrl || `https://raw.githubusercontent.com/${GITHUB_OWNER_REPO}/main/alr/${encodeURIComponent(e.fileName)}`;
+                    let res = await fetch(url, { cache: 'no-cache', signal: AbortSignal.timeout(12000) });
+                    if (!res.ok) throw new Error('The observation could not be downloaded (HTTP ' + res.status + ').');
+                    let parsed = await parseAlrPackage(await res.blob(), e.fileName);
+                    if (!parsed.valid) throw new Error(parsed.issues.join(' '));
+                    let reg = parsed.signature.registration;
+                    result = {
+                        ...reg, massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null,
+                        image: parsed.previewUrl, drawingUrl: parsed.drawingUrl, drawingHash: parsed.drawingHash
+                    };
+                } catch (err) {
+                    result = { error: true, message: err.message || 'Could not load this observation.' };
+                }
+                let current = officialAlrEntries().find(o => o.registryIdentifier === e.id);
+                if (current && current.sha === e.sha) regOfficialCardCache.set(e.id, result);
                 regOfficialFetching.delete(e.id);
-            }
-            let key = 'official-' + e.id;
-            let oldCard = regRenderedCards.get(key);
-            if (oldCard && oldCard.isConnected) {
-                let fresh = regOfficialEntry({ registryIdentifier: e.id, fileName: e.fileName, downloadUrl: e.downloadUrl });
-                let newCard = regHtmlToEl(regCardHtml(fresh));
-                newCard.onclick = () => regOpenEntry(fresh);
-                oldCard.replaceWith(newCard);
-                regRenderedCards.set(key, newCard);
-                regBindIdCopyButtons(newCard);
-            } else if (regState.query && regState.view === 'browse') {
-              
-                regRefreshResults();
-            }
+                regRenderedCards.delete('official-' + e.id);
+                if (regState.view === 'browse') regRefreshResults();
+                return result;
+            })();
+            regOfficialFetching.set(e.id, task);
+            return task;
         };
 
         const regRefreshResults = () => {
@@ -4403,10 +4468,15 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 list.forEach(e => {
                     seen.add(e.key);
                     let card = regRenderedCards.get(e.key);
-                    let isNew = !card;
+                    let isNew = !card || !card.isConnected || card.parentElement !== grid;
                     if (isNew) {
                         card = regHtmlToEl(regCardHtml(e));
                         regRenderedCards.set(e.key, card);
+                    }
+                    if (isNew && cursor?.dataset.key === e.key) {
+                        let next = cursor.nextElementSibling;
+                        cursor.remove();
+                        cursor = next;
                     }
                     if (cursor !== card) grid.insertBefore(card, cursor);
                     else cursor = cursor.nextElementSibling;
@@ -4423,15 +4493,15 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     }
                 });
                 Array.from(grid.children).forEach(child => {
-                    if (!seen.has(child.dataset.key)) {
-                        regRenderedCards.delete(child.dataset.key);
+                    if (!seen.has(child.dataset.key) || regRenderedCards.get(child.dataset.key) !== child) {
+                        if (regRenderedCards.get(child.dataset.key) === child) regRenderedCards.delete(child.dataset.key);
                         child.remove();
                     }
                 });
             }
 
             let countEl = qs('#reg-count');
-            if (countEl) countEl.textContent = list.length + ' shown';
+            if (countEl) countEl.textContent = list.length + ' shown' + (regOfficialFetching.size ? ' · loading observations...' : '');
             let moreBtn = qs('#reg-show-more');
             if (moreBtn) {
                 let atCap = regState.fieldBatch.length >= REG_FIELD_CAP;
@@ -4484,9 +4554,9 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 el.textContent = 'checking...';
                 try { await refreshOfficialAlrIndex(); } catch (e) {}
                 let status = body.querySelector('#reg-official-status');
-                if (status) status.textContent = loadOfficialIndexCache() ? 'official registry checked this session' : 'official registry not checked this session';
+                if (status) status.textContent = officialAlrStatus;
                 el.textContent = 'check now';
-                regRefreshResults();
+                if (regState.view === 'browse') regRefreshResults();
             };
             let clearBtn = body.querySelector('#reg-clear-filters');
             if (clearBtn) clearBtn.onclick = () => {
@@ -4512,28 +4582,20 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         };
 
         const regOpenEntry = async e => {
+            let official = e.kind !== 'field' && officialAlrEntries().find(o => o.registryIdentifier === e.id);
+            if (official) e = regOfficialEntry(official);
             if (e.kind === 'official' && e.remote) {
-                regState.selected = { kind: 'official', id: e.id, loading: true };
+                let pending = { kind: 'official', id: e.id, loading: true };
+                regState.selected = pending;
                 regState.view = 'detail';
                 regRenderTabs();
                 regRenderBody();
-                try {
-                    let res = await fetch(e.downloadUrl);
-                    if (!res.ok) throw new Error('fetch failed');
-                    let blob = await res.blob();
-                    let parsed = await parseAlrPackage(blob, e.fileName);
-                    let reg = (parsed.signature && parsed.signature.registration) || {};
-                    regState.selected = {
-                        kind: 'official', id: e.id, commonName: reg.commonName, bodyPlan: reg.bodyPlan,
-                        eyeCount: reg.eyeCount, tailPresent: reg.tailPresent,
-                        massKg: reg.massKg != null && reg.massKg !== '' ? Number(reg.massKg) : null, heightM: reg.heightM,
-                        notableFeatures: reg.notableFeatures, notes: reg.notes, primaryColor: reg.primaryColor,
-                        secondaryColor: reg.secondaryColor, behaviour: reg.behaviour,
-                        image: parsed.previewUrl, drawingUrl: parsed.drawingUrl, editable: false
-                    };
-                } catch (err) {
-                    regState.selected = { kind: 'official', id: e.id, loadError: true };
-                }
+                if (regOfficialCardCache.get(e.id)?.error) regOfficialCardCache.delete(e.id);
+                let record = await regFetchOfficialCard(e);
+                if (regState.selected !== pending || regState.view !== 'detail') return;
+                regState.selected = record.error
+                    ? { kind: 'official', id: e.id, loadError: true, message: record.message }
+                    : { ...record, kind: 'official', id: e.id, editable: false };
                 regRenderBody();
                 return;
             }
@@ -4560,7 +4622,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         const regDetailHtml = e => {
             if (!e) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Nothing selected.</div>`;
             if (e.loading) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Loading...</div>`;
-            if (e.loadError) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">Could not load this observation. Check your connection and try again.</div>`;
+            if (e.loadError) return `<span class="reg-back" id="reg-back">&larr; back to browse</span><div class="reg-empty">${escapeHtml(e.message || 'Could not load this observation. Check your connection and try again.')}</div>`;
             let title = e.commonName || (e.kind === 'field' ? 'Unlogged sighting' : 'Unregistered specimen');
             let img = e.kind === 'field' ? `<canvas id="reg-detail-canvas" width="440" height="440"></canvas>`
                 : (e.drawingUrl || e.image) ? `<img src="${e.drawingUrl || e.image}">`
@@ -4575,10 +4637,14 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 <div id="reg-field-analysis"></div>
             ` : `
                 <div class="reg-row"><span class="l">Body plan</span>${escapeHtml(e.bodyPlan||'?')}</div>
-                <div class="reg-row"><span class="l">Height</span>${e.heightM?e.heightM+'m':'?'}</div>
+                <div class="reg-row"><span class="l">Height</span>${e.heightM?escapeHtml(e.heightM)+'m':'?'}</div>
                 <div class="reg-row"><span class="l">Mass</span>${e.massKg!=null?e.massKg+'kg':'?'}</div>
                 <div class="reg-row"><span class="l">Eyes</span>${escapeHtml(String(e.eyeCount||'?'))}</div>
                 <div class="reg-row"><span class="l">Tail</span>${escapeHtml(e.tailPresent||'?')}</div>
+                <div class="reg-row"><span class="l">Symmetry</span>${escapeHtml(e.symmetry||'?')}</div>
+                <div class="reg-row"><span class="l">Mouth</span>${escapeHtml(e.mouth||'?')}</div>
+                <div class="reg-row"><span class="l">Arms / legs</span>${escapeHtml(e.armCount||'?')} / ${escapeHtml(e.legCount||'?')}</div>
+                <div class="reg-row"><span class="l">Surface</span>${escapeHtml(e.surfaceTexture||'?')}</div>
                 <div class="reg-row"><span class="l">Behaviour</span>${escapeHtml(e.behaviour||'?')}</div>
                 <div class="reg-row"><span class="l">Colours</span>${escapeHtml([e.primaryColor,e.secondaryColor].filter(Boolean).join(' / ')||'?')}</div>
                 ${e.notableFeatures ? `<div class="reg-sec-h">Notable features</div><div class="reg-row">${escapeHtml(e.notableFeatures)}</div>` : ''}
@@ -4602,6 +4668,12 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         const regContributeHtml = () => {
             let locals = localAlrEntries().map(regLocalEntry).filter(e => e.kind === 'local');
             return `
+                <div class="reg-drop" id="reg-import-drop">
+                    Open a saved Observation Package (.alr) to validate it and add it to this device.<br>
+                    <label class="reg-drop-btn" for="reg-import-file">Open .alr package</label>
+                    <input id="reg-import-file" type="file" accept=".alr" hidden>
+                    <div id="reg-import-status" role="status" style="margin-top:8px;"></div>
+                </div>
                 <div style="font-size:0.8rem; color:#ccc; line-height:1.7; margin-bottom:14px;">
                     Observations recorded in Paint stay on this device. Getting one into the shared registry
                     happens on GitHub, not in this app:
@@ -4617,26 +4689,49 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     <div class="reg-log-line" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
                         <span><span class="t reg-id-copy" data-id="${escapeHtml(e.id)}">${escapeHtml(e.id)}</span>${escapeHtml(e.commonName || 'Unregistered specimen')}</span>
                         <span style="display:flex; align-items:center; gap:8px;">
-                            <span class="reg-autocheck" data-check-for="${escapeHtml(e.name)}" style="font-size:0.7rem; color:#666;">checking&hellip;</span>
-                            <span class="reg-drop-btn" style="margin:0; padding:3px 10px;" data-contribute="${escapeHtml(e.name)}">Prepare</span>
+                            <span class="reg-autocheck" data-check-for="${escapeHtml(e.path)}" style="font-size:0.7rem; color:#666;">checking&hellip;</span>
+                            <span class="reg-drop-btn" style="margin:0; padding:3px 10px;" data-contribute="${escapeHtml(e.path)}">Prepare</span>
                         </span>
                     </div>`).join('') : `<div class="reg-empty" style="padding:10px 0;">Nothing recorded yet. Draw a specimen in Paint and save it as an observation.</div>`}
             `;
         };
 
-        const regPrepareSubmission = async name => {
-            let entry = localAlrEntries().find(e => e.name === name);
+        const regImportPackage = async file => {
+            if (!file) return;
+            let status = qs('#reg-import-status');
+            if (status) status.textContent = 'Checking package...';
+            try {
+                let parsed = await parseAlrPackage(file, file.name);
+                if (!parsed.valid) throw new Error(parsed.issues.join(' '));
+                let result = await saveLocalAlrPackage({ ...parsed, blob: file });
+                status = qs('#reg-import-status');
+                if (status) status.textContent = result.unchanged ? 'This observation is already on this device.' : 'Validated and saved to ' + result.path + '.';
+            } catch (e) {
+                status = qs('#reg-import-status');
+                if (status) status.textContent = e.message || 'Could not import this package.';
+            }
+        };
+
+        const regPrepareSubmission = async path => {
+            let entry = localAlrEntries().find(e => e.path === path);
             if (!entry) return;
-            let manifest = entry.node.alrManifest;
-            let regId = manifest.registryIdentifier;
-            let fileName = regId + '.alr';
-            let branchName = 'observation/' + regId;
-            let blob = alrBlobFromNode(entry.node);
-            let parsed = await parseAlrPackage(blob, fileName);
-            if (!parsed.valid) {
-                sysModal('Cannot Prepare This Observation', 'This Observation Package failed validation:<br><br>' + parsed.issues.map(i => '&middot; ' + escapeHtml(i)).join('<br>'));
+            let blob, parsed;
+            try {
+                blob = alrBlobFromNode(entry.node);
+                parsed = await parseAlrPackage(blob, entry.name);
+                if (!parsed.valid) throw new Error(parsed.issues.join(' '));
+                if (navigator.onLine) await refreshOfficialAlrIndex();
+                if (alrIsOfficial(parsed.manifest.registryIdentifier)) throw new Error('This Registry Identifier is already in the official registry. Open its official record before submitting another package.');
+                for (let official of navigator.onLine ? officialAlrEntries() : []) {
+                    let record = await regFetchOfficialCard(regOfficialEntry(official));
+                    if (record.error) throw new Error('Could not check the official registry for duplicate drawings. Please try again after the connection is restored.');
+                    if (record.drawingHash === parsed.drawingHash) throw new Error('This drawing is already filed in the official registry as ' + official.registryIdentifier + '.');
+                }
+            } catch (e) {
+                sysModal('Cannot Prepare This Observation', escapeHtml(e.message || 'This package could not be validated.'));
                 return;
             }
+            let fileName = entry.name;
             let url = URL.createObjectURL(blob);
             triggerDownload(url, fileName);
             setTimeout(() => URL.revokeObjectURL(url), 4000);
@@ -4646,13 +4741,14 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 <div class="sys-modal-box" style="min-width:420px; max-width:480px;">
                     <div style="color:var(--acc); margin-bottom:10px; font-weight:bold;">Prepared for submission</div>
                     <div style="font-size:0.8rem; color:#ccc; line-height:1.6;">
-                        <b>${escapeHtml(fileName)}</b> has been saved to your device. Merging into the registry
-                        happens on GitHub, not here:
+                        <b>${escapeHtml(fileName)}</b> has been downloaded. Keep its filename and contents unchanged.
+                        ${!navigator.onLine ? '<p>You are offline. Check the official registry again before opening a pull request.</p>' : ''}
                         <ol style="margin:10px 0; padding-left:18px; color:#aaa;">
-                            <li>Open the registry repository below.</li>
-                            <li>Create a new branch (a suggested name is filled in already: <span style="color:var(--acc);">${escapeHtml(branchName)}</span>).</li>
-                            <li>Add ${escapeHtml(fileName)} to the <span style="color:var(--acc);">alr/</span> directory on that branch, unchanged, and open it for review.</li>
+                            <li>Fork the registry repository into your GitHub account.</li>
+                            <li>In your fork, open the <span style="color:var(--acc);">alr/</span> folder and upload this file on a new branch.</li>
+                            <li>Open a pull request back to <span style="color:var(--acc);">${GITHUB_OWNER_REPO}</span>, targeting main. Include one package per pull request.</li>
                         </ol>
+                        The observation becomes official after review and merge.
                     </div>
                     <div style="text-align:right; margin-top:15px;">
                         <button class="sys-modal-btn sys-cancel" style="color:#aaa;border-color:#555;">Close</button>
@@ -4662,7 +4758,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
             document.body.appendChild(m);
             m.querySelector('.sys-cancel').onclick = () => m.remove();
             m.querySelector('.sys-ok').onclick = () => {
-                window.open(GITHUB_REGISTRY_REPO + '/tree/main?branch_name=' + encodeURIComponent(branchName), '_blank');
+                window.open(GITHUB_REGISTRY_REPO + '/fork', '_blank', 'noopener');
                 m.remove();
             };
         };
@@ -4672,7 +4768,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
         const regAutoCheckLocals = async (scopeEl) => {
             let entries = localAlrEntries();
             for (let entry of entries) {
-                let badge = () => (scopeEl || document).querySelector(`.reg-autocheck[data-check-for="${CSS.escape(entry.name)}"]`);
+                let badge = () => (scopeEl || document).querySelector(`.reg-autocheck[data-check-for="${CSS.escape(entry.path)}"]`);
                 let b = badge();
                 if (b) { b.textContent = 'checking…'; b.style.color = '#666'; }
                 let result;
@@ -4682,7 +4778,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 } catch (e) {
                     result = { valid: false, issues: ['Unexpected error while validating this package.'] };
                 }
-                regLocalCheckCache.set(entry.name, result);
+                regLocalCheckCache.set(entry.path, result);
                 let liveBadge = badge();
                 if (liveBadge) {
                     if (result.valid) {
@@ -4697,7 +4793,7 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                 }
             }
             let invalid = entries.filter(e => {
-                let r = regLocalCheckCache.get(e.name);
+                let r = regLocalCheckCache.get(e.path);
                 return r && !r.valid;
             });
             return invalid;
@@ -4729,10 +4825,27 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
                     }
                 }
             } else if (regState.view === 'contribute') {
+                let input = body.querySelector('#reg-import-file');
+                input.onchange = () => regImportPackage(input.files[0]);
+                let drop = body.querySelector('#reg-import-drop');
+                drop.ondragover = ev => { ev.preventDefault(); drop.classList.add('drag-over'); };
+                drop.ondragleave = () => drop.classList.remove('drag-over');
+                drop.ondrop = ev => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    drop.classList.remove('drag-over');
+                    regImportPackage(ev.dataTransfer.files[0]);
+                };
                 let openBtn = body.querySelector('#reg-open-github');
                 if (openBtn) openBtn.onclick = () => window.open(GITHUB_REGISTRY_REPO, '_blank');
                 body.querySelectorAll('[data-contribute]').forEach(btn => {
-                    btn.onclick = () => regPrepareSubmission(btn.dataset.contribute);
+                    btn.onclick = async () => {
+                        if (btn.dataset.busy) return;
+                        btn.dataset.busy = '1';
+                        btn.textContent = 'Checking...';
+                        try { await regPrepareSubmission(btn.dataset.contribute); }
+                        finally { delete btn.dataset.busy; btn.textContent = 'Prepare'; }
+                    };
                 });
                 regBindIdCopyButtons(body);
                 regAutoCheckLocals(body);
@@ -4756,26 +4869,24 @@ Per Article II, only sanctioned render-tech qualifies for a registry avatar. Han
 
         const regRenderBody = () => {
             let body = qs('#reg-body');
+            if (!body) return;
             if (regState.view === 'browse') body.innerHTML = regBrowseShellHtml();
             else if (regState.view === 'detail') body.innerHTML = regDetailHtml(regState.selected);
             else if (regState.view === 'contribute') body.innerHTML = regContributeHtml();
             regBindBody();
         };
-        const regHandleLocalAlr = name => {
-            let entry = localAlrEntries().find(e => e.name === name);
-            if (!entry) return;
-            regOpenEntry(regLocalEntry(entry));
-        };
-
         const initAlienRegistry = () => {
             regExpandFieldBatch(9);
             regRenderTabs();
             regRenderBody();
+            refreshOfficialAlrIndex().catch(() => {}).finally(() => {
+                if (regState.view !== 'detail') regRenderBody();
+            });
             regAutoCheckLocals().then(invalid => {
                 if (invalid.length) {
                     sysModal('Local Observation Check',
                         `On startup, ${invalid.length} Local Observation${invalid.length > 1 ? 's' : ''} failed validation and will not submit correctly:<br><br>` +
-                        invalid.map(e => `&middot; <b>${escapeHtml(e.name)}</b>: ${escapeHtml((regLocalCheckCache.get(e.name).issues || []).join(' '))}`).join('<br>') +
+                        invalid.map(e => `&middot; <b>${escapeHtml(e.name)}</b>: ${escapeHtml((regLocalCheckCache.get(e.path).issues || []).join(' '))}`).join('<br>') +
                         `<br><br>Open the Alien Registry app's Contribute tab for details.`);
                 }
             });
